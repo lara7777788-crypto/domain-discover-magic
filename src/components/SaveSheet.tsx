@@ -24,12 +24,25 @@ export function SaveSheet({
   const { isActive: isPro } = useSubscription();
   const { openCheckout, checkoutElement, isOpen: checkoutOpen, closeCheckout } = useStripeCheckout();
 
+  const [credits, setCredits] = useState<number>(0);
+  const [spending, setSpending] = useState(false);
+
   useEffect(() => {
     if (!payload) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [payload, onClose]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("slice_credits")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setCredits((data?.slice_credits as number) ?? 0));
+  }, [user, payload?.sliceId]);
 
   if (!payload) return null;
 
