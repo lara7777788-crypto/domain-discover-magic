@@ -176,7 +176,7 @@ function Splash() {
               background:
                 "radial-gradient(ellipse at center, rgba(120,60,110,0.32) 0%, rgba(120,60,110,0) 70%)",
               filter: "blur(2px)",
-              opacity: exiting === "smash" || exiting === "out" ? 0 : 1,
+              opacity: exiting === "idle" || exiting === "anticipate" ? 1 : 0,
               transition: "opacity 200ms",
             }}
           />
