@@ -242,13 +242,13 @@ function Splash() {
               left: "50%",
               bottom: 4,
               transform: `translateX(-50%) translateY(${
-                exiting === "frame1" ? 0 : exiting === "frame2" || exiting === "out" ? 8 : 30
+                exiting === "frame1" ? 0 : exiting === "tween" ? 4 : exiting === "frame2" || exiting === "out" ? 10 : 30
               }px) scale(${
-                exiting === "frame1" ? 1 : exiting === "frame2" || exiting === "out" ? 1.04 : 0.5
+                exiting === "frame1" ? 1 : exiting === "tween" ? 1.08 : exiting === "frame2" || exiting === "out" ? 1.15 : 0.5
               })`,
               opacity:
-                exiting === "frame1" ? 1 : exiting === "frame2" ? 0.5 : exiting === "out" ? 0 : 0,
-              transition: "transform 240ms cubic-bezier(.7,0,.3,1), opacity 260ms ease-out",
+                exiting === "frame1" ? 1 : exiting === "tween" ? 0.55 : exiting === "frame2" || exiting === "out" ? 0 : 0,
+              transition: "transform 360ms cubic-bezier(.5,0,.3,1), opacity 320ms ease-out",
               transformOrigin: "bottom center",
               pointerEvents: "none",
               filter: "drop-shadow(0 10px 14px rgba(120,60,110,0.28))",
@@ -282,9 +282,9 @@ function Splash() {
               position: "absolute",
               left: "50%",
               bottom: -8,
-              transform: `translateX(-50%) scale(${exiting === "frame2" ? 1 : exiting === "out" ? 1.06 : 0.8})`,
-              opacity: exiting === "frame2" ? 1 : exiting === "out" ? 0 : 0,
-              transition: "transform 320ms cubic-bezier(.2,.8,.2,1), opacity 280ms ease-out",
+              transform: `translateX(-50%) scale(${exiting === "frame2" ? 1 : exiting === "tween" ? 0.92 : exiting === "out" ? 1.08 : 0.7})`,
+              opacity: exiting === "frame2" ? 1 : exiting === "tween" ? 0.55 : exiting === "out" ? 0 : 0,
+              transition: "transform 360ms cubic-bezier(.3,.7,.3,1), opacity 320ms ease-out",
               transformOrigin: "center bottom",
               pointerEvents: "none",
               filter: "drop-shadow(0 6px 10px rgba(120,60,110,0.22))",
@@ -303,10 +303,10 @@ function Splash() {
           </svg>
 
           {/* COLORFUL PARTICLE BURST */}
-          {(exiting === "frame1" || exiting === "frame2" || exiting === "out") && (
+          {(exiting === "frame1" || exiting === "tween" || exiting === "frame2" || exiting === "out") && (
             <div className="absolute left-1/2 pointer-events-none" style={{ bottom: 30, width: 0, height: 0 }}>
               {particles.map((p, i) => {
-                const launched = exiting === "frame2" || exiting === "out";
+                const launched = exiting === "tween" || exiting === "frame2" || exiting === "out";
                 const tx = launched ? p.dx : p.x;
                 const ty = launched ? p.dy : p.y;
                 const delay = (i % 8) * 8;
