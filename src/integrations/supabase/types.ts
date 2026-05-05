@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      layer_chips: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          label: string
+          layer: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          label?: string
+          layer: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          label?: string
+          layer?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
