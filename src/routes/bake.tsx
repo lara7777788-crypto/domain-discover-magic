@@ -4,7 +4,7 @@ import { generate, type GenerateInput } from "../server/generate.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
-import { IcingPanel, defaultIcing, renderIced, type IcingState } from "@/components/IcingPanel";
+import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
 export const Route = createFileRoute("/bake")({
@@ -180,16 +180,7 @@ function BakePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [icing]);
 
-  const onDownload = async () => {
-    if (!result) return;
-    try {
-      const name = (values.wish.trim() || "layercake").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40) || "layercake";
-      const { url, blob } = await renderIced(result.imageDataUrl, icing);
-      setSavePayload({ url, blob, filename: `${name}.png` });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Download failed");
-    }
-  };
+  const onDownload = (payload: SavePayload) => setSavePayload(payload);
 
   const closeSave = () => {
     if (savePayload?.url.startsWith("blob:")) URL.revokeObjectURL(savePayload.url);
@@ -361,6 +352,7 @@ function BakePage() {
                   icing={icing}
                   setIcing={setIcing}
                   onDownload={onDownload}
+                  onDownloadError={setError}
                 />
                 <details className="text-sm">
                   <summary className="cursor-pointer text-foreground/70">See the prompt layer</summary>
