@@ -1,9 +1,14 @@
 import { useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 
 export type SavePayload = {
   url: string;       // object URL or data URL of the final image
   blob?: Blob;       // optional, enables Web Share
   filename: string;
+  sliceId?: string;  // when present, supports per-slice unlock
+  locked?: boolean;  // when true, save is gated until Pro or slice unlock
 };
 
 export function SaveSheet({
@@ -13,6 +18,10 @@ export function SaveSheet({
   payload: SavePayload | null;
   onClose: () => void;
 }) {
+  const { user } = useAuth();
+  const { isActive: isPro } = useSubscription();
+  const { openCheckout, checkoutElement, isOpen: checkoutOpen, closeCheckout } = useStripeCheckout();
+
   useEffect(() => {
     if (!payload) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -21,6 +30,8 @@ export function SaveSheet({
   }, [payload, onClose]);
 
   if (!payload) return null;
+
+  const gated = !!payload.locked && !isPro;
 
   const canShare =
     typeof navigator !== "undefined" &&
