@@ -189,7 +189,11 @@
 .animate-float { animation: float linear infinite; }
 
 @keyframes btnPulse {
-  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.45); }
-  50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 16px 36px -12px rgba(0,0,0,0.5); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1.5px) scale(1.015); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
 }
 
