@@ -61,6 +61,7 @@ function BakePage() {
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
+  const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
 
   // Redirect to login if not authed
   useEffect(() => {
@@ -183,10 +184,16 @@ function BakePage() {
     if (!result) return;
     try {
       const name = (values.wish.trim() || "layercake").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40) || "layercake";
-      await downloadIced(result.imageDataUrl, icing, `${name}.png`);
+      const { url, blob } = await renderIced(result.imageDataUrl, icing);
+      setSavePayload({ url, blob, filename: `${name}.png` });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Download failed");
     }
+  };
+
+  const closeSave = () => {
+    if (savePayload?.url.startsWith("blob:")) URL.revokeObjectURL(savePayload.url);
+    setSavePayload(null);
   };
 
   return (
