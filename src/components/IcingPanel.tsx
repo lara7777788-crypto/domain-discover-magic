@@ -202,7 +202,7 @@ export function IcingPanel({
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-4">
           <div className="text-xs text-foreground/50">
-            Icing menu (soon): animated MP4 · sound stings · effect packs · sticker bundles · ~$0.50 each
+            Icing is free: colors · effect filters · sticker overlays
           </div>
           <button
             onClick={onDownload}
@@ -227,7 +227,31 @@ function triggerAnchorDownload(href: string, filename: string) {
   a.remove();
 }
 
+async function downloadBlob(blob: Blob, filename: string, fallbackWindow: Window | null) {
+  const file = new File([blob], filename, { type: blob.type || "image/png" });
+  const canShare = typeof navigator !== "undefined" && "canShare" in navigator && "share" in navigator;
+
+  if (canShare && navigator.canShare({ files: [file] })) {
+    fallbackWindow?.close();
+    await navigator.share({ files: [file], title: filename });
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  triggerAnchorDownload(url, filename);
+
+  if (fallbackWindow && !fallbackWindow.closed) {
+    fallbackWindow.document.body.innerHTML = `<p style="font:16px system-ui;padding:24px">Your download should start now. If it does not, <a href="${url}" download="${filename}">tap here</a>.</p>`;
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
 export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
+  const fallbackWindow = window.open("", "_blank");
+  if (fallbackWindow) {
+    fallbackWindow.document.write("<p style='font:16px system-ui;padding:24px'>Preparing your Layercake download…</p>");
+  }
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
@@ -265,15 +289,15 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     await new Promise<void>((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (!blob) return reject(new Error("Export failed"));
-        const url = URL.createObjectURL(blob);
-        triggerAnchorDownload(url, filename);
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
-        resolve();
+        downloadBlob(blob, filename, fallbackWindow).then(resolve).catch(reject);
       }, "image/png");
     });
   } catch (err) {
     // Fallback: at least give the user the original image
     console.warn("Iced export failed, falling back to raw download", err);
     triggerAnchorDownload(imageUrl, filename);
+    if (fallbackWindow && !fallbackWindow.closed) {
+      fallbackWindow.document.body.innerHTML = `<p style="font:16px system-ui;padding:24px">If the download did not start, <a href="${imageUrl}" download="${filename}">tap here</a>.</p>`;
+    }
   }
 }
