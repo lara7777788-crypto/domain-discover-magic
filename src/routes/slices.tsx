@@ -53,7 +53,8 @@ function SlicesPage() {
       const { data, error } = await supabase
         .from("designs")
         .select("id, name, preview_url, is_unlocked, updated_at")
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(24);
       if (error) setError(error.message);
       else setSlices(data as Slice[]);
     })();
