@@ -99,16 +99,22 @@ async function handleSubscriptionDeleted(s: any, env: StripeEnv) {
 }
 
 async function handleCheckoutCompleted(session: any) {
-  // One-time slice unlock
   if (session.mode !== "payment") return;
-  const sliceId = session.metadata?.sliceId;
   const userId = session.metadata?.userId;
-  if (!sliceId || !userId) return;
-  await getSupabase()
-    .from("designs")
-    .update({ is_unlocked: true })
-    .eq("id", sliceId)
-    .eq("user_id", userId);
+  const priceId = session.metadata?.priceId;
+  if (!userId) return;
+
+  // 10-pack of slice unlock credits
+  if (priceId === "slice_pack_10") {
+    const supa = getSupabase();
+    const { data: profile } = await supa
+      .from("profiles")
+      .select("slice_credits")
+      .eq("id", userId)
+      .maybeSingle();
+    const current = (profile?.slice_credits as number) ?? 0;
+    await supa.from("profiles").update({ slice_credits: current + 10 }).eq("id", userId);
+  }
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
