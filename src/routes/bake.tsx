@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { generate, type GenerateInput } from "../server/generate.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { ChipRow } from "@/components/ChipRow";
+import { IcingPanel, defaultIcing, downloadIced, type IcingState } from "@/components/IcingPanel";
 
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -57,6 +59,7 @@ function BakePage() {
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [icing, setIcing] = useState<IcingState>(defaultIcing);
 
   // Redirect to login if not authed
   useEffect(() => {
@@ -73,10 +76,11 @@ function BakePage() {
         .eq("id", sliceId)
         .maybeSingle();
       if (data?.data) {
-        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result };
+        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result; icing?: IcingState };
         if (d.values) setValues({ ...emptyValues(), ...d.values });
         if (d.format) setFormat(d.format);
         if (d.result) setResult(d.result);
+        if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
         setSavedId(data.id);
       }
     })();
@@ -108,7 +112,7 @@ function BakePage() {
   };
 
   const persistSlice = async (
-    payload: { values: typeof values; format: typeof format; result: typeof result | null },
+    payload: { values: typeof values; format: typeof format; result: typeof result | null; icing: IcingState },
     name: string,
   ) => {
     if (!user) return;
@@ -155,7 +159,7 @@ function BakePage() {
       goTo(LAYERS.length);
       // Auto-save
       const name = values.wish.trim().slice(0, 60) || "Untitled slice";
-      await persistSlice({ values, format, result: res }, name);
+      await persistSlice({ values, format, result: res, icing }, name);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
@@ -163,7 +167,26 @@ function BakePage() {
     }
   };
 
-  const totalPanels = LAYERS.length + 1; // + result
+  // Debounced autosave for icing edits on already-saved slices with a result
+  useEffect(() => {
+    if (!savedId || !result) return;
+    const t = setTimeout(() => {
+      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
+      persistSlice({ values, format, result, icing }, name);
+    }, 700);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [icing]);
+
+  const onDownload = async () => {
+    if (!result) return;
+    try {
+      const name = (values.wish.trim() || "layercake").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40) || "layercake";
+      await downloadIced(result.imageDataUrl, icing, `${name}.png`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Download failed");
+    }
+  };
 
   return (
     <div className="relative h-screen overflow-hidden">
@@ -243,6 +266,15 @@ function BakePage() {
                 className="mt-8 w-full resize-none rounded-2xl border border-white/60 bg-white/70 p-5 text-base text-foreground placeholder:text-foreground/35 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white"
               />
 
+              {user && (
+                <ChipRow
+                  layer={l.key}
+                  ink={l.ink}
+                  currentValue={values[l.key]}
+                  userId={user.id}
+                  onPick={(content) => setValues((v) => ({ ...v, [l.key]: content }))}
+                />
+              )}
               <div className="mt-6 flex items-center justify-between">
                 <button
                   onClick={() => i > 0 && goTo(i - 1)}
@@ -315,27 +347,19 @@ function BakePage() {
             </div>
 
             {result && (
-              <div className="mt-10 rounded-3xl border border-white bg-white/80 p-4 shadow-[0_30px_60px_-30px_rgba(62,31,112,0.4)] backdrop-blur">
-                <img
-                  src={result.imageDataUrl}
-                  alt="Your generated visual"
-                  className="w-full rounded-2xl"
+              <div className="mt-10 space-y-4">
+                <IcingPanel
+                  imageUrl={result.imageDataUrl}
+                  icing={icing}
+                  setIcing={setIcing}
+                  onDownload={onDownload}
                 />
-                <details className="mt-4 text-sm">
+                <details className="text-sm">
                   <summary className="cursor-pointer text-foreground/70">See the prompt layer</summary>
                   <p className="mt-2 whitespace-pre-wrap rounded-xl bg-foreground/5 p-3 font-mono text-xs text-foreground/80">
                     {result.prompt}
                   </p>
                 </details>
-                <div className="mt-3 flex justify-end">
-                  <a
-                    href={result.imageDataUrl}
-                    download="layercake.png"
-                    className="text-sm font-medium text-foreground/70 underline-offset-4 hover:underline"
-                  >
-                    Download ↓
-                  </a>
-                </div>
               </div>
             )}
           </div>
