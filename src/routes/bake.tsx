@@ -266,6 +266,15 @@ function BakePage() {
                 className="mt-8 w-full resize-none rounded-2xl border border-white/60 bg-white/70 p-5 text-base text-foreground placeholder:text-foreground/35 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white"
               />
 
+              {user && (
+                <ChipRow
+                  layer={l.key}
+                  ink={l.ink}
+                  currentValue={values[l.key]}
+                  userId={user.id}
+                  onPick={(content) => setValues((v) => ({ ...v, [l.key]: content }))}
+                />
+              )}
               <div className="mt-6 flex items-center justify-between">
                 <button
                   onClick={() => i > 0 && goTo(i - 1)}
