@@ -27,7 +27,7 @@ function Splash() {
   const [built, setBuilt] = useState(0); // count of pieces placed
   const [impact, setImpact] = useState<number>(-1); // band index of current impact
   const [hover, setHover] = useState(false);
-  const [exiting, setExiting] = useState<"idle" | "anticipate" | "frame1" | "frame2" | "out">("idle");
+  const [exiting, setExiting] = useState<"idle" | "anticipate" | "frame1" | "tween" | "frame2" | "out">("idle");
 
   useEffect(() => {
     const start = 280;
@@ -67,12 +67,13 @@ function Splash() {
   }, []);
 
   const handleEnter = () => {
-    if (exiting !== "idle") return;
+    if (exiting !== "idle" || !fullyBuilt) return;
     setExiting("anticipate");
     window.setTimeout(() => setExiting("frame1"), 140);
-    window.setTimeout(() => setExiting("frame2"), 380);
-    window.setTimeout(() => setExiting("out"), 760);
-    window.setTimeout(() => navigate({ to: "/bake" }), 980);
+    window.setTimeout(() => setExiting("tween"), 360);
+    window.setTimeout(() => setExiting("frame2"), 540);
+    window.setTimeout(() => setExiting("out"), 880);
+    window.setTimeout(() => navigate({ to: "/bake" }), 1080);
   };
 
   const fullyBuilt = built >= BUILD_SEQUENCE.length;
