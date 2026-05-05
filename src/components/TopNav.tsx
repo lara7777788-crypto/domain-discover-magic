@@ -49,10 +49,11 @@ export function TopNav() {
             </Link>
             <Link
               to="/login"
-            className="rounded-full bg-foreground px-4 py-1.5 font-medium text-white transition hover:-translate-y-0.5"
-          >
-            Sign in
-          </Link>
+              className="rounded-full bg-foreground px-4 py-1.5 font-medium text-white transition hover:-translate-y-0.5"
+            >
+              Sign in
+            </Link>
+          </>
         )}
       </nav>
     </header>
