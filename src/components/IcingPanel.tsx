@@ -99,9 +99,20 @@ export function IcingPanel({
   const handleDownloadClick = () => {
     try {
       const payload = renderIcedFromStage(stageRef.current, icing);
-      // Always route through the save/approve screen so the final PNG is
-      // visible and savable in any browser (preview iframes, iOS, etc.)
-      onDownload(payload);
+      if (needsSaveScreen()) {
+        // Mobile/iOS: show full-screen save sheet with the final PNG
+        onDownload(payload);
+        return;
+      }
+      // Desktop: trigger a real download synchronously inside the click
+      const a = document.createElement("a");
+      a.href = payload.url;
+      a.download = payload.filename;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(payload.url), 1500);
     } catch (e) {
       onDownloadError?.(e instanceof Error ? e.message : "Download failed");
     }
