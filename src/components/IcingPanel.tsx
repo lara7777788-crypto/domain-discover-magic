@@ -3,32 +3,40 @@ import { useRef, useState } from "react";
 type Sticker = { id: string; emoji: string; x: number; y: number; size: number };
 
 const EFFECTS = [
-  { key: "none",     label: "None",        css: "" },
-  { key: "bw",       label: "B&W",         css: "grayscale(1)" },
-  { key: "sepia",    label: "Sepia",       css: "sepia(0.85)" },
-  { key: "neon",     label: "Neon",        css: "saturate(2) contrast(1.2) brightness(1.05)" },
-  { key: "vhs",      label: "VHS",         css: "hue-rotate(-12deg) saturate(1.4) contrast(1.15)" },
-  { key: "riso",     label: "Riso",        css: "contrast(1.3) saturate(1.5) hue-rotate(8deg)" },
-  { key: "holo",     label: "Holographic", css: "hue-rotate(40deg) saturate(1.8) brightness(1.05)" },
-  { key: "noir",     label: "Noir",        css: "grayscale(1) contrast(1.4) brightness(0.9)" },
+  { key: "none", label: "None", css: "" },
+  { key: "bw", label: "B&W", css: "grayscale(1)" },
+  { key: "sepia", label: "Sepia", css: "sepia(0.85)" },
+  { key: "neon", label: "Neon", css: "saturate(2) contrast(1.2) brightness(1.05)" },
+  { key: "vhs", label: "VHS", css: "hue-rotate(-12deg) saturate(1.4) contrast(1.15)" },
+  { key: "riso", label: "Riso", css: "contrast(1.3) saturate(1.5) hue-rotate(8deg)" },
+  { key: "holo", label: "Holographic", css: "hue-rotate(40deg) saturate(1.8) brightness(1.05)" },
+  { key: "noir", label: "Noir", css: "grayscale(1) contrast(1.4) brightness(0.9)" },
 ] as const;
 
 const STICKER_PACKS = [
   { name: "Confetti", emojis: ["🎉", "🎊", "✨", "🎈"] },
-  { name: "Hearts",   emojis: ["💖", "💗", "💕", "❤️"] },
-  { name: "Stars",    emojis: ["⭐", "🌟", "✨", "💫"] },
-  { name: "Sweet",    emojis: ["🍰", "🧁", "🍩", "🍓"] },
-  { name: "Vibe",     emojis: ["🔥", "💨", "💎", "👑"] },
+  { name: "Hearts", emojis: ["💖", "💗", "💕", "❤️"] },
+  { name: "Stars", emojis: ["⭐", "🌟", "✨", "💫"] },
+  { name: "Sweet", emojis: ["🍰", "🧁", "🍩", "🍓"] },
+  { name: "Vibe", emojis: ["🔥", "💨", "💎", "👑"] },
 ];
 
 export type IcingState = {
-  hue: number; sat: number; bright: number; contrast: number;
-  effect: typeof EFFECTS[number]["key"];
+  hue: number;
+  sat: number;
+  bright: number;
+  contrast: number;
+  effect: (typeof EFFECTS)[number]["key"];
   stickers: Sticker[];
 };
 
 export const defaultIcing: IcingState = {
-  hue: 0, sat: 100, bright: 100, contrast: 100, effect: "none", stickers: [],
+  hue: 0,
+  sat: 100,
+  bright: 100,
+  contrast: 100,
+  effect: "none",
+  stickers: [],
 };
 
 function buildFilter(s: IcingState) {
@@ -57,10 +65,7 @@ export function IcingPanel({
   const addSticker = (emoji: string) => {
     setIcing({
       ...icing,
-      stickers: [
-        ...icing.stickers,
-        { id: crypto.randomUUID(), emoji, x: 50, y: 50, size: 64 },
-      ],
+      stickers: [...icing.stickers, { id: crypto.randomUUID(), emoji, x: 50, y: 50, size: 64 }],
     });
     setPickerOpen(false);
   };
@@ -84,11 +89,15 @@ export function IcingPanel({
     setIcing({
       ...icing,
       stickers: icing.stickers.map((s) =>
-        s.id === dragging.current!.id ? { ...s, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) } : s,
+        s.id === dragging.current!.id
+          ? { ...s, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) }
+          : s,
       ),
     });
   };
-  const onPointerUp = () => { dragging.current = null; };
+  const onPointerUp = () => {
+    dragging.current = null;
+  };
 
   const removeSticker = (id: string) =>
     setIcing({ ...icing, stickers: icing.stickers.filter((s) => s.id !== id) });
@@ -102,7 +111,13 @@ export function IcingPanel({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
-        <img src={imageUrl} alt="Your slice" className="w-full select-none" style={{ filter }} draggable={false} />
+        <img
+          src={imageUrl}
+          alt="Your slice"
+          className="w-full select-none"
+          style={{ filter }}
+          draggable={false}
+        />
         {icing.stickers.map((s) => (
           <div
             key={s.id}
@@ -110,7 +125,13 @@ export function IcingPanel({
             onDoubleClick={() => removeSticker(s.id)}
             title="Drag to move · double-click to remove"
             className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none select-none active:cursor-grabbing"
-            style={{ left: `${s.x}%`, top: `${s.y}%`, fontSize: s.size, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))" }}
+            style={{
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              fontSize: s.size,
+              lineHeight: 1,
+              filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))",
+            }}
           >
             {s.emoji}
           </div>
@@ -120,20 +141,31 @@ export function IcingPanel({
       {/* Controls */}
       <div className="mt-4 space-y-4">
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">Change the colors</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">
+            Change the colors
+          </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {([
-              ["Hue",        "hue",      -180, 180, "°"],
-              ["Saturation", "sat",      0,    200, "%"],
-              ["Brightness", "bright",   50,   150, "%"],
-              ["Contrast",   "contrast", 50,   150, "%"],
-            ] as const).map(([label, key, min, max, unit]) => (
+            {(
+              [
+                ["Hue", "hue", -180, 180, "°"],
+                ["Saturation", "sat", 0, 200, "%"],
+                ["Brightness", "bright", 50, 150, "%"],
+                ["Contrast", "contrast", 50, 150, "%"],
+              ] as const
+            ).map(([label, key, min, max, unit]) => (
               <label key={key} className="block text-xs text-foreground/70">
                 <div className="mb-1 flex justify-between">
-                  <span>{label}</span><span className="opacity-60">{icing[key]}{unit}</span>
+                  <span>{label}</span>
+                  <span className="opacity-60">
+                    {icing[key]}
+                    {unit}
+                  </span>
                 </div>
                 <input
-                  type="range" min={min} max={max} value={icing[key]}
+                  type="range"
+                  min={min}
+                  max={max}
+                  value={icing[key]}
                   onChange={(e) => setIcing({ ...icing, [key]: Number(e.target.value) })}
                   className="w-full accent-foreground"
                 />
@@ -149,7 +181,9 @@ export function IcingPanel({
         </div>
 
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">Effect filters · icing</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">
+            Effect filters · icing
+          </p>
           <div className="flex flex-wrap gap-2">
             {EFFECTS.map((e) => (
               <button
@@ -168,7 +202,9 @@ export function IcingPanel({
         </div>
 
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">Sticker pack overlays · icing</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60">
+            Sticker pack overlays · icing
+          </p>
           <button
             onClick={() => setPickerOpen((v) => !v)}
             className="rounded-full bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-foreground/10"
@@ -179,7 +215,9 @@ export function IcingPanel({
             <div className="mt-3 space-y-2 rounded-2xl border border-foreground/10 bg-white p-3">
               {STICKER_PACKS.map((p) => (
                 <div key={p.name}>
-                  <div className="mb-1 text-[10px] uppercase tracking-[0.2em] text-foreground/50">{p.name}</div>
+                  <div className="mb-1 text-[10px] uppercase tracking-[0.2em] text-foreground/50">
+                    {p.name}
+                  </div>
                   <div className="flex flex-wrap gap-1">
                     {p.emojis.map((e) => (
                       <button
@@ -196,13 +234,15 @@ export function IcingPanel({
             </div>
           )}
           {icing.stickers.length > 0 && (
-            <p className="mt-2 text-[11px] text-foreground/50">Drag to move · double-click to remove</p>
+            <p className="mt-2 text-[11px] text-foreground/50">
+              Drag to move · double-click to remove
+            </p>
           )}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-4">
           <div className="text-xs text-foreground/50">
-            Icing menu (soon): animated MP4 · sound stings · effect packs · sticker bundles · ~$0.50 each
+            Icing is free: colors · effect filters · sticker overlays
           </div>
           <button
             onClick={onDownload}
@@ -227,7 +267,34 @@ function triggerAnchorDownload(href: string, filename: string) {
   a.remove();
 }
 
+async function downloadBlob(blob: Blob, filename: string, fallbackWindow: Window | null) {
+  const file = new File([blob], filename, { type: blob.type || "image/png" });
+  const canShare =
+    typeof navigator !== "undefined" && "canShare" in navigator && "share" in navigator;
+
+  if (canShare && navigator.canShare({ files: [file] })) {
+    fallbackWindow?.close();
+    await navigator.share({ files: [file], title: filename });
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  triggerAnchorDownload(url, filename);
+
+  if (fallbackWindow && !fallbackWindow.closed) {
+    fallbackWindow.document.body.innerHTML = `<p style="font:16px system-ui;padding:24px">Your download should start now. If it does not, <a href="${url}" download="${filename}">tap here</a>.</p>`;
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
 export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
+  const fallbackWindow = window.open("", "_blank");
+  if (fallbackWindow) {
+    fallbackWindow.document.write(
+      "<p style='font:16px system-ui;padding:24px'>Preparing your Layercake download…</p>",
+    );
+  }
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
@@ -248,32 +315,32 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     ctx.drawImage(img, 0, 0, w, h);
     ctx.filter = "none";
 
-  // Stickers — emoji as text. Position is % of stage; size in CSS px on a stage matching natural width.
-  for (const s of icing.stickers) {
-    const x = (s.x / 100) * w;
-    const y = (s.y / 100) * h;
-    const px = (s.size / 1024) * w; // scale relative to a 1024 stage assumption
-    ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0,0,0,0.25)";
-    ctx.shadowBlur = px * 0.15;
-    ctx.shadowOffsetY = px * 0.06;
-    ctx.fillText(s.emoji, x, y);
-  }
+    // Stickers — emoji as text. Position is % of stage; size in CSS px on a stage matching natural width.
+    for (const s of icing.stickers) {
+      const x = (s.x / 100) * w;
+      const y = (s.y / 100) * h;
+      const px = (s.size / 1024) * w; // scale relative to a 1024 stage assumption
+      ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0,0,0,0.25)";
+      ctx.shadowBlur = px * 0.15;
+      ctx.shadowOffsetY = px * 0.06;
+      ctx.fillText(s.emoji, x, y);
+    }
 
     await new Promise<void>((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (!blob) return reject(new Error("Export failed"));
-        const url = URL.createObjectURL(blob);
-        triggerAnchorDownload(url, filename);
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
-        resolve();
+        downloadBlob(blob, filename, fallbackWindow).then(resolve).catch(reject);
       }, "image/png");
     });
   } catch (err) {
     // Fallback: at least give the user the original image
     console.warn("Iced export failed, falling back to raw download", err);
     triggerAnchorDownload(imageUrl, filename);
+    if (fallbackWindow && !fallbackWindow.closed) {
+      fallbackWindow.document.body.innerHTML = `<p style="font:16px system-ui;padding:24px">If the download did not start, <a href="${imageUrl}" download="${filename}">tap here</a>.</p>`;
+    }
   }
 }
