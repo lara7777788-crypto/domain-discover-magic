@@ -36,7 +36,7 @@ const LAYERS: LayerDef[] = [
   { key: "visual", name: "Visual", tagline: "Choose a mood.",         hint: "Editorial · Playful · Hand-drawn · Cinematic",           bg: "#FFE6CF", ink: "#7A4A1F" },
   { key: "text",   name: "Text",   tagline: "What words live on it?", hint: "A title, a tagline, or nothing at all.",                 bg: "#FFF6BE", ink: "#6E5A0E" },
   { key: "layout", name: "Layout", tagline: "Where the eye lands.",   hint: "Centered · Off-axis · Grid · Generous space",            bg: "#D9F1D2", ink: "#1F5A2A" },
-  { key: "logo",   name: "Logo",   tagline: "A signature, optional.", hint: "Drop a mark, monogram, or wordmark.",                    bg: "#D4E8FF", ink: "#1A3D6E" },
+  { key: "logo",   name: "Brand",  tagline: "Anything that's yours.",  hint: "Product · logo · packaging · vibe shot · photo — describe or drop it in.", bg: "#D4E8FF", ink: "#1A3D6E" },
 ];
 
 const FORMATS: { key: GenerateInput["format"]; label: string; desc: string }[] = [
