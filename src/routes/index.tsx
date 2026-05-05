@@ -45,13 +45,34 @@ function Splash() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
+  // Lots of colorful crumb/spray particles
+  const particles = useMemo(() => {
+    const COLORS = ["#FF6FA3", "#FFB76A", "#FFE070", "#7CC8FF", "#9BE3A4", "#C9A8FF", "#FFFFFF"];
+    const arr: { x: number; y: number; dx: number; dy: number; r: number; rot: number; color: string; shape: "rect" | "circle" }[] = [];
+    for (let i = 0; i < 80; i++) {
+      const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.4;
+      const dist = 80 + Math.random() * 220;
+      arr.push({
+        x: (Math.random() - 0.5) * 60,
+        y: (Math.random() - 0.5) * 20,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist,
+        r: 4 + Math.random() * 9,
+        rot: Math.random() * 360,
+        color: COLORS[i % COLORS.length],
+        shape: Math.random() > 0.55 ? "rect" : "circle",
+      });
+    }
+    return arr;
+  }, []);
+
   const handleEnter = () => {
     if (exiting !== "idle") return;
     setExiting("anticipate");
     window.setTimeout(() => setExiting("frame1"), 140);
-    window.setTimeout(() => setExiting("frame2"), 360);
-    window.setTimeout(() => setExiting("out"), 720);
-    window.setTimeout(() => navigate({ to: "/bake" }), 920);
+    window.setTimeout(() => setExiting("frame2"), 380);
+    window.setTimeout(() => setExiting("out"), 760);
+    window.setTimeout(() => navigate({ to: "/bake" }), 980);
   };
 
   const fullyBuilt = built >= BUILD_SEQUENCE.length;
