@@ -99,11 +99,9 @@ export function IcingPanel({
   const handleDownloadClick = () => {
     try {
       const payload = renderIcedFromStage(stageRef.current, icing);
-      if (needsSaveScreen()) {
-        onDownload(payload);
-        return;
-      }
-      downloadBlobFromClick(payload.blob, payload.filename);
+      // Always route through the save/approve screen so the final PNG is
+      // visible and savable in any browser (preview iframes, iOS, etc.)
+      onDownload(payload);
     } catch (e) {
       onDownloadError?.(e instanceof Error ? e.message : "Download failed");
     }
