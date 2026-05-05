@@ -46,39 +46,35 @@ export function SaveSheet({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 px-4 py-8 backdrop-blur-sm"
-      onClick={onClose}
+      className="fixed inset-0 z-50 overflow-y-auto bg-[#FFFDF8] px-4 py-5 text-foreground"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white bg-white/95 p-5 shadow-[0_30px_60px_-20px_rgba(62,31,112,0.5)] backdrop-blur"
-      >
+      <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/60 hover:bg-foreground/10"
+          className="ml-auto rounded-full bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/60 hover:bg-foreground/10"
         >
-          ✕
+          Close ✕
         </button>
 
         <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-foreground/60">
-          Save your slice
+          Save Image
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold text-foreground">
           Take it home 🎂
         </h2>
 
-        <div className="mt-4 overflow-hidden rounded-2xl bg-foreground/5">
+        <p className="mt-3 text-sm text-foreground/65">
+          Press and hold the image, then tap Save to Photos.
+        </p>
+
+        <div className="mt-5 overflow-hidden rounded-2xl bg-foreground/5">
           <img
             src={payload.url}
             alt={payload.filename}
             className="block w-full select-none"
           />
         </div>
-
-        <p className="mt-3 text-xs text-foreground/60">
-          On phone? <span className="font-medium text-foreground/80">Press &amp; hold</span> the image, then tap <em>Save to Photos</em>. On desktop, hit the button below.
-        </p>
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
           {canShare && (
