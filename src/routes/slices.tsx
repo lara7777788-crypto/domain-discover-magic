@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
+import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
 export const Route = createFileRoute("/slices")({
   head: () => ({
@@ -27,6 +28,20 @@ function SlicesPage() {
   const navigate = useNavigate();
   const [slices, setSlices] = useState<Slice[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
+
+  const openSave = (s: Slice) => {
+    if (!s.preview_url) {
+      setError("This slice has no preview yet — open it in Bake to render one.");
+      return;
+    }
+    setSavePayload({
+      url: s.preview_url,
+      filename: `${(s.name || "layercake-slice").replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.png`,
+    });
+  };
+
+  const closeSave = () => setSavePayload(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/login" });
@@ -125,6 +140,12 @@ function SlicesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <button
+                      onClick={() => openSave(s)}
+                      className="text-xs font-medium text-foreground/70 hover:text-foreground"
+                    >
+                      Save
+                    </button>
+                    <button
                       onClick={() => remix(s.id)}
                       className="text-xs font-medium text-foreground/70 hover:text-foreground"
                     >
@@ -144,6 +165,7 @@ function SlicesPage() {
           </div>
         )}
       </section>
+      <SaveSheet payload={savePayload} onClose={closeSave} />
     </main>
   );
 }
