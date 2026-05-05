@@ -9,44 +9,16 @@ SET client_min_messages = warning;
 BEGIN;
 
 -- ---------------------------------------------------------------------------
--- Fixtures: one admin user (existing founder) + one non-admin test user.
+-- Fixtures: synthesized non-admin profiles. The admin user is the founder
+-- account (lara7777788@gmail.com) seeded by the admin-role migration.
+-- We avoid touching auth.users because that schema requires elevated rights.
 -- ---------------------------------------------------------------------------
-DO $$
-DECLARE
-  v_admin uuid;
-BEGIN
-  SELECT id INTO v_admin FROM auth.users WHERE lower(email) = 'lara7777788@gmail.com';
-  IF v_admin IS NULL THEN
-    RAISE EXCEPTION 'fixture missing: admin user lara7777788@gmail.com not found';
-  END IF;
-  PERFORM set_config('test.admin_id', v_admin::text, true);
-END $$;
+\set admin_id '''6c07d4ea-2d9e-4b18-888d-3e8aace7fbdb'''
 
--- Non-admin: synthesize a profile + auth.users row inside the txn (rolled back).
-INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
-VALUES (
-  '11111111-1111-1111-1111-111111111111',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated', 'authenticated',
-  'rls-test-nonadmin@example.test',
-  '', now(), now(), now()
-);
 INSERT INTO public.profiles (id, email, display_name, slice_credits)
-VALUES ('11111111-1111-1111-1111-111111111111', 'rls-test-nonadmin@example.test', 'rls test', 3);
+VALUES ('11111111-1111-1111-1111-111111111111', 'rls-test-nonadmin@example.test', 'rls test', 3),
+       ('22222222-2222-2222-2222-222222222222', 'rls-test-other@example.test',    'rls other', 5);
 
--- A second non-admin to test cross-user isolation.
-INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
-VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated', 'authenticated',
-  'rls-test-other@example.test',
-  '', now(), now(), now()
-);
-INSERT INTO public.profiles (id, email, display_name, slice_credits)
-VALUES ('22222222-2222-2222-2222-222222222222', 'rls-test-other@example.test', 'rls other', 5);
-
--- A coupon + redemption owned by the "other" user, so the non-admin can try to read them.
 INSERT INTO public.coupons (code, slices, max_uses, active)
 VALUES ('RLS-TEST-COUPON', 7, 100, true);
 
