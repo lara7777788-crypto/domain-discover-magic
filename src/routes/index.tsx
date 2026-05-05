@@ -69,11 +69,11 @@ function Splash() {
   const handleEnter = () => {
     if (exiting !== "idle" || !fullyBuilt) return;
     setExiting("anticipate");
-    window.setTimeout(() => setExiting("frame1"), 140);
-    window.setTimeout(() => setExiting("tween"), 360);
-    window.setTimeout(() => setExiting("frame2"), 540);
-    window.setTimeout(() => setExiting("out"), 880);
-    window.setTimeout(() => navigate({ to: "/bake" }), 1080);
+    window.setTimeout(() => setExiting("frame1"), 130);
+    window.setTimeout(() => setExiting("tween"), 330);
+    window.setTimeout(() => setExiting("frame2"), 440);
+    window.setTimeout(() => setExiting("out"), 780);
+    window.setTimeout(() => navigate({ to: "/bake" }), 980);
   };
 
   const fullyBuilt = built >= BUILD_SEQUENCE.length;
@@ -248,7 +248,7 @@ function Splash() {
               })`,
               opacity:
                 exiting === "frame1" ? 1 : exiting === "tween" ? 0.55 : exiting === "frame2" || exiting === "out" ? 0 : 0,
-              transition: "transform 360ms cubic-bezier(.5,0,.3,1), opacity 320ms ease-out",
+              transition: "transform 200ms cubic-bezier(.7,0,.3,1), opacity 180ms ease-out",
               transformOrigin: "bottom center",
               pointerEvents: "none",
               filter: "drop-shadow(0 10px 14px rgba(120,60,110,0.28))",
@@ -284,7 +284,7 @@ function Splash() {
               bottom: -8,
               transform: `translateX(-50%) scale(${exiting === "frame2" ? 1 : exiting === "tween" ? 0.92 : exiting === "out" ? 1.08 : 0.7})`,
               opacity: exiting === "frame2" ? 1 : exiting === "tween" ? 0.55 : exiting === "out" ? 0 : 0,
-              transition: "transform 360ms cubic-bezier(.3,.7,.3,1), opacity 320ms ease-out",
+              transition: "transform 220ms cubic-bezier(.3,.7,.3,1), opacity 180ms ease-out",
               transformOrigin: "center bottom",
               pointerEvents: "none",
               filter: "drop-shadow(0 6px 10px rgba(120,60,110,0.22))",
