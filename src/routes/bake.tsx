@@ -167,7 +167,26 @@ function BakePage() {
     }
   };
 
-  const totalPanels = LAYERS.length + 1; // + result
+  // Debounced autosave for icing edits on already-saved slices with a result
+  useEffect(() => {
+    if (!savedId || !result) return;
+    const t = setTimeout(() => {
+      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
+      persistSlice({ values, format, result, icing }, name);
+    }, 700);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [icing]);
+
+  const onDownload = async () => {
+    if (!result) return;
+    try {
+      const name = (values.wish.trim() || "layercake").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40) || "layercake";
+      await downloadIced(result.imageDataUrl, icing, `${name}.png`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Download failed");
+    }
+  };
 
   return (
     <div className="relative h-screen overflow-hidden">
