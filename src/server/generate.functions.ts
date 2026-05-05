@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   wish: z.string().min(1).max(500),
@@ -52,6 +53,7 @@ Rules:
 // --- Server function ------------------------------------------------------
 
 export const generate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }): Promise<GenerateResult> => {
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -72,7 +74,8 @@ export const generate = createServerFn({ method: "POST" })
 
     if (!briefRes.ok) {
       const t = await briefRes.text();
-      throw new Error(`Prompt layer failed (${briefRes.status}): ${t.slice(0, 200)}`);
+      console.error("[generate] Prompt layer failed", briefRes.status, t);
+      throw new Error("Image generation failed. Please try again.");
     }
 
     const briefJson = await briefRes.json();
@@ -92,7 +95,8 @@ export const generate = createServerFn({ method: "POST" })
 
     if (!imgRes.ok) {
       const t = await imgRes.text();
-      throw new Error(`Image layer failed (${imgRes.status}): ${t.slice(0, 200)}`);
+      console.error("[generate] Image layer failed", imgRes.status, t);
+      throw new Error("Image generation failed. Please try again.");
     }
 
     const imgJson = await imgRes.json();
