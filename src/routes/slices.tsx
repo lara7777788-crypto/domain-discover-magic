@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
+import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
 export const Route = createFileRoute("/slices")({
   head: () => ({
