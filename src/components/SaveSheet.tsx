@@ -42,38 +42,52 @@ export function SaveSheet({
     }
   };
 
-  const onDownload = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    // Direct, synchronous user-click download — no fetch, no async.
-    const a = document.createElement("a");
-    a.href = payload.url; // already a blob: or data: URL from the generator
-    a.download = "bake-a-cake.png";
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    // Mobile Safari/popup blockers reject delayed window.open(), so reserve
-    // the fallback tab during the real user click, then navigate it only if
-    // the download was silently ignored.
-    const fallbackWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (fallbackWindow) {
-      fallbackWindow.document.title = "Press and hold or right-click to save";
-      fallbackWindow.document.body.style.margin = "0";
-      fallbackWindow.document.body.style.background = "#FFFDF8";
-      fallbackWindow.document.body.innerHTML = `<p style="font: 14px system-ui; padding: 16px; color: #3E1F70;">Press and hold or right-click to save.</p>`;
+  const openImageInNewTab = () => {
+    const w = window.open("", "_blank", "noopener,noreferrer");
+    if (!w) {
+      // Popup blocked — navigate current tab as last resort.
+      window.location.href = payload.url;
+      return;
+    }
+    w.document.title = "Save Image";
+    w.document.body.style.margin = "0";
+    w.document.body.style.background = "#FFFDF8";
+    w.document.body.style.fontFamily = "system-ui, -apple-system, sans-serif";
+    w.document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;color:#3E1F70;">
+        <p style="font-size:14px;margin:0;text-align:center;line-height:1.5;">
+          <strong>Desktop:</strong> right-click and Save Image.<br/>
+          <strong>iPhone:</strong> press and hold, then Save to Photos.
+        </p>
+        <img src="${payload.url}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
+      </div>
+    `;
+  };
+
+  const onSaveImage = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    if (isMobile) {
+      openImageInNewTab();
+      return;
     }
 
-    const start = Date.now();
-    window.setTimeout(() => {
-      if (document.hasFocus() && Date.now() - start >= 1000) {
-        if (fallbackWindow) {
-          fallbackWindow.location.href = payload.url;
-        }
-      } else {
-        fallbackWindow?.close();
-      }
-    }, 1000);
+    // Desktop: try a direct, synchronous user-click download.
+    try {
+      const a = document.createElement("a");
+      a.href = payload.url;
+      a.download = "patisserie-image.png";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch {
+      openImageInNewTab();
+    }
   };
 
   return (
@@ -129,11 +143,11 @@ export function SaveSheet({
           </a>
           <a
             href={payload.url}
-            download={payload.filename}
-            onClick={onDownload}
+            download="patisserie-image.png"
+            onClick={onSaveImage}
             className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
           >
-            Download ↓
+            Save Image ↓
           </a>
         </div>
 
