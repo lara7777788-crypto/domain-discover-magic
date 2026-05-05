@@ -75,19 +75,19 @@ export function SaveSheet({
       window.location.href = imgUrl;
       return;
     }
-    w.document.title = "Save Image";
-    w.document.body.style.margin = "0";
-    w.document.body.style.background = "#FFFDF8";
-    w.document.body.style.fontFamily = "system-ui, -apple-system, sans-serif";
-    w.document.body.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;color:#3E1F70;">
-        <p style="font-size:14px;margin:0;text-align:center;line-height:1.5;">
-          Press and hold the image, then Save to Photos.<br/>
-          <span style="opacity:.7">(Desktop: right-click and Save Image.)</span>
-        </p>
-        <img src="${imgUrl}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
-      </div>
-    `;
+    w.document.write(`
+      <html><head><title>Save Image</title></head>
+      <body style="margin:0;background:#FFFDF8;font-family:system-ui,-apple-system,sans-serif;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;color:#3E1F70;">
+          <p style="font-size:14px;margin:0;text-align:center;line-height:1.5;">
+            Press and hold the image, then Save to Photos.<br/>
+            <span style="opacity:.7">(Desktop: right-click and Save Image.)</span>
+          </p>
+          <img src="${imgUrl}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
+        </div>
+      </body></html>
+    `);
+    w.document.close();
   };
 
   const onSaveImage = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -164,8 +164,14 @@ export function SaveSheet({
           )}
           <a
             href={payload.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              const blobUrl = resolveBlobUrl();
+              openImageInNewTab(blobUrl);
+              if (blobUrl !== payload.url) {
+                window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+              }
+            }}
             className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
           >
             Open in new tab ↗
