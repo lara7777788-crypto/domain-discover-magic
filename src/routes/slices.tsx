@@ -50,6 +50,19 @@ function SlicesPage() {
     setSlices((s) => s?.filter((x) => x.id !== id) ?? null);
   };
 
+  const remix = async (id: string) => {
+    if (!user) return;
+    const { data: src } = await supabase.from("designs").select("name, data").eq("id", id).maybeSingle();
+    if (!src) return;
+    const { data: copy, error } = await supabase
+      .from("designs")
+      .insert({ user_id: user.id, name: `${src.name} (remix)`, data: src.data, preview_url: null })
+      .select("id")
+      .single();
+    if (error || !copy) return;
+    navigate({ to: "/bake", search: { slice: copy.id } });
+  };
+
   return (
     <main
       className="relative min-h-screen"
