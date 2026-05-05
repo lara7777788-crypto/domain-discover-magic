@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { supabase } from "@/integrations/supabase/client";
+import { spendSliceCredit } from "@/server/credits.functions";
 
 export type SavePayload = {
   url: string;       // object URL or data URL of the final image
@@ -22,12 +24,25 @@ export function SaveSheet({
   const { isActive: isPro } = useSubscription();
   const { openCheckout, checkoutElement, isOpen: checkoutOpen, closeCheckout } = useStripeCheckout();
 
+  const [credits, setCredits] = useState<number>(0);
+  const [spending, setSpending] = useState(false);
+
   useEffect(() => {
     if (!payload) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [payload, onClose]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("slice_credits")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setCredits((data?.slice_credits as number) ?? 0));
+  }, [user, payload?.sliceId]);
 
   if (!payload) return null;
 
@@ -173,21 +188,40 @@ export function SaveSheet({
               >
                 Go Pro — $12/mo
               </a>
-              <button
-                onClick={() => {
-                  if (!user || !payload.sliceId) return;
-                  openCheckout({
-                    priceId: "slice_unlock_one",
-                    userId: user.id,
-                    sliceId: payload.sliceId,
-                    customerEmail: user.email ?? undefined,
-                    returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
-                  });
-                }}
-                className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-              >
-                Unlock this slice — $3
-              </button>
+              {credits > 0 ? (
+                <button
+                  disabled={spending}
+                  onClick={async () => {
+                    if (!payload.sliceId) return;
+                    setSpending(true);
+                    try {
+                      const res = await spendSliceCredit({ data: { sliceId: payload.sliceId } });
+                      setCredits(res.remaining);
+                      window.location.reload();
+                    } finally {
+                      setSpending(false);
+                    }
+                  }}
+                  className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-50"
+                >
+                  {spending ? "Unlocking…" : `Use 1 credit (${credits} left)`}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (!user) return;
+                    openCheckout({
+                      priceId: "slice_pack_10",
+                      userId: user.id,
+                      customerEmail: user.email ?? undefined,
+                      returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+                    });
+                  }}
+                  className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
+                >
+                  Get 10 unlocks — $3
+                </button>
+              )}
             </>
           ) : (
             <>

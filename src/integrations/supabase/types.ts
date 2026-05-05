@@ -85,6 +85,7 @@ export type Database = {
           id: string
           is_pro: boolean
           pro_until: string | null
+          slice_credits: number
           updated_at: string
         }
         Insert: {
@@ -94,6 +95,7 @@ export type Database = {
           id: string
           is_pro?: boolean
           pro_until?: string | null
+          slice_credits?: number
           updated_at?: string
         }
         Update: {
@@ -103,6 +105,7 @@ export type Database = {
           id?: string
           is_pro?: boolean
           pro_until?: string | null
+          slice_credits?: number
           updated_at?: string
         }
         Relationships: []
