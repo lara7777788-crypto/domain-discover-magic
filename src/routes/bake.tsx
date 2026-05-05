@@ -159,7 +159,7 @@ function BakePage() {
       goTo(LAYERS.length);
       // Auto-save
       const name = values.wish.trim().slice(0, 60) || "Untitled slice";
-      await persistSlice({ values, format, result: res }, name);
+      await persistSlice({ values, format, result: res, icing }, name);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
