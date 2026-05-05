@@ -42,22 +42,32 @@ export function SaveSheet({
     }
   };
 
-  const onDownload = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const onDownload = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    try {
-      const blob: Blob = payload.blob ?? await fetch(payload.url).then((res) => res.blob());
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = payload.filename;
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    } catch {
-      window.open(payload.url, "_blank", "noopener,noreferrer");
-    }
+    // Direct, synchronous user-click download — no fetch, no async.
+    const a = document.createElement("a");
+    a.href = payload.url; // already a blob: or data: URL from the generator
+    a.download = payload.filename;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // Fallback: if the browser silently blocked the download (sandboxed
+    // iframe / Safari), open the image in a new tab so the user can save it.
+    const start = Date.now();
+    window.setTimeout(() => {
+      if (document.hasFocus() && Date.now() - start >= 1000) {
+        const w = window.open(payload.url, "_blank", "noopener,noreferrer");
+        if (w) {
+          try {
+            w.document.title = "Press and hold or right-click to save";
+          } catch {
+            /* cross-origin, ignore */
+          }
+        }
+      }
+    }, 1000);
   };
 
   return (
