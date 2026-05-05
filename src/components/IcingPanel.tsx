@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 type Sticker = { id: string; emoji: string; x: number; y: number; size: number };
 
