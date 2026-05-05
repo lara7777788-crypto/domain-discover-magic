@@ -48,7 +48,30 @@ Rules:
 - Keep it under 90 words.
 - Always describe: subject, style, lighting, color palette, composition, and intended format.
 - If the user mentioned text, include it verbatim in quotes.
-- Never invent a brand name.`;
+- Never invent a brand name.
+
+CONTENT SAFETY (non-negotiable):
+- Refuse anything sexual, pornographic, nude, or suggestive — including implied nudity, lingerie, fetish, or minors in any context.
+- Refuse hate speech, racism, slurs, or content demeaning a protected group.
+- Refuse content that incites, glorifies, or instructs violence, self-harm, terrorism, or any crime.
+- Refuse gore, cruelty toward people or animals, or real public figures in defamatory/sexual/violent contexts.
+- If the brief violates ANY of the above, output exactly: BLOCKED (single word, uppercase, nothing else). Do not negotiate or soften.`;
+
+const BANNED_PATTERNS: RegExp[] = [
+  /\b(nude|naked|nsfw|porn|porno|pornographic|sexy|sexual|erotic|erotica|hentai|xxx|fetish|bdsm|lingerie|topless|upskirt|blowjob|orgasm|orgy|genital|genitalia|vagina|penis|anal|nipples?|tits|boobs|pussy|cock|dick)\b/i,
+  /\b(child|children|kid|kids|minor|minors|teen|teens|underage|loli|shota)\b[\s\S]{0,40}\b(sex|sexual|nude|naked|porn|erotic)\b/i,
+  /\b(sex|sexual|nude|naked|porn|erotic)\b[\s\S]{0,40}\b(child|children|kid|kids|minor|minors|teen|teens|underage|loli|shota)\b/i,
+  /\b(nigger|nigga|kike|chink|spic|faggot|tranny|retard|raghead)\b/i,
+  /\b(white|black|jewish|muslim|asian|arab|hispanic)\s+(supremac|genocide|are\s+(inferior|subhuman))/i,
+  /\b(kill|gas|lynch|exterminate|deport)\s+(all\s+)?(jews|blacks|whites|muslims|gays|immigrants|asians)\b/i,
+  /\b(behead|beheading|decapitat|massacre|school\s+shoot|mass\s+shoot|terror\s*attack|bomb\s+(making|recipe|tutorial)|how\s+to\s+(make|build)\s+a?\s*(bomb|explosive|gun))\b/i,
+  /\b(suicide\s+(method|tutorial|how)|self[-\s]?harm\s+(method|tutorial|how)|kill\s+myself)\b/i,
+];
+
+const isBlockedInput = (i: GenerateInput): boolean => {
+  const blob = [i.wish, i.visual, i.text, i.layout, i.logo].filter(Boolean).join(" ");
+  return BANNED_PATTERNS.some((re) => re.test(blob));
+};
 
 // --- Server function ------------------------------------------------------
 
@@ -58,6 +81,12 @@ export const generate = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<GenerateResult> => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
+
+    if (isBlockedInput(data)) {
+      throw new Error(
+        "This request can't be generated. Layercake doesn't allow sexual, hateful, violent, or illegal content.",
+      );
+    }
 
     // 1. Prompt layer — rewrite the wish into a real image prompt
     const briefRes = await fetch(GATEWAY, {
@@ -81,6 +110,12 @@ export const generate = createServerFn({ method: "POST" })
     const briefJson = await briefRes.json();
     const prompt: string =
       briefJson.choices?.[0]?.message?.content?.trim() ?? composeBriefPrompt(data);
+
+    if (/^BLOCKED\b/i.test(prompt)) {
+      throw new Error(
+        "This request can't be generated. Layercake doesn't allow sexual, hateful, violent, or illegal content.",
+      );
+    }
 
     // 2. Image layer — generate image from rewritten prompt
     const imgRes = await fetch(GATEWAY, {
