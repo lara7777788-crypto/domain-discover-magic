@@ -140,6 +140,12 @@ function SlicesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <button
+                      onClick={() => openSave(s)}
+                      className="text-xs font-medium text-foreground/70 hover:text-foreground"
+                    >
+                      Save
+                    </button>
+                    <button
                       onClick={() => remix(s.id)}
                       className="text-xs font-medium text-foreground/70 hover:text-foreground"
                     >
