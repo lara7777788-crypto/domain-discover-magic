@@ -112,7 +112,7 @@ function BakePage() {
   };
 
   const persistSlice = async (
-    payload: { values: typeof values; format: typeof format; result: typeof result | null },
+    payload: { values: typeof values; format: typeof format; result: typeof result | null; icing: IcingState },
     name: string,
   ) => {
     if (!user) return;
