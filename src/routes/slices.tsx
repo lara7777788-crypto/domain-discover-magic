@@ -123,13 +123,21 @@ function SlicesPage() {
                       {s.is_unlocked ? "Unlocked" : "Preview"}
                     </div>
                   </div>
-                  <button
-                    onClick={() => remove(s.id)}
-                    className="text-xs text-foreground/40 hover:text-red-600"
-                    aria-label="Delete"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => remix(s.id)}
+                      className="text-xs font-medium text-foreground/70 hover:text-foreground"
+                    >
+                      Remix
+                    </button>
+                    <button
+                      onClick={() => remove(s.id)}
+                      className="text-xs text-foreground/40 hover:text-red-600"
+                      aria-label="Delete"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
