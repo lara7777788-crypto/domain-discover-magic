@@ -80,6 +80,17 @@ function Splash() {
 
   const fullyBuilt = built >= BUILD_SEQUENCE.length;
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || e.repeat) return;
+      if (exitingLock.current || exiting !== "idle" || !fullyBuilt) return;
+      e.preventDefault();
+      handleEnter();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [exiting, fullyBuilt]);
+
   return (
     <main className="relative min-h-screen overflow-hidden">
       <div
