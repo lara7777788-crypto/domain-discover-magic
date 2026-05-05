@@ -270,14 +270,11 @@ function openRawFallback(imageUrl: string, filename: string, fallbackWindow: Win
   if (!paintFallbackWindow(fallbackWindow, imageUrl, filename)) window.open(imageUrl, "_blank", "noopener");
 }
 
-export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
-  const fallbackWindow = needsOpenFallback() ? window.open("about:blank", "_blank") : null;
-  if (fallbackWindow) {
-    fallbackWindow.document.body.style.margin = "0";
-    fallbackWindow.document.body.style.padding = "24px";
-    fallbackWindow.document.body.style.font = "600 16px system-ui";
-    fallbackWindow.document.body.textContent = "Preparing your image…";
-  }
+/** Render the iced image and return a blob + object URL for an in-app save screen. */
+export async function renderIced(
+  imageUrl: string,
+  icing: IcingState,
+): Promise<{ url: string; blob: Blob }> {
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
