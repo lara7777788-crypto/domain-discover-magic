@@ -91,18 +91,17 @@ export const generate = createServerFn({ method: "POST" })
       );
     }
 
-    // Per-user quota: free daily allowance, then spend a slice credit
-    const { error: quotaErr } = await supabaseAdmin.rpc("consume_generation_quota", {
+    // Every generation spends one slice credit. No free daily quota.
+    const { error: spendErr } = await supabaseAdmin.rpc("spend_generation_credit", {
       p_user_id: context.userId,
-      p_daily_free: DAILY_FREE_GENERATIONS,
     });
-    if (quotaErr) {
-      if ((quotaErr.message || "").includes("quota_exhausted")) {
+    if (spendErr) {
+      if ((spendErr.message || "").includes("no_credits")) {
         throw new Error(
-          `You've used your ${DAILY_FREE_GENERATIONS} free generations for today. Add slice credits to keep going.`,
+          "You're out of slices. Subscribe or buy a pack to keep generating.",
         );
       }
-      throw quotaErr;
+      throw spendErr;
     }
 
     // 1. Prompt layer — rewrite the wish into a real image prompt
