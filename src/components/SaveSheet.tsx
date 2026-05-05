@@ -42,6 +42,24 @@ export function SaveSheet({
     }
   };
 
+  const onDownload = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    try {
+      const blob: Blob = payload.blob ?? await fetch(payload.url).then((res) => res.blob());
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = payload.filename;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {
+      window.open(payload.url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div
       role="dialog"
@@ -88,6 +106,7 @@ export function SaveSheet({
           <a
             href={payload.url}
             download={payload.filename}
+            onClick={onDownload}
             className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
           >
             Download ↓
