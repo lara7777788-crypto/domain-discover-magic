@@ -9,9 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SlicesRouteImport } from './routes/slices'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SlicesRoute = SlicesRouteImport.update({
+  id: '/slices',
+  path: '/slices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BakeRoute = BakeRouteImport.update({
   id: '/bake',
   path: '/bake',
@@ -26,31 +38,53 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
+  '/login': typeof LoginRoute
+  '/slices': typeof SlicesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
+  '/login': typeof LoginRoute
+  '/slices': typeof SlicesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
+  '/login': typeof LoginRoute
+  '/slices': typeof SlicesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bake'
+  fullPaths: '/' | '/bake' | '/login' | '/slices'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bake'
-  id: '__root__' | '/' | '/bake'
+  to: '/' | '/bake' | '/login' | '/slices'
+  id: '__root__' | '/' | '/bake' | '/login' | '/slices'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BakeRoute: typeof BakeRoute
+  LoginRoute: typeof LoginRoute
+  SlicesRoute: typeof SlicesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/slices': {
+      id: '/slices'
+      path: '/slices'
+      fullPath: '/slices'
+      preLoaderRoute: typeof SlicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bake': {
       id: '/bake'
       path: '/bake'
@@ -71,6 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BakeRoute: BakeRoute,
+  LoginRoute: LoginRoute,
+  SlicesRoute: SlicesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

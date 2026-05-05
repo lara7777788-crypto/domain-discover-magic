@@ -1,8 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { generate, type GenerateInput } from "../server/generate.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/bake")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    slice: typeof s.slice === "string" ? s.slice : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Bake — Layercake" },
@@ -41,12 +46,41 @@ const emptyValues = (): Record<LayerKey, string> =>
   LAYERS.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
 
 function BakePage() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const { slice: sliceId } = Route.useSearch();
   const [active, setActive] = useState(0);
   const [values, setValues] = useState<Record<LayerKey, string>>(emptyValues);
   const [format, setFormat] = useState<GenerateInput["format"]>("social");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ prompt: string; imageDataUrl: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Redirect to login if not authed
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/login" });
+  }, [authLoading, user, navigate]);
+
+  // Load existing slice if ?slice=ID
+  useEffect(() => {
+    if (!user || !sliceId) return;
+    (async () => {
+      const { data } = await supabase
+        .from("designs")
+        .select("id, data")
+        .eq("id", sliceId)
+        .maybeSingle();
+      if (data?.data) {
+        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result };
+        if (d.values) setValues({ ...emptyValues(), ...d.values });
+        if (d.format) setFormat(d.format);
+        if (d.result) setResult(d.result);
+        setSavedId(data.id);
+      }
+    })();
+  }, [user, sliceId]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -73,6 +107,39 @@ function BakePage() {
     }
   };
 
+  const persistSlice = async (
+    payload: { values: typeof values; format: typeof format; result: typeof result | null },
+    name: string,
+  ) => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      if (savedId) {
+        await supabase
+          .from("designs")
+          .update({ data: payload, name, preview_url: payload.result?.imageDataUrl ?? null })
+          .eq("id", savedId);
+      } else {
+        const { data, error } = await supabase
+          .from("designs")
+          .insert({
+            user_id: user.id,
+            name,
+            data: payload,
+            preview_url: payload.result?.imageDataUrl ?? null,
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (data) setSavedId(data.id);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't save your slice.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const onBake = async () => {
     if (!values.wish.trim()) {
       setError("Add a wish first — it's the base of the cake.");
@@ -85,7 +152,10 @@ function BakePage() {
     try {
       const res = await generate({ data: { ...values, format } });
       setResult(res);
-      goTo(LAYERS.length); // scroll to result panel
+      goTo(LAYERS.length);
+      // Auto-save
+      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
+      await persistSlice({ values, format, result: res }, name);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
@@ -102,8 +172,16 @@ function BakePage() {
         <Link to="/" className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground">
           ← layercake
         </Link>
-        <div className="pointer-events-auto rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
-          {active < LAYERS.length ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}` : "Your slice"}
+        <div className="pointer-events-auto flex items-center gap-3">
+          <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
+            {saving ? "Saving…" : active < LAYERS.length ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}` : "Your slice"}
+          </div>
+          <Link
+            to="/slices"
+            className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+          >
+            My slices
+          </Link>
         </div>
       </header>
 
