@@ -54,14 +54,14 @@ function AboutPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-8">
         <header className="mb-10 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
-            About
+            🎂 The Recipe Card
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold text-foreground md:text-5xl">
             A small bakery for big ideas.
           </h1>
           <p className="mt-4 text-base text-foreground/70">
-            Layercake is an art and design studio in software form — built to
-            help anyone turn a wish into a finished image.
+            The sugar, the vinegar, and everything that goes into Layercake —
+            who made it, how to use it, and how to find us.
           </p>
         </header>
 
