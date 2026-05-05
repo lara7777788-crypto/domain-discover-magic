@@ -4,7 +4,8 @@ import { generate, type GenerateInput } from "../server/generate.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
-import { IcingPanel, defaultIcing, downloadIced, type IcingState } from "@/components/IcingPanel";
+import { IcingPanel, defaultIcing, renderIced, type IcingState } from "@/components/IcingPanel";
+import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
