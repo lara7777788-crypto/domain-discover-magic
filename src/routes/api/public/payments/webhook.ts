@@ -104,21 +104,31 @@ async function handleCheckoutCompleted(session: any) {
   const priceId = session.metadata?.priceId;
   if (!userId) return;
 
-  // 10-pack of slice unlock credits
+  // 10-pack of slice unlock credits — atomic increment
   if (priceId === "slice_pack_10") {
-    const supa = getSupabase();
-    const { data: profile } = await supa
-      .from("profiles")
-      .select("slice_credits")
-      .eq("id", userId)
-      .maybeSingle();
-    const current = (profile?.slice_credits as number) ?? 0;
-    await supa.from("profiles").update({ slice_credits: current + 10 }).eq("id", userId);
+    await getSupabase().rpc("grant_slice_credits", {
+      p_user_id: userId,
+      p_amount: 10,
+    });
   }
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
+
+  // Idempotency: skip if event already processed
+  const eventId = (event as any).id as string | undefined;
+  if (eventId) {
+    const { error: dedupeErr } = await getSupabase()
+      .from("processed_webhook_events")
+      .insert({ stripe_event_id: eventId });
+    if (dedupeErr) {
+      // Unique violation = already processed; any error here means skip processing
+      console.log("Webhook event already processed or insert failed:", eventId, dedupeErr.message);
+      return;
+    }
+  }
+
   switch (event.type) {
     case "customer.subscription.created":
       await handleSubscriptionCreated(event.data.object, env);

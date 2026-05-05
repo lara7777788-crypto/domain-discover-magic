@@ -4,6 +4,33 @@ import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
 type Env = StripeEnv;
 
+const ALLOWED_RETURN_HOSTS = [
+  "layercake.site",
+  "www.layercake.site",
+  "domain-discover-magic.lovable.app",
+];
+
+function validateReturnUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("Invalid returnUrl");
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    throw new Error("Invalid returnUrl");
+  }
+  const host = parsed.hostname;
+  const ok =
+    ALLOWED_RETURN_HOSTS.includes(host) ||
+    host.endsWith(".lovable.app") ||
+    host === "localhost" ||
+    host === "127.0.0.1";
+  if (!ok) throw new Error("Invalid returnUrl");
+  return parsed.toString();
+}
+
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
@@ -16,7 +43,9 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       environment: Env;
     }) => {
       if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid priceId");
-      return data;
+      const safe = validateReturnUrl(data.returnUrl);
+      if (!safe) throw new Error("returnUrl required");
+      return { ...data, returnUrl: safe };
     },
   )
   .handler(async ({ data, context }) => {
@@ -52,7 +81,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { returnUrl?: string; environment: Env }) => data)
+  .inputValidator((data: { returnUrl?: string; environment: Env }) => {
+    if (data.environment !== "sandbox" && data.environment !== "live") {
+      throw new Error("Invalid environment");
+    }
+    return { ...data, returnUrl: validateReturnUrl(data.returnUrl) };
+  })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: sub } = await supabase

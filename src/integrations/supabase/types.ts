@@ -148,6 +148,21 @@ export type Database = {
         }
         Relationships: []
       }
+      processed_webhook_events: {
+        Row: {
+          processed_at: string
+          stripe_event_id: string
+        }
+        Insert: {
+          processed_at?: string
+          stripe_event_id: string
+        }
+        Update: {
+          processed_at?: string
+          stripe_event_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -235,9 +250,17 @@ export type Database = {
     }
     Functions: {
       current_user_is_pro: { Args: { check_env?: string }; Returns: boolean }
+      grant_slice_credits: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: number
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
+      }
+      spend_slice_credit: {
+        Args: { p_slice_id: string; p_user_id: string }
+        Returns: number
       }
     }
     Enums: {
