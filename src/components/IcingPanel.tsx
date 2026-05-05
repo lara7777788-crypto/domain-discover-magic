@@ -99,20 +99,10 @@ export function IcingPanel({
   const handleDownloadClick = () => {
     try {
       const payload = renderIcedFromStage(stageRef.current, icing);
-      if (needsSaveScreen()) {
-        // Mobile/iOS: show full-screen save sheet with the final PNG
-        onDownload(payload);
-        return;
-      }
-      // Desktop: trigger a real download synchronously inside the click
-      const a = document.createElement("a");
-      a.href = payload.url;
-      a.download = payload.filename;
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(payload.url), 1500);
+      // Always open the Save screen — works in preview iframe, desktop, and mobile.
+      // The Save screen has a real <img> (drag/right-click/long-press save)
+      // and a Download button that works on the published site.
+      onDownload(payload);
     } catch (e) {
       onDownloadError?.(e instanceof Error ? e.message : "Download failed");
     }
