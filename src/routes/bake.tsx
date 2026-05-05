@@ -32,7 +32,7 @@ const LAYERS: Layer[] = [
 function BakePage() {
   const [active, setActive] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     const root = containerRef.current;
