@@ -14,65 +14,23 @@ export const redeemCoupon = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
 
-    const { data: coupon, error: cErr } = await supabaseAdmin
-      .from("coupons")
-      .select("id, code, slices, max_uses, uses_count, expires_at, active")
-      .eq("code", data.code)
-      .maybeSingle();
-    if (cErr) throw cErr;
-    if (!coupon || !coupon.active) throw new Error("Coupon not found");
-    if (coupon.expires_at && new Date(coupon.expires_at as string) < new Date()) {
-      throw new Error("Coupon expired");
-    }
-    if (
-      coupon.max_uses != null &&
-      (coupon.uses_count as number) >= (coupon.max_uses as number)
-    ) {
-      throw new Error("Coupon fully redeemed");
+    const { data: result, error } = await supabaseAdmin.rpc("redeem_coupon_atomic", {
+      p_user_id: userId,
+      p_code: data.code,
+    });
+
+    if (error) {
+      const msg = error.message || "";
+      if (msg.includes("coupon_not_found")) throw new Error("Coupon not found");
+      if (msg.includes("coupon_expired")) throw new Error("Coupon expired");
+      if (msg.includes("coupon_exhausted")) throw new Error("Coupon fully redeemed");
+      if (msg.includes("already_redeemed")) throw new Error("You've already used this code");
+      throw error;
     }
 
-    const { data: existing } = await supabaseAdmin
-      .from("coupon_redemptions")
-      .select("id")
-      .eq("coupon_id", coupon.id)
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (existing) throw new Error("You've already used this code");
-
-    const { error: rErr } = await supabaseAdmin
-      .from("coupon_redemptions")
-      .insert({
-        coupon_id: coupon.id,
-        user_id: userId,
-        slices_granted: coupon.slices,
-      });
-    if (rErr) {
-      if ((rErr as { code?: string }).code === "23505") {
-        throw new Error("You've already used this code");
-      }
-      throw rErr;
-    }
-
-    const { data: profile, error: pErr } = await supabaseAdmin
-      .from("profiles")
-      .select("slice_credits")
-      .eq("id", userId)
-      .maybeSingle();
-    if (pErr) throw pErr;
-
-    const current = (profile?.slice_credits as number) ?? 0;
-    const next = current + (coupon.slices as number);
-
-    const { error: uErr } = await supabaseAdmin
-      .from("profiles")
-      .update({ slice_credits: next })
-      .eq("id", userId);
-    if (uErr) throw uErr;
-
-    await supabaseAdmin
-      .from("coupons")
-      .update({ uses_count: (coupon.uses_count as number) + 1 })
-      .eq("id", coupon.id);
-
-    return { granted: coupon.slices as number, balance: next };
+    const row = Array.isArray(result) ? result[0] : result;
+    return {
+      granted: (row?.granted as number) ?? 0,
+      balance: (row?.balance as number) ?? 0,
+    };
   });
