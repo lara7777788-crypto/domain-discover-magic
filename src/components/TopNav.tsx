@@ -15,6 +15,12 @@ export function TopNav() {
         {!loading && user ? (
           <>
             <Link
+              to="/pricing"
+              className="rounded-full px-4 py-1.5 text-foreground/70 transition hover:bg-white/60 hover:text-foreground"
+            >
+              Pro
+            </Link>
+            <Link
               to="/slices"
               className="rounded-full px-4 py-1.5 text-foreground/70 transition hover:bg-white/60 hover:text-foreground"
             >

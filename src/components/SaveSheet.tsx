@@ -1,9 +1,14 @@
 import { useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 
 export type SavePayload = {
   url: string;       // object URL or data URL of the final image
   blob?: Blob;       // optional, enables Web Share
   filename: string;
+  sliceId?: string;  // when present, supports per-slice unlock
+  locked?: boolean;  // when true, save is gated until Pro or slice unlock
 };
 
 export function SaveSheet({
@@ -13,6 +18,10 @@ export function SaveSheet({
   payload: SavePayload | null;
   onClose: () => void;
 }) {
+  const { user } = useAuth();
+  const { isActive: isPro } = useSubscription();
+  const { openCheckout, checkoutElement, isOpen: checkoutOpen, closeCheckout } = useStripeCheckout();
+
   useEffect(() => {
     if (!payload) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -21,6 +30,8 @@ export function SaveSheet({
   }, [payload, onClose]);
 
   if (!payload) return null;
+
+  const gated = !!payload.locked && !isPro;
 
   const canShare =
     typeof navigator !== "undefined" &&
@@ -154,42 +165,88 @@ export function SaveSheet({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-          {canShare && (
-            <button
-              onClick={onShare}
-              className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
-            >
-              Share / Save…
-            </button>
+          {gated ? (
+            <>
+              <a
+                href="/pricing"
+                className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
+              >
+                Go Pro — $12/mo
+              </a>
+              <button
+                onClick={() => {
+                  if (!user || !payload.sliceId) return;
+                  openCheckout({
+                    priceId: "slice_unlock_one",
+                    userId: user.id,
+                    sliceId: payload.sliceId,
+                    customerEmail: user.email ?? undefined,
+                    returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+                  });
+                }}
+                className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
+              >
+                Unlock this slice — $3
+              </button>
+            </>
+          ) : (
+            <>
+              {canShare && (
+                <button
+                  onClick={onShare}
+                  className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
+                >
+                  Share / Save…
+                </button>
+              )}
+              <a
+                href={payload.url}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const blobUrl = resolveBlobUrl();
+                  openImageInNewTab(blobUrl);
+                  if (blobUrl !== payload.url) {
+                    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+                  }
+                }}
+                className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
+              >
+                Open in new tab ↗
+              </a>
+              <a
+                href={payload.url}
+                download="patisserie-image.png"
+                onClick={onSaveImage}
+                className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
+              >
+                Save Image ↓
+              </a>
+            </>
           )}
-          <a
-            href={payload.url}
-            onClick={(e) => {
-              e.preventDefault();
-              const blobUrl = resolveBlobUrl();
-              openImageInNewTab(blobUrl);
-              if (blobUrl !== payload.url) {
-                window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-              }
-            }}
-            className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
-          >
-            Open in new tab ↗
-          </a>
-          <a
-            href={payload.url}
-            download="patisserie-image.png"
-            onClick={onSaveImage}
-            className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-          >
-            Save Image ↓
-          </a>
         </div>
 
         <p className="mt-3 text-[11px] text-foreground/45">
           Filename: {payload.filename}
         </p>
       </div>
+
+      {checkoutOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[60] overflow-y-auto bg-[#FFFDF8] px-4 py-5"
+        >
+          <div className="mx-auto flex w-full max-w-3xl flex-col">
+            <button
+              onClick={closeCheckout}
+              className="ml-auto rounded-full bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/60 hover:bg-foreground/10"
+            >
+              Close ✕
+            </button>
+            <div className="mt-4">{checkoutElement}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
