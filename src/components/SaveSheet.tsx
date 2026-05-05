@@ -186,7 +186,7 @@ export function SaveSheet({
                 href="/pricing"
                 className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
               >
-                Go Pro — $12/mo
+                Go Pro — $20/mo
               </a>
               {credits > 0 ? (
                 <button
