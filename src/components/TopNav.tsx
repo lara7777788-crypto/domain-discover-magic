@@ -40,12 +40,20 @@ export function TopNav() {
             </button>
           </>
         ) : (
-          <Link
-            to="/login"
-            className="rounded-full bg-foreground px-4 py-1.5 font-medium text-white transition hover:-translate-y-0.5"
-          >
-            Sign in
-          </Link>
+          <>
+            <Link
+              to="/about"
+              className="rounded-full px-4 py-1.5 text-foreground/70 transition hover:bg-white/60 hover:text-foreground"
+            >
+              About
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-full bg-foreground px-4 py-1.5 font-medium text-white transition hover:-translate-y-0.5"
+            >
+              Sign in
+            </Link>
+          </>
         )}
       </nav>
     </header>
