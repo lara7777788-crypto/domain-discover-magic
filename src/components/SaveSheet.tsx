@@ -46,11 +46,33 @@ export function SaveSheet({
     typeof navigator !== "undefined" &&
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  const openImageInNewTab = () => {
+  const dataUrlToBlob = (dataUrl: string): Blob | null => {
+    try {
+      const [header, base64] = dataUrl.split(",");
+      const mimeMatch = header.match(/data:([^;]+)/);
+      const mime = mimeMatch ? mimeMatch[1] : "image/png";
+      const binary = atob(base64);
+      const len = binary.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    } catch {
+      return null;
+    }
+  };
+
+  const resolveBlobUrl = (): string => {
+    if (payload.url.startsWith("data:")) {
+      const blob = payload.blob ?? dataUrlToBlob(payload.url);
+      if (blob) return URL.createObjectURL(blob);
+    }
+    return payload.url;
+  };
+
+  const openImageInNewTab = (imgUrl: string) => {
     const w = window.open("", "_blank", "noopener,noreferrer");
     if (!w) {
-      // Popup blocked — navigate current tab as last resort.
-      window.location.href = payload.url;
+      window.location.href = imgUrl;
       return;
     }
     w.document.title = "Save Image";
@@ -60,33 +82,40 @@ export function SaveSheet({
     w.document.body.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;color:#3E1F70;">
         <p style="font-size:14px;margin:0;text-align:center;line-height:1.5;">
-          <strong>Desktop:</strong> right-click and Save Image.<br/>
-          <strong>iPhone:</strong> press and hold, then Save to Photos.
+          Press and hold the image, then Save to Photos.<br/>
+          <span style="opacity:.7">(Desktop: right-click and Save Image.)</span>
         </p>
-        <img src="${payload.url}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
+        <img src="${imgUrl}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
       </div>
     `;
   };
 
   const onSaveImage = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    const blobUrl = resolveBlobUrl();
 
     if (isMobile) {
-      openImageInNewTab();
+      openImageInNewTab(blobUrl);
+      if (blobUrl !== payload.url) {
+        window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      }
       return;
     }
 
-    // Desktop: try a direct, synchronous user-click download.
     try {
       const a = document.createElement("a");
-      a.href = payload.url;
+      a.href = blobUrl;
       a.download = "patisserie-image.png";
       a.rel = "noopener";
       document.body.appendChild(a);
       a.click();
       a.remove();
     } catch {
-      openImageInNewTab();
+      openImageInNewTab(blobUrl);
+    }
+
+    if (blobUrl !== payload.url) {
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
     }
   };
 
