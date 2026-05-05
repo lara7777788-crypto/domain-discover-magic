@@ -107,6 +107,39 @@ function BakePage() {
     }
   };
 
+  const persistSlice = async (
+    payload: { values: typeof values; format: typeof format; result: typeof result | null },
+    name: string,
+  ) => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      if (savedId) {
+        await supabase
+          .from("designs")
+          .update({ data: payload, name, preview_url: payload.result?.imageDataUrl ?? null })
+          .eq("id", savedId);
+      } else {
+        const { data, error } = await supabase
+          .from("designs")
+          .insert({
+            user_id: user.id,
+            name,
+            data: payload,
+            preview_url: payload.result?.imageDataUrl ?? null,
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (data) setSavedId(data.id);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't save your slice.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const onBake = async () => {
     if (!values.wish.trim()) {
       setError("Add a wish first — it's the base of the cake.");
@@ -119,7 +152,10 @@ function BakePage() {
     try {
       const res = await generate({ data: { ...values, format } });
       setResult(res);
-      goTo(LAYERS.length); // scroll to result panel
+      goTo(LAYERS.length);
+      // Auto-save
+      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
+      await persistSlice({ values, format, result: res }, name);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
