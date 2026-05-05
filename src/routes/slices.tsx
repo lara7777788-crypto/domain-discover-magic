@@ -165,6 +165,7 @@ function SlicesPage() {
           </div>
         )}
       </section>
+      <SaveSheet payload={savePayload} onClose={closeSave} />
     </main>
   );
 }
