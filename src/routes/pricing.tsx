@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { createPortalSession } from "@/utils/payments.functions";
+import { redeemCoupon } from "@/server/coupons.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { TopNav } from "@/components/TopNav";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
@@ -27,6 +28,25 @@ function PricingPage() {
   const { sub, isActive } = useSubscription();
   const { openCheckout, checkoutElement, closeCheckout, isOpen } = useStripeCheckout();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const onRedeem = async () => {
+    if (!user) { window.location.href = "/login"; return; }
+    if (!code.trim()) return;
+    setRedeeming(true);
+    setRedeemMsg(null);
+    try {
+      const res = await redeemCoupon({ data: { code } });
+      setRedeemMsg({ ok: true, text: `🍰 ${res.granted} slices added! Balance: ${res.balance}.` });
+      setCode("");
+    } catch (e) {
+      setRedeemMsg({ ok: false, text: (e as Error).message || "Couldn't redeem code" });
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
   const buy = (priceId: "pro_monthly" | "pro_yearly") => {
     if (!user) {
@@ -129,6 +149,40 @@ function PricingPage() {
 
         <div className="mt-10 text-center text-sm text-foreground/50">
           Need just a few? Grab a 10‑pack of slices for $3 — stacks on top of any Pro plan.
+        </div>
+
+        <div className="mx-auto mt-10 max-w-md rounded-2xl border border-white bg-white/70 p-5 text-center backdrop-blur">
+          <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
+            🎟️ Got a code?
+          </p>
+          <p className="mt-2 text-sm text-foreground/70">
+            Redeem a promo code for free slices.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="SWEET50"
+              maxLength={32}
+              className="flex-1 rounded-full border border-foreground/15 bg-white px-4 py-2 text-sm tracking-widest text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            />
+            <button
+              onClick={onRedeem}
+              disabled={redeeming || !code.trim()}
+              className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              {redeeming ? "…" : "Redeem"}
+            </button>
+          </div>
+          {redeemMsg && (
+            <p
+              className={`mt-3 text-sm ${
+                redeemMsg.ok ? "text-emerald-700" : "text-rose-700"
+              }`}
+            >
+              {redeemMsg.text}
+            </p>
+          )}
         </div>
 
         <div className="mt-8 text-center">
