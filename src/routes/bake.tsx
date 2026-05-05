@@ -59,6 +59,7 @@ function BakePage() {
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [icing, setIcing] = useState<IcingState>(defaultIcing);
 
   // Redirect to login if not authed
   useEffect(() => {
