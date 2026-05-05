@@ -143,11 +143,11 @@ export function SaveSheet({
           </a>
           <a
             href={payload.url}
-            download={payload.filename}
-            onClick={onDownload}
+            download="patisserie-image.png"
+            onClick={onSaveImage}
             className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
           >
-            Download ↓
+            Save Image ↓
           </a>
         </div>
 
