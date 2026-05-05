@@ -5,12 +5,12 @@ import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 type Env = StripeEnv;
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(
     (data: {
       priceId: string;
       quantity?: number;
       customerEmail?: string;
-      userId?: string;
       sliceId?: string;
       returnUrl: string;
       environment: Env;
@@ -19,7 +19,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       return data;
     },
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
     const stripe = createStripeClient(data.environment);
 
     const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
@@ -27,10 +28,11 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const stripePrice = prices.data[0];
     const isRecurring = stripePrice.type === "recurring";
 
-    const metadata: Record<string, string> = {};
-    if (data.userId) metadata.userId = data.userId;
+    const metadata: Record<string, string> = {
+      userId,
+      priceId: data.priceId,
+    };
     if (data.sliceId) metadata.sliceId = data.sliceId;
-    metadata.priceId = data.priceId;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
@@ -39,8 +41,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       return_url: data.returnUrl,
       ...(data.customerEmail && { customer_email: data.customerEmail }),
       metadata,
-      ...(isRecurring && data.userId && {
-        subscription_data: { metadata: { userId: data.userId } },
+      ...(isRecurring && {
+        subscription_data: { metadata: { userId } },
       }),
       managed_payments: { enabled: true },
     } as any);

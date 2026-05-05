@@ -212,7 +212,7 @@ export function SaveSheet({
                     if (!user) return;
                     openCheckout({
                       priceId: "slice_pack_10",
-                      userId: user.id,
+                      
                       customerEmail: user.email ?? undefined,
                       returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
                     });

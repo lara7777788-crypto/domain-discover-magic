@@ -5,7 +5,7 @@ interface CheckoutOptions {
   priceId: string;
   quantity?: number;
   customerEmail?: string;
-  userId?: string;
+  
   sliceId?: string;
   returnUrl?: string;
 }
