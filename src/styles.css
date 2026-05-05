@@ -188,3 +188,8 @@
 .animate-sprinkle { animation: sprinkle 3s ease-in-out infinite; }
 .animate-float { animation: float linear infinite; }
 
+@keyframes btnPulse {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.45); }
+  50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 16px 36px -12px rgba(0,0,0,0.5); }
+}
+
