@@ -153,10 +153,10 @@ function PricingPage() {
 
         <div className="mx-auto mt-10 max-w-md rounded-2xl border border-white bg-white/70 p-5 text-center backdrop-blur">
           <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
-            🎟️ Got a code?
+            🎟️ Creator Pass
           </p>
           <p className="mt-2 text-sm text-foreground/70">
-            Redeem a promo code for free slices.
+            Got a Creator Pass? Redeem it for free slices.
           </p>
           <div className="mt-3 flex gap-2">
             <input
