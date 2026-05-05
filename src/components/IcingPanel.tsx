@@ -216,15 +216,42 @@ export function IcingPanel({
   );
 }
 
-/** Composite the source image + filter + stickers into a downloaded PNG file. */
-function triggerAnchorDownload(href: string, filename: string) {
+/** Save a blob to the user's device with the best method the browser supports. */
+async function saveBlob(blob: Blob, filename: string) {
+  // 1) Mobile (iOS Safari) — `download` attribute is ignored on blob URLs.
+  //    Use the Web Share API with a File so the system share sheet (Save Image / Files) appears.
+  try {
+    const file = new File([blob], filename, { type: blob.type || "image/png" });
+    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: { files: File[]; title?: string }) => Promise<void> };
+    if (nav.canShare?.({ files: [file] }) && nav.share) {
+      await nav.share({ files: [file], title: filename });
+      return;
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // 2) Desktop — anchor download with object URL.
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = href;
+  a.href = url;
   a.download = filename;
   a.rel = "noopener";
+  a.target = "_blank";
   document.body.appendChild(a);
   a.click();
   a.remove();
+
+  // 3) Last-resort fallback for browsers that block programmatic download:
+  //    open in a new tab so the user can long-press / right-click → Save.
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 4000);
+}
+
+function openRawFallback(imageUrl: string) {
+  // For iOS Safari with no share support: open the data URL so user can long-press to save.
+  window.open(imageUrl, "_blank", "noopener");
 }
 
 export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
