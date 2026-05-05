@@ -232,82 +232,35 @@ export function IcingPanel({
   );
 }
 
-function needsOpenFallback() {
+const DOWNLOAD_FILENAME = "bake-a-cake-poster.png";
+
+function needsSaveScreen() {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  return isIOS || !("download" in HTMLAnchorElement.prototype);
+  return isIOS || window.matchMedia("(pointer: coarse)").matches || !("download" in HTMLAnchorElement.prototype);
 }
 
-function paintFallbackWindow(win: Window | null, url: string, filename: string) {
-  if (!win || win.closed) return false;
-  win.document.title = filename;
-  win.document.body.style.margin = "0";
-  win.document.body.style.background = "#111";
-  win.document.body.innerHTML = `<a href="${url}" download="${filename}" style="position:fixed;left:12px;top:12px;z-index:2;border-radius:999px;background:white;color:#111;padding:10px 14px;font:600 14px system-ui;text-decoration:none">Save image</a><img src="${url}" alt="${filename}" style="display:block;max-width:100%;height:auto;margin:auto" />`;
-  return true;
+function dataUrlToBlob(dataUrl: string) {
+  const [meta = "", data = ""] = dataUrl.split(",");
+  const mime = meta.match(/data:([^;]+)/)?.[1] ?? "image/png";
+  const bin = atob(data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
 }
 
-/** Save a blob to the user's device with the best method the browser supports. */
-async function saveBlob(blob: Blob, filename: string, fallbackWindow: Window | null) {
-  // 1) Mobile (iOS Safari) — `download` attribute is ignored on blob URLs.
-  //    Use the Web Share API with a File so the system share sheet (Save Image / Files) appears.
-  try {
-    const file = new File([blob], filename, { type: blob.type || "image/png" });
-    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: { files: File[]; title?: string }) => Promise<void> };
-    if (nav.canShare?.({ files: [file] }) && nav.share) {
-      await nav.share({ files: [file], title: filename });
-      fallbackWindow?.close();
-      return;
-    }
-  } catch {
-    /* fall through */
-  }
-
-  // 2) Desktop — anchor download with object URL.
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.rel = "noopener";
-  a.target = "_blank";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  if (fallbackWindow && paintFallbackWindow(fallbackWindow, url, filename)) return;
-
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 4000);
-}
-
-function openRawFallback(imageUrl: string, filename: string, fallbackWindow: Window | null) {
-  // For iOS Safari with no share support: open the data URL so user can long-press to save.
-  if (!paintFallbackWindow(fallbackWindow, imageUrl, filename)) window.open(imageUrl, "_blank", "noopener");
-}
-
-/** Render the iced image and return a blob + object URL for an in-app save screen. */
-export async function renderIced(
-  imageUrl: string,
-  icing: IcingState,
-): Promise<{ url: string; blob: Blob }> {
-  const img = new Image();
-  // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
-  if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
-
-
-  await new Promise<void>((res, rej) => {
-    img.onload = () => res();
-    img.onerror = () => rej(new Error("Couldn't load image"));
-    img.src = imageUrl;
-  });
+function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): SavePayload {
+  const img = stage?.querySelector("img");
+  if (!img?.complete) throw new Error("Image is still loading. Try Download again in a moment.");
 
   const w = img.naturalWidth || 1024;
   const h = img.naturalHeight || 1024;
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Your browser couldn't prepare the PNG.");
+
   ctx.filter = buildFilter(icing);
   ctx.drawImage(img, 0, 0, w, h);
   ctx.filter = "none";
@@ -325,9 +278,19 @@ export async function renderIced(
     ctx.fillText(s.emoji, x, y);
   }
 
-  const blob: Blob = await new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), "image/png"),
-  );
-  return { url: URL.createObjectURL(blob), blob };
+  const url = canvas.toDataURL("image/png");
+  return { url, blob: dataUrlToBlob(url), filename: DOWNLOAD_FILENAME };
+}
+
+function downloadBlobFromClick(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
