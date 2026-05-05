@@ -38,6 +38,8 @@ function SlicesPage() {
     setSavePayload({
       url: s.preview_url,
       filename: `${(s.name || "layercake-slice").replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.png`,
+      sliceId: s.id,
+      locked: !s.is_unlocked,
     });
   };
 
