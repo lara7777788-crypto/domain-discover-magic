@@ -107,7 +107,7 @@ function AboutPage() {
               following content is strictly prohibited, whether attempted,
               generated, or shared:
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
               <li>Sexual content, pornography, or nudity of any kind</li>
               <li>Sexualized depictions of minors (zero tolerance)</li>
               <li>Racism, hate speech, or slurs targeting any group</li>
@@ -123,7 +123,7 @@ function AboutPage() {
               when our safety system catches an infraction or attempt, access
               is paused on a graduated scale:
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
               <li>
                 <span className="font-medium text-foreground">First infraction:</span>{" "}
                 1‑day suspension
@@ -170,7 +170,7 @@ function AboutPage() {
               from your billing portal and you will not be charged again at
               the next renewal.
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
               <li>
                 <span className="font-medium text-foreground">
                   Monthly plans:
