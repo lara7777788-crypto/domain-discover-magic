@@ -270,39 +270,36 @@ function openRawFallback(imageUrl: string, filename: string, fallbackWindow: Win
   if (!paintFallbackWindow(fallbackWindow, imageUrl, filename)) window.open(imageUrl, "_blank", "noopener");
 }
 
-export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
-  const fallbackWindow = needsOpenFallback() ? window.open("about:blank", "_blank") : null;
-  if (fallbackWindow) {
-    fallbackWindow.document.body.style.margin = "0";
-    fallbackWindow.document.body.style.padding = "24px";
-    fallbackWindow.document.body.style.font = "600 16px system-ui";
-    fallbackWindow.document.body.textContent = "Preparing your image…";
-  }
+/** Render the iced image and return a blob + object URL for an in-app save screen. */
+export async function renderIced(
+  imageUrl: string,
+  icing: IcingState,
+): Promise<{ url: string; blob: Blob }> {
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
-  try {
-    await new Promise<void>((res, rej) => {
-      img.onload = () => res();
-      img.onerror = () => rej(new Error("Couldn't load image"));
-      img.src = imageUrl;
-    });
 
-    const w = img.naturalWidth || 1024;
-    const h = img.naturalHeight || 1024;
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d")!;
-    ctx.filter = buildFilter(icing);
-    ctx.drawImage(img, 0, 0, w, h);
-    ctx.filter = "none";
 
-  // Stickers — emoji as text. Position is % of stage; size in CSS px on a stage matching natural width.
+  await new Promise<void>((res, rej) => {
+    img.onload = () => res();
+    img.onerror = () => rej(new Error("Couldn't load image"));
+    img.src = imageUrl;
+  });
+
+  const w = img.naturalWidth || 1024;
+  const h = img.naturalHeight || 1024;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.filter = buildFilter(icing);
+  ctx.drawImage(img, 0, 0, w, h);
+  ctx.filter = "none";
+
   for (const s of icing.stickers) {
     const x = (s.x / 100) * w;
     const y = (s.y / 100) * h;
-    const px = (s.size / 1024) * w; // scale relative to a 1024 stage assumption
+    const px = (s.size / 1024) * w;
     ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -312,12 +309,9 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     ctx.fillText(s.emoji, x, y);
   }
 
-    const blob: Blob = await new Promise((resolve, reject) =>
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), "image/png"),
-    );
-    await saveBlob(blob, filename, fallbackWindow);
-  } catch (err) {
-    console.warn("Iced export failed, opening raw image", err);
-    openRawFallback(imageUrl, filename, fallbackWindow);
-  }
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), "image/png"),
+  );
+  return { url: URL.createObjectURL(blob), blob };
 }
+
