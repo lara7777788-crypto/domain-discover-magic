@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SlicesRouteImport } from './routes/slices'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SlicesRoute = SlicesRouteImport.update({
   id: '/slices',
   path: '/slices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bake': typeof BakeRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bake'
     | '/login'
+    | '/pricing'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bake'
     | '/login'
+    | '/pricing'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bake'
     | '/login'
+    | '/pricing'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BakeRoute: typeof BakeRoute
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
   SlicesRoute: typeof SlicesRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -116,6 +129,13 @@ declare module '@tanstack/react-router' {
       path: '/slices'
       fullPath: '/slices'
       preLoaderRoute: typeof SlicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BakeRoute: BakeRoute,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
   SlicesRoute: SlicesRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
