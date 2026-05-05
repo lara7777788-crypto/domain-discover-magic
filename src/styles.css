@@ -182,9 +182,3 @@
 .animate-wobble { animation: wobble 4s ease-in-out infinite; transform-origin: bottom center; }
 .animate-sprinkle { animation: sprinkle 3s ease-in-out infinite; }
 
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-  }
-}
