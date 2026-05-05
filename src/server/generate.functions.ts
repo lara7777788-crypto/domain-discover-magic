@@ -82,6 +82,12 @@ export const generate = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
 
+    if (isBlockedInput(data)) {
+      throw new Error(
+        "This request can't be generated. Layercake doesn't allow sexual, hateful, violent, or illegal content.",
+      );
+    }
+
     // 1. Prompt layer — rewrite the wish into a real image prompt
     const briefRes = await fetch(GATEWAY, {
       method: "POST",
