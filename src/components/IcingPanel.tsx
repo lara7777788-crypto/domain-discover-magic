@@ -262,18 +262,18 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     ctx.fillText(s.emoji, x, y);
   }
 
-  await new Promise<void>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) return reject(new Error("Export failed"));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      resolve();
-    }, "image/png");
-  });
+    await new Promise<void>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error("Export failed"));
+        const url = URL.createObjectURL(blob);
+        triggerAnchorDownload(url, filename);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        resolve();
+      }, "image/png");
+    });
+  } catch (err) {
+    // Fallback: at least give the user the original image
+    console.warn("Iced export failed, falling back to raw download", err);
+    triggerAnchorDownload(imageUrl, filename);
+  }
 }
