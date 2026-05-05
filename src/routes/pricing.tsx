@@ -28,6 +28,25 @@ function PricingPage() {
   const { sub, isActive } = useSubscription();
   const { openCheckout, checkoutElement, closeCheckout, isOpen } = useStripeCheckout();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const onRedeem = async () => {
+    if (!user) { window.location.href = "/login"; return; }
+    if (!code.trim()) return;
+    setRedeeming(true);
+    setRedeemMsg(null);
+    try {
+      const res = await redeemCoupon({ data: { code } });
+      setRedeemMsg({ ok: true, text: `🍰 ${res.granted} slices added! Balance: ${res.balance}.` });
+      setCode("");
+    } catch (e) {
+      setRedeemMsg({ ok: false, text: (e as Error).message || "Couldn't redeem code" });
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
   const buy = (priceId: "pro_monthly" | "pro_yearly") => {
     if (!user) {
