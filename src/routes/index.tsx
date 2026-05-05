@@ -121,28 +121,6 @@ function Splash() {
           style={{
             width: CAKE_W,
             height: CAKE_H + 36,
-            transition:
-              exiting === "anticipate"
-                ? "transform 130ms cubic-bezier(.4,0,.6,1)"
-                : exiting === "squash"
-                ? "transform 220ms cubic-bezier(.7,0,.3,1)"
-                : exiting === "burst" || exiting === "out"
-                ? "transform 260ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease-out"
-                : "transform 220ms cubic-bezier(.34,1.5,.55,1), opacity 200ms",
-            transform:
-              exiting === "anticipate"
-                ? "translateY(-22px) scaleY(1.06) scaleX(0.96)"
-                : exiting === "squash"
-                ? "translateY(8px) scaleY(0.18) scaleX(1.55)"
-                : exiting === "burst"
-                ? "translateY(8px) scaleY(0.22) scaleX(1.5)"
-                : exiting === "out"
-                ? "translateY(8px) scaleY(0.22) scaleX(1.5)"
-                : hover && fullyBuilt
-                ? "translateY(-2px) rotate(-0.6deg)"
-                : "none",
-            opacity: exiting === "out" ? 0 : 1,
-            transformOrigin: "bottom center",
           }}
         >
           {/* Soft ground shadow */}
@@ -151,20 +129,41 @@ function Splash() {
             className="absolute left-1/2 -translate-x-1/2 rounded-[50%]"
             style={{
               bottom: 8,
-              width: CAKE_W * 0.85,
+              width:
+                exiting === "frame1"
+                  ? CAKE_W * 1.05
+                  : exiting === "frame2" || exiting === "out"
+                  ? CAKE_W * 1.2
+                  : CAKE_W * 0.85,
               height: 22,
               background:
                 "radial-gradient(ellipse at center, rgba(120,60,110,0.32) 0%, rgba(120,60,110,0) 70%)",
               filter: "blur(2px)",
-              opacity: exiting === "idle" || exiting === "anticipate" ? 1 : 0,
-              transition: "opacity 200ms",
+              opacity: exiting === "out" ? 0 : 1,
+              transition: "all 220ms ease-out",
             }}
           />
 
-          {/* Cake bands */}
+          {/* FRAME 0 — built layered cake (visible idle + anticipate, fades on frame1) */}
           <div
             className="absolute left-1/2 -translate-x-1/2"
-            style={{ top: 0, width: CAKE_W, height: CAKE_H }}
+            style={{
+              top: 0,
+              width: CAKE_W,
+              height: CAKE_H,
+              opacity: exiting === "idle" || exiting === "anticipate" ? 1 : 0,
+              transform:
+                exiting === "anticipate"
+                  ? "translateY(-22px) scaleY(1.06) scaleX(0.96)"
+                  : hover && fullyBuilt && exiting === "idle"
+                  ? "translateY(-2px) rotate(-0.6deg)"
+                  : "none",
+              transformOrigin: "bottom center",
+              transition:
+                exiting === "anticipate"
+                  ? "transform 140ms cubic-bezier(.4,0,.6,1)"
+                  : "transform 220ms cubic-bezier(.34,1.5,.55,1), opacity 160ms ease-out",
+            }}
           >
             {BANDS.map((band, idx) => {
               const buildStep = BUILD_SEQUENCE.indexOf(idx);
@@ -172,13 +171,6 @@ function Splash() {
               const isImpact = impact === idx;
               const top = band.t * CAKE_H;
               const height = (band.b - band.t) * CAKE_H;
-
-              const burst = exiting === "burst" || exiting === "out";
-
-              // Slight per-band rotation skew during squash for a smushed look
-              const squashing = exiting === "squash" || exiting === "burst" || exiting === "out";
-              const skew = squashing ? (idx % 2 === 0 ? -3 : 3) : 0;
-
               return (
                 <div
                   key={idx}
@@ -189,17 +181,15 @@ function Splash() {
                     width: CAKE_W,
                     height: height + 1,
                     overflow: "hidden",
-                    opacity: isBuilt ? (burst ? 0 : 1) : 0,
+                    opacity: isBuilt ? 1 : 0,
                     transform: isBuilt
-                      ? `translate(0, 0) scaleY(${isImpact ? 0.85 : 1}) scaleX(${isImpact ? 1.04 : 1}) skewX(${skew}deg)`
+                      ? `translate(0, 0) scaleY(${isImpact ? 0.85 : 1}) scaleX(${isImpact ? 1.04 : 1})`
                       : `translate(0, -${CAKE_H + 80}px)`,
                     transition: isBuilt
-                      ? burst
-                        ? "opacity 220ms ease-out"
-                        : `transform ${isImpact ? 220 : 520}ms ${isImpact ? "cubic-bezier(.34,1.5,.55,1)" : "cubic-bezier(.2,.85,.25,1)"}, opacity 240ms`
+                      ? `transform ${isImpact ? 220 : 520}ms ${isImpact ? "cubic-bezier(.34,1.5,.55,1)" : "cubic-bezier(.2,.85,.25,1)"}, opacity 240ms`
                       : "none",
                     transformOrigin: "center bottom",
-                    filter: isBuilt && !burst ? "drop-shadow(0 2px 3px rgba(120,60,110,0.18))" : "none",
+                    filter: isBuilt ? "drop-shadow(0 2px 3px rgba(120,60,110,0.18))" : "none",
                   }}
                 >
                   <img
@@ -222,32 +212,53 @@ function Splash() {
             })}
           </div>
 
-          {/* Crumb particles */}
-          {(exiting === "burst" || exiting === "out") && (
-            <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{ top: 0, width: CAKE_W, height: CAKE_H }}
-            >
-              {crumbs.map((c, i) => (
-                <span
-                  key={i}
-                  style={{
-                    position: "absolute",
-                    left: c.x,
-                    top: c.y,
-                    width: c.r,
-                    height: c.r * 0.7,
-                    borderRadius: 3,
-                    background: c.color,
-                    transform: `translate(${c.dx}px, ${c.dy}px) rotate(${c.rot}deg)`,
-                    opacity: exiting === "out" ? 0 : 1,
-                    transition: `transform 420ms cubic-bezier(.2,.7,.2,1), opacity 200ms ease-out ${exiting === "out" ? "100ms" : "0ms"}`,
-                    boxShadow: "0 1px 2px rgba(80,30,70,0.25)",
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          {/* FRAME 1 — first smash (squashed cake) */}
+          <img
+            src={smash1}
+            alt=""
+            draggable={false}
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: 4,
+              width: CAKE_W * 1.15,
+              height: "auto",
+              transform: `translateX(-50%) translateY(${
+                exiting === "frame1" ? 0 : exiting === "frame2" || exiting === "out" ? 6 : 30
+              }px) scale(${exiting === "frame1" ? 1 : exiting === "frame2" || exiting === "out" ? 1.05 : 0.6})`,
+              opacity:
+                exiting === "frame1" ? 1 : exiting === "frame2" ? 0.35 : 0,
+              transition: "transform 220ms cubic-bezier(.7,0,.3,1), opacity 220ms ease-out",
+              transformOrigin: "bottom center",
+              pointerEvents: "none",
+              filter: "drop-shadow(0 8px 14px rgba(120,60,110,0.25))",
+            }}
+          />
+
+          {/* FRAME 2 — full smash with crumbs flying */}
+          <img
+            src={smash2}
+            alt=""
+            draggable={false}
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: -10,
+              width: CAKE_W * 1.4,
+              height: "auto",
+              transform: `translateX(-50%) scale(${
+                exiting === "frame2" ? 1 : exiting === "out" ? 1.06 : 0.85
+              }) rotate(${exiting === "out" ? 4 : 0}deg)`,
+              opacity: exiting === "frame2" ? 1 : exiting === "out" ? 0 : 0,
+              transition:
+                exiting === "out"
+                  ? "opacity 200ms ease-out, transform 280ms ease-out"
+                  : "transform 260ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease-out",
+              transformOrigin: "center bottom",
+              pointerEvents: "none",
+              filter: "drop-shadow(0 6px 10px rgba(120,60,110,0.2))",
+            }}
+          />
 
           {fullyBuilt && exiting === "idle" && (
             <div
