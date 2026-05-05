@@ -347,27 +347,19 @@ function BakePage() {
             </div>
 
             {result && (
-              <div className="mt-10 rounded-3xl border border-white bg-white/80 p-4 shadow-[0_30px_60px_-30px_rgba(62,31,112,0.4)] backdrop-blur">
-                <img
-                  src={result.imageDataUrl}
-                  alt="Your generated visual"
-                  className="w-full rounded-2xl"
+              <div className="mt-10 space-y-4">
+                <IcingPanel
+                  imageUrl={result.imageDataUrl}
+                  icing={icing}
+                  setIcing={setIcing}
+                  onDownload={onDownload}
                 />
-                <details className="mt-4 text-sm">
+                <details className="text-sm">
                   <summary className="cursor-pointer text-foreground/70">See the prompt layer</summary>
                   <p className="mt-2 whitespace-pre-wrap rounded-xl bg-foreground/5 p-3 font-mono text-xs text-foreground/80">
                     {result.prompt}
                   </p>
                 </details>
-                <div className="mt-3 flex justify-end">
-                  <a
-                    href={result.imageDataUrl}
-                    download="layercake.png"
-                    className="text-sm font-medium text-foreground/70 underline-offset-4 hover:underline"
-                  >
-                    Download ↓
-                  </a>
-                </div>
               </div>
             )}
           </div>
