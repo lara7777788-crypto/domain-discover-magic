@@ -258,6 +258,13 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      redeem_coupon_atomic: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: {
+          balance: number
+          granted: number
+        }[]
+      }
       spend_slice_credit: {
         Args: { p_slice_id: string; p_user_id: string }
         Returns: number
