@@ -217,24 +217,36 @@ export function IcingPanel({
 }
 
 /** Composite the source image + filter + stickers into a downloaded PNG file. */
+function triggerAnchorDownload(href: string, filename: string) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
   const img = new Image();
-  img.crossOrigin = "anonymous";
-  await new Promise<void>((res, rej) => {
-    img.onload = () => res();
-    img.onerror = () => rej(new Error("Couldn't load image"));
-    img.src = imageUrl;
-  });
+  // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
+  if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
+  try {
+    await new Promise<void>((res, rej) => {
+      img.onload = () => res();
+      img.onerror = () => rej(new Error("Couldn't load image"));
+      img.src = imageUrl;
+    });
 
-  const w = img.naturalWidth || 1024;
-  const h = img.naturalHeight || 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d")!;
-  ctx.filter = buildFilter(icing);
-  ctx.drawImage(img, 0, 0, w, h);
-  ctx.filter = "none";
+    const w = img.naturalWidth || 1024;
+    const h = img.naturalHeight || 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d")!;
+    ctx.filter = buildFilter(icing);
+    ctx.drawImage(img, 0, 0, w, h);
+    ctx.filter = "none";
 
   // Stickers — emoji as text. Position is % of stage; size in CSS px on a stage matching natural width.
   for (const s of icing.stickers) {
@@ -250,18 +262,18 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     ctx.fillText(s.emoji, x, y);
   }
 
-  await new Promise<void>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) return reject(new Error("Export failed"));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      resolve();
-    }, "image/png");
-  });
+    await new Promise<void>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error("Export failed"));
+        const url = URL.createObjectURL(blob);
+        triggerAnchorDownload(url, filename);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        resolve();
+      }, "image/png");
+    });
+  } catch (err) {
+    // Fallback: at least give the user the original image
+    console.warn("Iced export failed, falling back to raw download", err);
+    triggerAnchorDownload(imageUrl, filename);
+  }
 }
