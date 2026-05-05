@@ -76,10 +76,11 @@ function BakePage() {
         .eq("id", sliceId)
         .maybeSingle();
       if (data?.data) {
-        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result };
+        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result; icing?: IcingState };
         if (d.values) setValues({ ...emptyValues(), ...d.values });
         if (d.format) setFormat(d.format);
         if (d.result) setResult(d.result);
+        if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
         setSavedId(data.id);
       }
     })();
