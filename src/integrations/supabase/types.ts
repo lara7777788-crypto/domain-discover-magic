@@ -160,6 +160,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_is_pro: { Args: { check_env?: string }; Returns: boolean }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
