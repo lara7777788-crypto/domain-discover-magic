@@ -156,12 +156,13 @@ END $$;
 -- 9. spend_generation_credit BYPASSES deduction for admin.
 DO $$
 DECLARE
-  v_admin uuid := current_setting('test.admin_id')::uuid;
+  v_admin uuid := '6c07d4ea-2d9e-4b18-888d-3e8aace7fbdb';
   before_credits int;
   after_credits int;
   remaining int;
 BEGIN
-  -- Make sure admin has some non-zero baseline so we can prove no deduction happened.
+  -- Confirm the founder is actually marked admin (sanity check on the seed).
+  PERFORM pg_temp.assert(public.has_role(v_admin, 'admin'), 'founder account has admin role');
   UPDATE public.profiles SET slice_credits = 5 WHERE id = v_admin;
   SELECT slice_credits INTO before_credits FROM public.profiles WHERE id = v_admin;
   remaining := public.spend_generation_credit(v_admin);
