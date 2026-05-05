@@ -47,25 +47,31 @@ export function SaveSheet({
     // Direct, synchronous user-click download — no fetch, no async.
     const a = document.createElement("a");
     a.href = payload.url; // already a blob: or data: URL from the generator
-    a.download = payload.filename;
+    a.download = "bake-a-cake.png";
     a.rel = "noopener";
     document.body.appendChild(a);
     a.click();
     a.remove();
 
-    // Fallback: if the browser silently blocked the download (sandboxed
-    // iframe / Safari), open the image in a new tab so the user can save it.
+    // Mobile Safari/popup blockers reject delayed window.open(), so reserve
+    // the fallback tab during the real user click, then navigate it only if
+    // the download was silently ignored.
+    const fallbackWindow = window.open("", "_blank", "noopener,noreferrer");
+    if (fallbackWindow) {
+      fallbackWindow.document.title = "Press and hold or right-click to save";
+      fallbackWindow.document.body.style.margin = "0";
+      fallbackWindow.document.body.style.background = "#FFFDF8";
+      fallbackWindow.document.body.innerHTML = `<p style="font: 14px system-ui; padding: 16px; color: #3E1F70;">Press and hold or right-click to save.</p>`;
+    }
+
     const start = Date.now();
     window.setTimeout(() => {
       if (document.hasFocus() && Date.now() - start >= 1000) {
-        const w = window.open(payload.url, "_blank", "noopener,noreferrer");
-        if (w) {
-          try {
-            w.document.title = "Press and hold or right-click to save";
-          } catch {
-            /* cross-origin, ignore */
-          }
+        if (fallbackWindow) {
+          fallbackWindow.location.href = payload.url;
         }
+      } else {
+        fallbackWindow?.close();
       }
     }, 1000);
   };
