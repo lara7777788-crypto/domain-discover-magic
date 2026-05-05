@@ -240,7 +240,7 @@ function BakePage() {
       </nav>
 
       {/* Panels */}
-      <div ref={containerRef} className="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth">
+      <div ref={containerRef} className="h-screen snap-y snap-proximity overflow-y-scroll scroll-smooth">
         {LAYERS.map((l, i) => (
           <section
             key={l.key}
