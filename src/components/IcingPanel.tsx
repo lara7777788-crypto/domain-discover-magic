@@ -237,7 +237,8 @@ const DOWNLOAD_FILENAME = "bake-a-cake-poster.png";
 function needsSaveScreen() {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  return isIOS || window.matchMedia("(pointer: coarse)").matches || !("download" in HTMLAnchorElement.prototype);
+  const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
+  return isIOS || isMobileViewport || window.matchMedia("(pointer: coarse)").matches || !("download" in HTMLAnchorElement.prototype);
 }
 
 function dataUrlToBlob(dataUrl: string) {
