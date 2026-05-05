@@ -54,14 +54,14 @@ function AboutPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-8">
         <header className="mb-10 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
-            About
+            🎂 The Recipe Card
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold text-foreground md:text-5xl">
             A small bakery for big ideas.
           </h1>
           <p className="mt-4 text-base text-foreground/70">
-            Layercake is an art and design studio in software form — built to
-            help anyone turn a wish into a finished image.
+            The sugar, the vinegar, and everything that goes into Layercake —
+            who made it, how to use it, and how to find us.
           </p>
         </header>
 
@@ -107,13 +107,13 @@ function AboutPage() {
               following content is strictly prohibited, whether attempted,
               generated, or shared:
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
-              <li>Sexual content, pornography, or nudity of any kind</li>
-              <li>Sexualized depictions of minors (zero tolerance)</li>
-              <li>Racism, hate speech, or slurs targeting any group</li>
-              <li>Incitement to violence, terrorism, or self-harm</li>
-              <li>Instructions for weapons, illegal drugs, or crime</li>
-              <li>Gore, cruelty, or graphic real-world harm</li>
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Sexual content, pornography, or nudity of any kind</span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Sexualized depictions of minors (zero tolerance)</span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Racism, hate speech, or slurs targeting any group</span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Incitement to violence, terrorism, or self-harm</span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Instructions for weapons, illegal drugs, or crime</span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>Gore, cruelty, or graphic real-world harm</span></li>
             </ul>
             <p>
               <span className="font-semibold text-foreground">
@@ -123,23 +123,23 @@ function AboutPage() {
               when our safety system catches an infraction or attempt, access
               is paused on a graduated scale:
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
-              <li>
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">First infraction:</span>{" "}
                 1‑day suspension
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">Second:</span>{" "}
                 7‑day suspension
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">Third:</span>{" "}
                 30‑day suspension
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">Fourth:</span>{" "}
                 permanent removal of access
-              </li>
+              </span></li>
             </ul>
             <p>
               Severe violations (e.g. content involving minors) result in
@@ -170,33 +170,33 @@ function AboutPage() {
               from your billing portal and you will not be charged again at
               the next renewal.
             </p>
-            <ul className="ml-5 list-disc space-y-1 text-foreground/75">
-              <li>
+            <ul className="ml-1 space-y-2 list-none text-foreground/75">
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">
                   Monthly plans:
                 </span>{" "}
                 full refund within 7 days of the original purchase if fewer
                 than 10 slices were generated.
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">
                   Yearly plans:
                 </span>{" "}
                 full refund within 14 days of the original purchase if fewer
                 than 30 slices were generated. Pro‑rated refunds considered
                 case by case after that.
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 <span className="font-medium text-foreground">
                   Slice packs (one‑time):
                 </span>{" "}
                 refundable within 7 days if unused. Once any slice in a pack
                 is generated, the pack is non‑refundable.
-              </li>
-              <li>
+              </span></li>
+              <li className="flex items-start gap-2"><span aria-hidden className="mt-0.5 text-sm leading-none">🧁</span><span>
                 Accounts suspended for violations of the acceptable use
                 policy are not eligible for refunds.
-              </li>
+              </span></li>
             </ul>
             <p>
               To request a refund, email us with your account email and the
