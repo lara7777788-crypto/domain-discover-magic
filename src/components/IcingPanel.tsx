@@ -216,8 +216,23 @@ export function IcingPanel({
   );
 }
 
+function needsOpenFallback() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  return isIOS || !("download" in HTMLAnchorElement.prototype);
+}
+
+function paintFallbackWindow(win: Window | null, url: string, filename: string) {
+  if (!win || win.closed) return false;
+  win.document.title = filename;
+  win.document.body.style.margin = "0";
+  win.document.body.style.background = "#111";
+  win.document.body.innerHTML = `<a href="${url}" download="${filename}" style="position:fixed;left:12px;top:12px;z-index:2;border-radius:999px;background:white;color:#111;padding:10px 14px;font:600 14px system-ui;text-decoration:none">Save image</a><img src="${url}" alt="${filename}" style="display:block;max-width:100%;height:auto;margin:auto" />`;
+  return true;
+}
+
 /** Save a blob to the user's device with the best method the browser supports. */
-async function saveBlob(blob: Blob, filename: string) {
+async function saveBlob(blob: Blob, filename: string, fallbackWindow: Window | null) {
   // 1) Mobile (iOS Safari) — `download` attribute is ignored on blob URLs.
   //    Use the Web Share API with a File so the system share sheet (Save Image / Files) appears.
   try {
@@ -225,6 +240,7 @@ async function saveBlob(blob: Blob, filename: string) {
     const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: { files: File[]; title?: string }) => Promise<void> };
     if (nav.canShare?.({ files: [file] }) && nav.share) {
       await nav.share({ files: [file], title: filename });
+      fallbackWindow?.close();
       return;
     }
   } catch {
@@ -242,19 +258,26 @@ async function saveBlob(blob: Blob, filename: string) {
   a.click();
   a.remove();
 
-  // 3) Last-resort fallback for browsers that block programmatic download:
-  //    open in a new tab so the user can long-press / right-click → Save.
+  if (fallbackWindow && paintFallbackWindow(fallbackWindow, url, filename)) return;
+
   setTimeout(() => {
     URL.revokeObjectURL(url);
   }, 4000);
 }
 
-function openRawFallback(imageUrl: string) {
+function openRawFallback(imageUrl: string, filename: string, fallbackWindow: Window | null) {
   // For iOS Safari with no share support: open the data URL so user can long-press to save.
-  window.open(imageUrl, "_blank", "noopener");
+  if (!paintFallbackWindow(fallbackWindow, imageUrl, filename)) window.open(imageUrl, "_blank", "noopener");
 }
 
 export async function downloadIced(imageUrl: string, icing: IcingState, filename: string) {
+  const fallbackWindow = needsOpenFallback() ? window.open("about:blank", "_blank") : null;
+  if (fallbackWindow) {
+    fallbackWindow.document.body.style.margin = "0";
+    fallbackWindow.document.body.style.padding = "24px";
+    fallbackWindow.document.body.style.font = "600 16px system-ui";
+    fallbackWindow.document.body.textContent = "Preparing your image…";
+  }
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
@@ -292,9 +315,9 @@ export async function downloadIced(imageUrl: string, icing: IcingState, filename
     const blob: Blob = await new Promise((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), "image/png"),
     );
-    await saveBlob(blob, filename);
+    await saveBlob(blob, filename, fallbackWindow);
   } catch (err) {
     console.warn("Iced export failed, opening raw image", err);
-    openRawFallback(imageUrl);
+    openRawFallback(imageUrl, filename, fallbackWindow);
   }
 }
