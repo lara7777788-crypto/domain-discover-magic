@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.png";
 
 export const Route = createFileRoute("/")({
@@ -66,8 +66,10 @@ function Splash() {
     return arr;
   }, []);
 
+  const exitingLock = useRef(false);
   const handleEnter = () => {
-    if (exiting !== "idle" || !fullyBuilt) return;
+    if (exitingLock.current || exiting !== "idle" || !fullyBuilt) return;
+    exitingLock.current = true;
     setExiting("anticipate");
     window.setTimeout(() => setExiting("frame1"), 130);
     window.setTimeout(() => setExiting("tween"), 330);
