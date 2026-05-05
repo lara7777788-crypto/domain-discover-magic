@@ -34,7 +34,7 @@ const composeBriefPrompt = (i: GenerateInput): string => {
     i.visual && `Mood / visual: ${i.visual}`,
     i.text && `Text on the piece: ${i.text}`,
     i.layout && `Layout: ${i.layout}`,
-    i.logo && `Logo / mark: ${i.logo}`,
+    i.logo && `Brand reference (product, logo, packaging, vibe shot, or photo): ${i.logo}`,
     `Intended use: ${i.format} (${FORMAT_HINTS[i.format]})`,
   ].filter(Boolean);
   return parts.join("\n");
