@@ -111,6 +111,12 @@ export const generate = createServerFn({ method: "POST" })
     const prompt: string =
       briefJson.choices?.[0]?.message?.content?.trim() ?? composeBriefPrompt(data);
 
+    if (/^BLOCKED\b/i.test(prompt)) {
+      throw new Error(
+        "This request can't be generated. Layercake doesn't allow sexual, hateful, violent, or illegal content.",
+      );
+    }
+
     // 2. Image layer — generate image from rewritten prompt
     const imgRes = await fetch(GATEWAY, {
       method: "POST",
