@@ -97,10 +97,10 @@ function PricingPage() {
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
           <PlanCard
             name="Monthly"
-            price="$12"
+            price="$20"
             period="/month"
             features={[
-              "Unlimited slice generation",
+              "90 slices per month",
               "HD downloads",
               "All slices unlocked",
               "Cancel anytime",
@@ -112,12 +112,12 @@ function PricingPage() {
           />
           <PlanCard
             name="Yearly"
-            price="$99"
+            price="$110"
             period="/year"
             features={[
-              "Everything in monthly",
-              "Save $45 vs monthly",
-              "~$8.25 / month",
+              "45 slices per month (540/year)",
+              "HD downloads",
+              "Save $130 vs monthly",
               "Cancel anytime",
             ]}
             cta="Go Pro yearly"
@@ -128,7 +128,7 @@ function PricingPage() {
         </div>
 
         <div className="mt-10 text-center text-sm text-foreground/50">
-          Not ready for Pro? Grab a 10-pack of slice unlocks for $3 from any slice.
+          Need just a few? Grab a 10‑pack of slices for $3 — stacks on top of any Pro plan.
         </div>
 
         <div className="mt-8 text-center">
