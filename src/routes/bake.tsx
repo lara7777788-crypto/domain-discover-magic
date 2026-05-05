@@ -1,8 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { generate, type GenerateInput } from "../server/generate.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/bake")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    slice: typeof s.slice === "string" ? s.slice : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Bake — Layercake" },
@@ -41,12 +46,41 @@ const emptyValues = (): Record<LayerKey, string> =>
   LAYERS.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
 
 function BakePage() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const { slice: sliceId } = Route.useSearch();
   const [active, setActive] = useState(0);
   const [values, setValues] = useState<Record<LayerKey, string>>(emptyValues);
   const [format, setFormat] = useState<GenerateInput["format"]>("social");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ prompt: string; imageDataUrl: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Redirect to login if not authed
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/login" });
+  }, [authLoading, user, navigate]);
+
+  // Load existing slice if ?slice=ID
+  useEffect(() => {
+    if (!user || !sliceId) return;
+    (async () => {
+      const { data } = await supabase
+        .from("designs")
+        .select("id, data")
+        .eq("id", sliceId)
+        .maybeSingle();
+      if (data?.data) {
+        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result };
+        if (d.values) setValues({ ...emptyValues(), ...d.values });
+        if (d.format) setFormat(d.format);
+        if (d.result) setResult(d.result);
+        setSavedId(data.id);
+      }
+    })();
+  }, [user, sliceId]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
