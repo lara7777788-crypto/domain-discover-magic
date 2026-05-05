@@ -249,7 +249,8 @@ function dataUrlToBlob(dataUrl: string) {
 }
 
 function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): SavePayload & { blob: Blob } {
-  const img = stage?.querySelector("img");
+  if (!stage) throw new Error("The slice is not ready yet. Try Download again in a moment.");
+  const img = stage.querySelector("img");
   if (!img?.complete) throw new Error("Image is still loading. Try Download again in a moment.");
 
   const w = img.naturalWidth || 1024;
@@ -263,19 +264,6 @@ function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): S
   ctx.filter = buildFilter(icing);
   ctx.drawImage(img, 0, 0, w, h);
   ctx.filter = "none";
-
-  for (const s of icing.stickers) {
-    const x = (s.x / 100) * w;
-    const y = (s.y / 100) * h;
-    const px = (s.size / 1024) * w;
-    ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0,0,0,0.25)";
-    ctx.shadowBlur = px * 0.15;
-    ctx.shadowOffsetY = px * 0.06;
-    ctx.fillText(s.emoji, x, y);
-  }
 
   const rect = stage.getBoundingClientRect();
   const stageWidth = rect.width || w;
