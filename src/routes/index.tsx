@@ -333,6 +333,56 @@ function Splash() {
             </div>
           )}
 
+          {/* MICRO-SPARK FLASH — fires during the crossfade */}
+          {(exiting === "tween" || exiting === "frame2") && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 -translate-x-1/2"
+              style={{ bottom: 18, width: 0, height: 0 }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  left: -90,
+                  top: -90,
+                  width: 180,
+                  height: 180,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,221,235,0.6) 30%, rgba(255,180,210,0) 70%)",
+                  opacity: exiting === "tween" ? 1 : 0,
+                  transform: `scale(${exiting === "tween" ? 1 : 1.6})`,
+                  transition: "opacity 220ms ease-out, transform 320ms ease-out",
+                  mixBlendMode: "screen",
+                }}
+              />
+              {Array.from({ length: 10 }).map((_, i) => {
+                const angle = (i / 10) * Math.PI * 2;
+                const dist = exiting === "tween" ? 14 : 70;
+                const colors = ["#FFFFFF", "#FFE070", "#FF6FA3", "#7CC8FF", "#9BE3A4"];
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      width: 18,
+                      height: 2.5,
+                      borderRadius: 2,
+                      background: colors[i % colors.length],
+                      transform: `rotate(${(angle * 180) / Math.PI}deg) translate(${dist}px, 0)`,
+                      transformOrigin: "0 50%",
+                      opacity: exiting === "tween" ? 1 : 0,
+                      transition: "transform 280ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease-out",
+                      boxShadow: "0 0 6px rgba(255,255,255,0.8)",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+
           {fullyBuilt && exiting === "idle" && (
             <div
               aria-hidden
