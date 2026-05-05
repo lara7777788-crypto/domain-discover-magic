@@ -28,6 +28,20 @@ function SlicesPage() {
   const navigate = useNavigate();
   const [slices, setSlices] = useState<Slice[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
+
+  const openSave = (s: Slice) => {
+    if (!s.preview_url) {
+      setError("This slice has no preview yet — open it in Bake to render one.");
+      return;
+    }
+    setSavePayload({
+      url: s.preview_url,
+      filename: `${(s.name || "layercake-slice").replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.png`,
+    });
+  };
+
+  const closeSave = () => setSavePayload(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/login" });
