@@ -151,6 +151,40 @@ function PricingPage() {
           Need just a few? Grab a 10‑pack of slices for $3 — stacks on top of any Pro plan.
         </div>
 
+        <div className="mx-auto mt-10 max-w-md rounded-2xl border border-white bg-white/70 p-5 text-center backdrop-blur">
+          <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
+            🎟️ Got a code?
+          </p>
+          <p className="mt-2 text-sm text-foreground/70">
+            Redeem a promo code for free slices.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="SWEET50"
+              maxLength={32}
+              className="flex-1 rounded-full border border-foreground/15 bg-white px-4 py-2 text-sm tracking-widest text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            />
+            <button
+              onClick={onRedeem}
+              disabled={redeeming || !code.trim()}
+              className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              {redeeming ? "…" : "Redeem"}
+            </button>
+          </div>
+          {redeemMsg && (
+            <p
+              className={`mt-3 text-sm ${
+                redeemMsg.ok ? "text-emerald-700" : "text-rose-700"
+              }`}
+            >
+              {redeemMsg.text}
+            </p>
+          )}
+        </div>
+
         <div className="mt-8 text-center">
           <Link to="/slices" className="text-sm text-foreground/60 underline">
             Back to my slices
