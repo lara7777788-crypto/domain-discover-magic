@@ -128,7 +128,7 @@ function PricingPage() {
         </div>
 
         <div className="mt-10 text-center text-sm text-foreground/50">
-          Just want one slice? You can unlock individual slices for $3 from the slice page.
+          Not ready for Pro? Grab a 10-pack of slice unlocks for $3 from any slice.
         </div>
 
         <div className="mt-8 text-center">
