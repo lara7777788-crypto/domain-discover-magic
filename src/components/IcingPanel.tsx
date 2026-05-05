@@ -249,7 +249,7 @@ function dataUrlToBlob(dataUrl: string) {
   return new Blob([bytes], { type: mime });
 }
 
-function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): SavePayload {
+function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): SavePayload & { blob: Blob } {
   const img = stage?.querySelector("img");
   if (!img?.complete) throw new Error("Image is still loading. Try Download again in a moment.");
 
