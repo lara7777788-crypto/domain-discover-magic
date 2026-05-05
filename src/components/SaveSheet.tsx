@@ -164,8 +164,14 @@ export function SaveSheet({
           )}
           <a
             href={payload.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              const blobUrl = resolveBlobUrl();
+              openImageInNewTab(blobUrl);
+              if (blobUrl !== payload.url) {
+                window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+              }
+            }}
             className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
           >
             Open in new tab ↗
