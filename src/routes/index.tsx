@@ -1,8 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import cakeImg from "../assets/cake-bright.png";
-import smash1 from "../assets/smash-1.png";
-import smash2 from "../assets/smash-2.png";
 
 export const Route = createFileRoute("/")({
   component: Splash,
