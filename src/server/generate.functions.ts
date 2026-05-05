@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const DAILY_FREE_GENERATIONS = 10;
+
 
 const InputSchema = z.object({
   wish: z.string().min(1).max(500),
