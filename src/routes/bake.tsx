@@ -172,8 +172,16 @@ function BakePage() {
         <Link to="/" className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground">
           ← layercake
         </Link>
-        <div className="pointer-events-auto rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
-          {active < LAYERS.length ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}` : "Your slice"}
+        <div className="pointer-events-auto flex items-center gap-3">
+          <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
+            {saving ? "Saving…" : active < LAYERS.length ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}` : "Your slice"}
+          </div>
+          <Link
+            to="/slices"
+            className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+          >
+            My slices
+          </Link>
         </div>
       </header>
 
