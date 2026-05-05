@@ -277,19 +277,23 @@ function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): S
     ctx.fillText(s.emoji, x, y);
   }
 
-  const url = canvas.toDataURL("image/png");
-  return { url, blob: dataUrlToBlob(url), filename: DOWNLOAD_FILENAME };
-}
+  const rect = stage.getBoundingClientRect();
+  const stageWidth = rect.width || w;
 
-function downloadBlobFromClick(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  for (const s of icing.stickers) {
+    const x = (s.x / 100) * w;
+    const y = (s.y / 100) * h;
+    const px = s.size * (w / stageWidth);
+    ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.25)";
+    ctx.shadowBlur = px * 0.15;
+    ctx.shadowOffsetY = px * 0.06;
+    ctx.fillText(s.emoji, x, y);
+  }
+
+  const blob = dataUrlToBlob(canvas.toDataURL("image/png"));
+  return { url: URL.createObjectURL(blob), blob, filename: DOWNLOAD_FILENAME };
 }
 
