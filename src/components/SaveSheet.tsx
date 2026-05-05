@@ -45,7 +45,7 @@ export function SaveSheet({
   const onDownload = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     try {
-      const blob = payload.blob ?? await fetch(payload.url).then((res) => res.blob());
+      const blob: Blob = payload.blob ?? await fetch(payload.url).then((res) => res.blob());
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
