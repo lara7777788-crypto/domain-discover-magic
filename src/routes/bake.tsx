@@ -271,6 +271,7 @@ function BakePage() {
               <p className="mt-3 text-lg italic opacity-75" style={{ color: l.ink }}>{l.tagline}</p>
 
               <textarea
+                ref={(el) => { textRefs.current[l.key] = el; }}
                 value={values[l.key]}
                 onChange={(e) => setValues((v) => ({ ...v, [l.key]: e.target.value }))}
                 placeholder={l.hint}
