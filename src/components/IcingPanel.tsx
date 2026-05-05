@@ -278,7 +278,8 @@ export async function renderIced(
   const img = new Image();
   // Only set crossOrigin for remote URLs; data: URLs choke on it in some browsers.
   if (/^https?:/i.test(imageUrl)) img.crossOrigin = "anonymous";
-  try {
+
+
   await new Promise<void>((res, rej) => {
     img.onload = () => res();
     img.onerror = () => rej(new Error("Couldn't load image"));
