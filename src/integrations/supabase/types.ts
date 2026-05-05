@@ -85,27 +85,6 @@ export type Database = {
         }
         Relationships: []
       }
-      daily_generations: {
-        Row: {
-          count: number
-          day: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          count?: number
-          day?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          count?: number
-          day?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       designs: {
         Row: {
           created_at: string
@@ -270,14 +249,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      consume_generation_quota: {
-        Args: { p_daily_free: number; p_user_id: string }
-        Returns: {
-          credits_remaining: number
-          free_used: number
-          source: string
-        }[]
-      }
       current_user_is_pro: { Args: { check_env?: string }; Returns: boolean }
       grant_slice_credits: {
         Args: { p_amount: number; p_user_id: string }
@@ -294,6 +265,7 @@ export type Database = {
           granted: number
         }[]
       }
+      spend_generation_credit: { Args: { p_user_id: string }; Returns: number }
       spend_slice_credit: {
         Args: { p_slice_id: string; p_user_id: string }
         Returns: number
