@@ -89,6 +89,13 @@ function BakePage() {
   }, [user, sliceId]);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const textRefs = useRef<Record<LayerKey, HTMLTextAreaElement | null>>({
+    wish: null,
+    visual: null,
+    text: null,
+    layout: null,
+    logo: null,
+  });
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
@@ -147,21 +154,27 @@ function BakePage() {
   };
 
   const onBake = async () => {
-    if (!values.wish.trim()) {
+    const currentValues = LAYERS.reduce(
+      (next, layer) => ({ ...next, [layer.key]: textRefs.current[layer.key]?.value ?? values[layer.key] }),
+      {} as Record<LayerKey, string>,
+    );
+
+    if (!currentValues.wish.trim()) {
       setError("Add a wish first — it's the base of the cake.");
       goTo(0);
       return;
     }
+    setValues(currentValues);
     setError(null);
     setLoading(true);
     setResult(null);
     try {
-      const res = await generate({ data: { ...values, format } });
+      const res = await generate({ data: { ...currentValues, format } });
       setResult(res);
       goTo(LAYERS.length);
       // Auto-save
-      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
-      await persistSlice({ values, format, result: res, icing }, name);
+      const name = currentValues.wish.trim().slice(0, 60) || "Untitled slice";
+      await persistSlice({ values: currentValues, format, result: res, icing }, name);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
