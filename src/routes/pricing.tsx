@@ -55,7 +55,7 @@ function PricingPage() {
     }
     openCheckout({
       priceId,
-      userId: user.id,
+      
       customerEmail: user.email ?? undefined,
       returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });
