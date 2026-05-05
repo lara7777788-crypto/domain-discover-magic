@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+const DAILY_FREE_GENERATIONS = 10;
 
 const InputSchema = z.object({
   wish: z.string().min(1).max(500),
@@ -78,7 +81,7 @@ const isBlockedInput = (i: GenerateInput): boolean => {
 export const generate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
-  .handler(async ({ data }): Promise<GenerateResult> => {
+  .handler(async ({ data, context }): Promise<GenerateResult> => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
 
@@ -86,6 +89,20 @@ export const generate = createServerFn({ method: "POST" })
       throw new Error(
         "This request can't be generated. Layercake doesn't allow sexual, hateful, violent, or illegal content.",
       );
+    }
+
+    // Per-user quota: free daily allowance, then spend a slice credit
+    const { error: quotaErr } = await supabaseAdmin.rpc("consume_generation_quota", {
+      p_user_id: context.userId,
+      p_daily_free: DAILY_FREE_GENERATIONS,
+    });
+    if (quotaErr) {
+      if ((quotaErr.message || "").includes("quota_exhausted")) {
+        throw new Error(
+          `You've used your ${DAILY_FREE_GENERATIONS} free generations for today. Add slice credits to keep going.`,
+        );
+      }
+      throw quotaErr;
     }
 
     // 1. Prompt layer — rewrite the wish into a real image prompt
