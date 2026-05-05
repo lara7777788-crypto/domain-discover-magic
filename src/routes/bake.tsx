@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { LayerCake } from "../components/LayerCake";
 
 export const Route = createFileRoute("/bake")({
   head: () => ({
     meta: [
       { title: "Bake — Layercake" },
-      { name: "description", content: "Build your visual layer by layer." },
+      { name: "description", content: "Build your visual one delicious layer at a time." },
     ],
   }),
   component: BakePage,
@@ -15,18 +14,19 @@ export const Route = createFileRoute("/bake")({
 type Layer = {
   key: string;
   name: string;
-  emoji: string;
+  tagline: string;
+  hint: string;
   bg: string;
-  text: string;
-  prompt: string;
+  ink: string;
 };
 
 const LAYERS: Layer[] = [
-  { key: "visual",  name: "Visual",  emoji: "🍓", bg: "var(--strawberry)", text: "var(--foreground)", prompt: "Describe the mood, style, palette." },
-  { key: "text",    name: "Text",    emoji: "🍈", bg: "var(--melon)",      text: "var(--foreground)", prompt: "What words live on it?" },
-  { key: "layout",  name: "Layout",  emoji: "🫐", bg: "var(--ramune)",     text: "var(--foreground)", prompt: "Composition, balance, focal point." },
-  { key: "logo",    name: "Logo",    emoji: "🍵", bg: "var(--matcha)",     text: "var(--foreground)", prompt: "Mark, monogram, signature." },
-  { key: "prompt",  name: "Prompt",  emoji: "🍒", bg: "var(--ube)",        text: "var(--cream)",      prompt: "The cherry on top — Layercake rewrites your wish into a prompt that actually works." },
+  { key: "wish",   name: "Wish",   tagline: "Say it plainly.",          hint: "A poster for a pastry shop in Kyoto, soft and dreamy.",   bg: "#FFE0EC", ink: "#7A2A4E" },
+  { key: "visual", name: "Visual", tagline: "Choose a mood.",           hint: "Editorial · Playful · Hand-drawn · Cinematic",            bg: "#FFE6CF", ink: "#7A4A1F" },
+  { key: "text",   name: "Text",   tagline: "What words live on it?",   hint: "A title, a tagline, or nothing at all.",                  bg: "#FFF6BE", ink: "#6E5A0E" },
+  { key: "layout", name: "Layout", tagline: "Where the eye lands.",     hint: "Centered · Off-axis · Grid · Generous space",             bg: "#D9F1D2", ink: "#1F5A2A" },
+  { key: "logo",   name: "Logo",   tagline: "A signature, optional.",   hint: "Drop a mark, monogram, or wordmark.",                     bg: "#D4E8FF", ink: "#1A3D6E" },
+  { key: "prompt", name: "Prompt", tagline: "The cherry on top.",       hint: "Layercake rewrites your wish into a prompt that works.",  bg: "#E5D8FF", ink: "#3E1F70" },
 ];
 
 function BakePage() {
@@ -41,12 +41,11 @@ function BakePage() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            const i = Number((e.target as HTMLElement).dataset.idx);
-            setActive(i);
+            setActive(Number((e.target as HTMLElement).dataset.idx));
           }
         });
       },
-      { root, threshold: 0.6 },
+      { root, threshold: 0.55 },
     );
     sectionRefs.current.forEach((s) => s && obs.observe(s));
     return () => obs.disconnect();
@@ -60,34 +59,60 @@ function BakePage() {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden bg-cream">
-      {/* fixed cake on the left as you slice down */}
-      <div className="pointer-events-none fixed left-6 top-1/2 z-10 hidden -translate-y-1/2 md:block">
-        <LayerCake size={260} activeLayer={active} />
-      </div>
+    <div className="relative h-screen overflow-hidden">
+      {/* Top bar */}
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 md:px-10">
+        <Link
+          to="/"
+          className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground"
+        >
+          ← layercake
+        </Link>
+        <div className="pointer-events-auto rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
+          Layer {active + 1} / {LAYERS.length} · {LAYERS[active].name}
+        </div>
+      </header>
 
-      {/* layer indicator (right rail dots) */}
-      <div className="fixed right-5 top-1/2 z-20 -translate-y-1/2 flex flex-col gap-3">
-        {LAYERS.map((l, i) => (
-          <button
-            key={l.key}
-            onClick={() => goTo(i)}
-            aria-label={`Go to ${l.name} layer`}
-            className="group flex items-center gap-2"
-          >
-            <span
-              className="h-3 w-3 rounded-full border-2 transition-all"
-              style={{
-                background: active === i ? l.bg : "transparent",
-                borderColor: l.bg,
-                transform: active === i ? "scale(1.4)" : "scale(1)",
-              }}
-            />
-          </button>
-        ))}
-      </div>
+      {/* Right rail — mini cake stack */}
+      <nav
+        aria-label="Layers"
+        className="fixed right-5 top-1/2 z-30 flex -translate-y-1/2 flex-col items-end gap-1.5"
+      >
+        {LAYERS.map((l, i) => {
+          const isActive = active === i;
+          return (
+            <button
+              key={l.key}
+              onClick={() => goTo(i)}
+              aria-label={l.name}
+              className="group flex items-center gap-3"
+            >
+              <span
+                className={`text-[10px] font-medium uppercase tracking-[0.2em] transition-all ${
+                  isActive ? "opacity-90" : "opacity-0 group-hover:opacity-60"
+                }`}
+                style={{ color: l.ink }}
+              >
+                {l.name}
+              </span>
+              <span
+                className="block rounded-full transition-all duration-300"
+                style={{
+                  width: isActive ? 44 : 26,
+                  height: 8,
+                  background: l.bg,
+                  boxShadow: isActive
+                    ? `0 4px 14px -4px ${l.ink}55, inset 0 -2px 0 0 rgba(255,255,255,0.6)`
+                    : `inset 0 -1px 0 0 rgba(255,255,255,0.5)`,
+                  border: `1px solid ${l.ink}22`,
+                }}
+              />
+            </button>
+          );
+        })}
+      </nav>
 
-      {/* scroll snap container */}
+      {/* Layer panels */}
       <div
         ref={containerRef}
         className="h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth"
@@ -97,56 +122,60 @@ function BakePage() {
             key={l.key}
             data-idx={i}
             ref={(el) => { sectionRefs.current[i] = el; }}
-            className="flex h-screen w-full snap-start items-center justify-center px-6 md:pl-[340px]"
-            style={{ background: `linear-gradient(180deg, ${l.bg} 0%, color-mix(in oklch, ${l.bg} 70%, var(--cream)) 100%)`, color: l.text }}
+            className="relative flex h-screen w-full snap-start items-center justify-center px-6 transition-colors"
+            style={{
+              background: `linear-gradient(180deg, ${l.bg} 0%, #FFFDF8 100%)`,
+              color: l.ink,
+            }}
           >
-            <div className="max-w-xl">
-              <div className="mb-4 text-6xl animate-sprinkle" aria-hidden>{l.emoji}</div>
-              <div className="mb-2 text-sm font-medium uppercase tracking-[0.3em] opacity-70">
-                Layer {i + 1} of {LAYERS.length}
-              </div>
-              <h2 className="font-display text-5xl md:text-7xl font-bold leading-none">
-                {l.name}
+            <div className="mx-auto w-full max-w-xl">
+              <p
+                className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] opacity-60"
+                style={{ color: l.ink }}
+              >
+                Layer {String(i + 1).padStart(2, "0")}
+              </p>
+              <h2 className="font-display text-5xl font-semibold leading-[1.02] md:text-6xl" style={{ color: l.ink }}>
+                {l.name}.
               </h2>
-              <p className="mt-6 text-lg md:text-xl opacity-80">{l.prompt}</p>
+              <p className="mt-3 text-lg italic opacity-75" style={{ color: l.ink }}>
+                {l.tagline}
+              </p>
 
-              <textarea
-                placeholder={`Add your ${l.name.toLowerCase()}…`}
-                className="mt-8 w-full rounded-3xl border-2 border-foreground/15 bg-cream/70 p-5 text-base text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-4"
-                style={{ boxShadow: `0 8px 0 0 color-mix(in oklch, ${l.bg} 60%, var(--foreground) 20%)` }}
-                rows={3}
-              />
+              <div className="mt-8">
+                <textarea
+                  placeholder={l.hint}
+                  rows={3}
+                  className="w-full resize-none rounded-2xl border border-white/60 bg-white/70 p-5 text-base text-foreground placeholder:text-foreground/35 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white"
+                />
+              </div>
 
-              <div className="mt-6 flex items-center gap-3">
-                {i > 0 && (
-                  <button
-                    onClick={() => goTo(i - 1)}
-                    className="rounded-full border-2 border-foreground/20 bg-cream/60 px-5 py-2 text-sm font-medium hover:bg-cream"
-                  >
-                    ↑ {LAYERS[i - 1].name}
-                  </button>
-                )}
+              <div className="mt-6 flex items-center justify-between">
+                <button
+                  onClick={() => i > 0 && goTo(i - 1)}
+                  disabled={i === 0}
+                  className="text-sm font-medium opacity-60 transition hover:opacity-100 disabled:invisible"
+                  style={{ color: l.ink }}
+                >
+                  ↑ Previous
+                </button>
+
                 {i < LAYERS.length - 1 ? (
                   <button
                     onClick={() => goTo(i + 1)}
-                    className="rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-cream transition-transform hover:scale-105"
+                    className="rounded-full px-6 py-3 text-sm font-medium text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
+                    style={{ background: l.ink }}
                   >
-                    Next layer: {LAYERS[i + 1].name} ↓
+                    Next: {LAYERS[i + 1].name} ↓
                   </button>
                 ) : (
                   <button
-                    className="rounded-full bg-foreground px-7 py-3 text-sm font-semibold text-cream transition-transform hover:scale-105"
+                    className="rounded-full bg-foreground px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
                   >
-                    🍰 Bake my slice
+                    Bake my slice 🍰
                   </button>
                 )}
               </div>
-
-              {i === 0 && (
-                <Link to="/" className="mt-10 inline-block text-sm opacity-60 hover:opacity-100 underline underline-offset-4">
-                  ← back to the bakery
-                </Link>
-              )}
             </div>
           </section>
         ))}
