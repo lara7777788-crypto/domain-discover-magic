@@ -29,7 +29,7 @@ function Splash() {
   const [built, setBuilt] = useState(0); // count of pieces placed
   const [impact, setImpact] = useState<number>(-1); // band index of current impact
   const [hover, setHover] = useState(false);
-  const [exiting, setExiting] = useState<"idle" | "anticipate" | "squash" | "burst" | "out">("idle");
+  const [exiting, setExiting] = useState<"idle" | "anticipate" | "frame1" | "frame2" | "out">("idle");
 
   useEffect(() => {
     const start = 280;
@@ -47,35 +47,13 @@ function Splash() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  // Pre-compute crumb particles
-  const crumbs = useMemo(() => {
-    const out: { x: number; y: number; dx: number; dy: number; r: number; rot: number; color: string }[] = [];
-    BANDS.forEach((b) => {
-      const cy = ((b.t + b.b) / 2) * CAKE_H;
-      for (let k = 0; k < 8; k++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 120 + Math.random() * 180;
-        out.push({
-          x: CAKE_W / 2 + (Math.random() - 0.5) * CAKE_W * 0.7,
-          y: cy + (Math.random() - 0.5) * 16,
-          dx: Math.cos(angle) * dist,
-          dy: Math.sin(angle) * dist - 60, // bias upward
-          r: 6 + Math.random() * 10,
-          rot: Math.random() * 360,
-          color: b.color,
-        });
-      }
-    });
-    return out;
-  }, []);
-
   const handleEnter = () => {
     if (exiting !== "idle") return;
     setExiting("anticipate");
-    window.setTimeout(() => setExiting("squash"), 130);
-    window.setTimeout(() => setExiting("burst"), 360);
-    window.setTimeout(() => setExiting("out"), 620);
-    window.setTimeout(() => navigate({ to: "/bake" }), 820);
+    window.setTimeout(() => setExiting("frame1"), 140);
+    window.setTimeout(() => setExiting("frame2"), 360);
+    window.setTimeout(() => setExiting("out"), 720);
+    window.setTimeout(() => navigate({ to: "/bake" }), 920);
   };
 
   const fullyBuilt = built >= BUILD_SEQUENCE.length;
