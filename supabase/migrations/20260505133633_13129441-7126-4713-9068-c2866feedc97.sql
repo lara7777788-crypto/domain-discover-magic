@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS designs_user_updated_idx ON public.designs (user_id, updated_at DESC);
