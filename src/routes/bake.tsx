@@ -373,6 +373,7 @@ function BakePage() {
           </div>
         </section>
       </div>
+      <SaveSheet payload={savePayload} onClose={closeSave} />
     </div>
   );
 }
