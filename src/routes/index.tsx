@@ -210,53 +210,106 @@ function Splash() {
             })}
           </div>
 
-          {/* FRAME 1 — first smash (squashed cake) */}
-          <img
-            src={smash1}
-            alt=""
-            draggable={false}
+          {/* FRAME 1 — drawn squashed cake (SVG) */}
+          <svg
+            width={CAKE_W * 1.3}
+            height={CAKE_H * 0.6}
+            viewBox="0 0 260 160"
             style={{
               position: "absolute",
               left: "50%",
               bottom: 4,
-              width: CAKE_W * 1.15,
-              height: "auto",
               transform: `translateX(-50%) translateY(${
-                exiting === "frame1" ? 0 : exiting === "frame2" || exiting === "out" ? 6 : 30
-              }px) scale(${exiting === "frame1" ? 1 : exiting === "frame2" || exiting === "out" ? 1.05 : 0.6})`,
+                exiting === "frame1" ? 0 : exiting === "frame2" || exiting === "out" ? 8 : 30
+              }px) scale(${
+                exiting === "frame1" ? 1 : exiting === "frame2" || exiting === "out" ? 1.04 : 0.5
+              })`,
               opacity:
-                exiting === "frame1" ? 1 : exiting === "frame2" ? 0.35 : 0,
-              transition: "transform 220ms cubic-bezier(.7,0,.3,1), opacity 220ms ease-out",
+                exiting === "frame1" ? 1 : exiting === "frame2" ? 0.5 : exiting === "out" ? 0 : 0,
+              transition: "transform 240ms cubic-bezier(.7,0,.3,1), opacity 260ms ease-out",
               transformOrigin: "bottom center",
               pointerEvents: "none",
-              filter: "drop-shadow(0 8px 14px rgba(120,60,110,0.25))",
+              filter: "drop-shadow(0 10px 14px rgba(120,60,110,0.28))",
             }}
-          />
+            aria-hidden
+          >
+            <defs>
+              <linearGradient id="sq-pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFD6E2" /><stop offset="100%" stopColor="#FF8FB1" /></linearGradient>
+              <linearGradient id="sq-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFD9B0" /><stop offset="100%" stopColor="#FFB76A" /></linearGradient>
+              <linearGradient id="sq-yellow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFF1A8" /><stop offset="100%" stopColor="#FFE070" /></linearGradient>
+              <linearGradient id="sq-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#C8ECFF" /><stop offset="100%" stopColor="#7CC8FF" /></linearGradient>
+              <linearGradient id="sq-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6F4DA" /><stop offset="100%" stopColor="#9BE3A4" /></linearGradient>
+            </defs>
+            <path d="M 18 150 Q 130 158, 244 150 L 240 134 Q 130 142, 22 134 Z" fill="url(#sq-green)" />
+            <path d="M 22 134 Q 130 142, 240 134 L 236 118 Q 130 126, 26 118 Z" fill="url(#sq-blue)" />
+            <path d="M 26 118 Q 130 126, 236 118 L 232 102 Q 130 110, 30 102 Z" fill="url(#sq-yellow)" />
+            <path d="M 30 102 Q 130 110, 232 102 L 226 86 Q 130 94, 36 86 Z" fill="url(#sq-orange)" />
+            <path d="M 36 86 Q 130 94, 226 86 L 218 68 Q 130 78, 44 68 Z" fill="url(#sq-pink)" />
+            <path d="M 44 68 Q 80 40, 130 50 Q 180 40, 218 68 Q 200 60, 180 66 Q 160 56, 140 64 Q 120 54, 100 64 Q 80 56, 60 66 Q 50 62, 44 68 Z" fill="#FFFFFF" stroke="#FFD6E2" strokeWidth="1.5" />
+            {[[60,78,"#FF6FA3"],[90,60,"#FFD55C"],[120,70,"#7CC8FF"],[150,58,"#86DDA0"],[180,72,"#C9A8FF"],[200,80,"#FF6FA3"]].map(([x,y,c],i)=>(
+              <rect key={i} x={x as number} y={y as number} width="4" height="2" rx="1" fill={c as string} transform={`rotate(${i*35} ${x} ${y})`} />
+            ))}
+          </svg>
 
-          {/* FRAME 2 — full smash with crumbs flying */}
-          <img
-            src={smash2}
-            alt=""
-            draggable={false}
+          {/* FRAME 2 — flat smear (drawn) */}
+          <svg
+            width={CAKE_W * 1.6}
+            height={CAKE_H * 0.4}
+            viewBox="0 0 320 110"
             style={{
               position: "absolute",
               left: "50%",
-              bottom: -10,
-              width: CAKE_W * 1.4,
-              height: "auto",
-              transform: `translateX(-50%) scale(${
-                exiting === "frame2" ? 1 : exiting === "out" ? 1.06 : 0.85
-              }) rotate(${exiting === "out" ? 4 : 0}deg)`,
+              bottom: -8,
+              transform: `translateX(-50%) scale(${exiting === "frame2" ? 1 : exiting === "out" ? 1.06 : 0.8})`,
               opacity: exiting === "frame2" ? 1 : exiting === "out" ? 0 : 0,
-              transition:
-                exiting === "out"
-                  ? "opacity 200ms ease-out, transform 280ms ease-out"
-                  : "transform 260ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease-out",
+              transition: "transform 320ms cubic-bezier(.2,.8,.2,1), opacity 280ms ease-out",
               transformOrigin: "center bottom",
               pointerEvents: "none",
-              filter: "drop-shadow(0 6px 10px rgba(120,60,110,0.2))",
+              filter: "drop-shadow(0 6px 10px rgba(120,60,110,0.22))",
             }}
-          />
+            aria-hidden
+          >
+            <path d="M 30 90 Q 10 70, 40 60 Q 50 40, 90 50 Q 110 30, 150 48 Q 190 32, 220 52 Q 260 38, 280 60 Q 310 68, 290 92 Q 240 105, 180 96 Q 110 108, 60 100 Q 35 102, 30 90 Z" fill="#FFE0EC" stroke="#FFB3CE" strokeWidth="1.5" />
+            <ellipse cx="80" cy="78" rx="22" ry="9" fill="#9BE3A4" opacity="0.85" />
+            <ellipse cx="130" cy="68" rx="26" ry="8" fill="#7CC8FF" opacity="0.85" />
+            <ellipse cx="180" cy="80" rx="24" ry="9" fill="#FFE070" opacity="0.85" />
+            <ellipse cx="225" cy="70" rx="22" ry="8" fill="#FFB76A" opacity="0.85" />
+            <ellipse cx="155" cy="86" rx="20" ry="7" fill="#FF8FB1" opacity="0.9" />
+            {[[55,60,10,"#FF8FB1"],[105,50,9,"#FFE070"],[200,50,11,"#7CC8FF"],[245,88,10,"#9BE3A4"],[260,64,8,"#C9A8FF"]].map(([x,y,r,c],i)=>(
+              <circle key={i} cx={x as number} cy={y as number} r={r as number} fill={c as string} />
+            ))}
+          </svg>
+
+          {/* COLORFUL PARTICLE BURST */}
+          {(exiting === "frame1" || exiting === "frame2" || exiting === "out") && (
+            <div className="absolute left-1/2 pointer-events-none" style={{ bottom: 30, width: 0, height: 0 }}>
+              {particles.map((p, i) => {
+                const launched = exiting === "frame2" || exiting === "out";
+                const tx = launched ? p.dx : p.x;
+                const ty = launched ? p.dy : p.y;
+                const delay = (i % 8) * 8;
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      width: p.r,
+                      height: p.shape === "rect" ? p.r * 0.55 : p.r,
+                      borderRadius: p.shape === "rect" ? 2 : "50%",
+                      background: p.color,
+                      transform: `translate(${tx}px, ${ty}px) rotate(${p.rot + (launched ? 180 : 0)}deg)`,
+                      opacity: exiting === "out" ? 0 : 1,
+                      transition: `transform 520ms cubic-bezier(.2,.7,.2,1) ${delay}ms, opacity 260ms ease-out ${exiting === "out" ? "120ms" : "0ms"}`,
+                      boxShadow: "0 1px 2px rgba(80,30,70,0.2)",
+                      willChange: "transform, opacity",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
 
           {fullyBuilt && exiting === "idle" && (
             <div
