@@ -97,14 +97,31 @@ function Splash() {
 
   return (
     <main className="relative min-h-screen overflow-hidden">
+      {/* Base cream */}
+      <div aria-hidden className="absolute inset-0" style={{ background: "var(--cream)" }} />
+
+      {/* Ambient pastel wash */}
       <div
         aria-hidden
-        className="absolute inset-0"
+        className="absolute inset-0 animate-ambient"
+        style={{ background: "var(--gradient-ambient)" }}
+      />
+
+      {/* Soft hero glow behind cake */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[34vh] -translate-x-1/2 -translate-y-1/2"
         style={{
+          width: 720,
+          height: 720,
           background:
-            "linear-gradient(180deg, #FFE5F1 0%, #FFE9D6 22%, #FFF5C2 42%, #DFF5DD 62%, #DCEEFF 82%, #ECE0FF 100%)",
+            "radial-gradient(closest-side, color-mix(in oklab, var(--cream) 92%, transparent) 0%, color-mix(in oklab, var(--strawberry) 12%, transparent) 40%, transparent 75%)",
+          filter: "blur(8px)",
         }}
       />
+
+      {/* Grain */}
+      <div aria-hidden className="grain-overlay" />
 
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 28 }).map((_, i) => {
@@ -117,7 +134,7 @@ function Splash() {
           return (
             <span
               key={i}
-              className="absolute rounded-full opacity-70 animate-float"
+              className="absolute rounded-full opacity-50 animate-float"
               style={{
                 left: `${left}%`,
                 top: `-20px`,
@@ -134,32 +151,37 @@ function Splash() {
 
       <header className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12">
         <div className="font-display text-xl font-semibold tracking-tight text-foreground/80">
-          layercake<span style={{ color: "#FF6FA3" }}>.</span>
+          layercake<span style={{ color: "var(--strawberry)" }}>.</span>
         </div>
         <div className="hidden text-[11px] uppercase tracking-[0.3em] text-foreground/50 md:block">
-          est. 2026 · small batches
+          visual identity studio · est. 2026
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-16 text-center">
-        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
-          A new kind of visual studio
+      <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-20 text-center">
+        <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
+          AI-native visual identity studio
         </p>
 
-        <h1 className="font-display text-5xl font-semibold leading-[1.02] text-foreground md:text-7xl">
-          Make beautiful things,
+        <h1 className="font-display font-semibold leading-[0.98] text-foreground" style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)" }}>
+          Make <span className="font-editorial font-normal text-foreground/85" style={{ fontSize: "1.18em" }}>beautiful</span> things,
           <br />
-          <span className="italic text-foreground/70">layer by layer.</span>
+          <span className="font-editorial font-normal text-foreground/70">layer by layer.</span>
         </h1>
+
+        <p className="mx-auto mt-7 max-w-[46ch] text-base leading-relaxed text-foreground/60 md:text-lg">
+          AI-native visual identity systems for the next generation of creators, brands and worlds.
+        </p>
 
         {/* Cake stage */}
         <div
-          className="relative mt-8 mb-6"
+          className="relative mt-10 mb-8 animate-floaty"
           style={{
             width: CAKE_W,
             height: CAKE_H + 36,
           }}
         >
+
           {/* Soft ground shadow */}
           <div
             aria-hidden
