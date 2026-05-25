@@ -3,6 +3,8 @@ import { routeTree } from "./routeTree.gen";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  // Full error to the console for debugging (stack, cause, etc.)
+  if (typeof console !== "undefined") console.error("[Router error boundary]", error);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
