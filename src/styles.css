@@ -165,7 +165,89 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
+  .font-editorial {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    letter-spacing: -0.02em;
+  }
 }
+
+/* Premium tokens */
+:root {
+  --shadow-soft: 0 40px 80px -40px color-mix(in oklab, var(--foreground) 30%, transparent);
+  --shadow-tactile: 0 12px 24px -10px color-mix(in oklab, var(--strawberry) 55%, transparent),
+                    0 2px 0 0 color-mix(in oklab, var(--cream) 80%, transparent) inset,
+                    0 -3px 6px color-mix(in oklab, var(--foreground) 18%, transparent) inset;
+  --gradient-ambient: radial-gradient(60% 50% at 20% 10%, color-mix(in oklab, var(--strawberry) 35%, transparent) 0%, transparent 70%),
+                      radial-gradient(50% 45% at 85% 20%, color-mix(in oklab, var(--ube) 28%, transparent) 0%, transparent 70%),
+                      radial-gradient(55% 50% at 70% 90%, color-mix(in oklab, var(--matcha) 25%, transparent) 0%, transparent 70%),
+                      radial-gradient(50% 45% at 10% 80%, color-mix(in oklab, var(--ramune) 28%, transparent) 0%, transparent 70%);
+  --gradient-icing: radial-gradient(closest-side, color-mix(in oklab, var(--cream) 90%, transparent) 0%, transparent 75%);
+}
+
+/* Grain overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Premium button */
+.btn-premium {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.9rem;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--cream);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--strawberry) 92%, white) 0%, var(--strawberry) 100%);
+  box-shadow: var(--shadow-tactile);
+  transition: transform 280ms cubic-bezier(.2,.8,.2,1), box-shadow 280ms;
+  overflow: hidden;
+  isolation: isolate;
+  border: none;
+  cursor: pointer;
+}
+.btn-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, color-mix(in oklab, var(--cream) 70%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms ease;
+  z-index: -1;
+}
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -12px color-mix(in oklab, var(--strawberry) 65%, transparent),
+              0 2px 0 0 color-mix(in oklab, var(--cream) 80%, transparent) inset,
+              0 -3px 6px color-mix(in oklab, var(--foreground) 18%, transparent) inset;
+}
+.btn-premium:hover::before { transform: translateX(120%); }
+
+.btn-ghost-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.95rem 1.4rem;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: color-mix(in oklab, var(--foreground) 75%, transparent);
+  transition: color 200ms, transform 200ms;
+}
+.btn-ghost-premium:hover { color: var(--foreground); transform: translateX(2px); }
 
 @keyframes wobble {
   0%, 100% { transform: rotate(-1.5deg); }
@@ -183,6 +265,20 @@
   0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
   10%  { opacity: 0.7; }
   100% { transform: translateY(110vh) translateX(40px) rotate(220deg); opacity: 0; }
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(-0.3deg); }
+  50% { transform: translateY(-8px) rotate(0.3deg); }
+}
+@keyframes ambient {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(1.5%, -1.5%, 0) scale(1.04); }
+}
+.animate-floaty { animation: floaty 7s ease-in-out infinite; }
+.animate-ambient { animation: ambient 18s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-floaty, .animate-ambient, .animate-wobble, .animate-float, .animate-sprinkle { animation: none !important; }
 }
 .animate-wobble { animation: wobble 5s ease-in-out infinite; transform-origin: bottom center; }
 .animate-sprinkle { animation: sprinkle 3s ease-in-out infinite; }

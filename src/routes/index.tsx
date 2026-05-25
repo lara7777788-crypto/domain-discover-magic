@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.png";
+import { ShowcaseGrid } from "@/components/ShowcaseGrid";
+import { LayerStack } from "@/components/LayerStack";
+import { useReveal } from "@/hooks/useReveal";
+
 
 export const Route = createFileRoute("/")({
   component: Splash,
@@ -93,14 +97,31 @@ function Splash() {
 
   return (
     <main className="relative min-h-screen overflow-hidden">
+      {/* Base cream */}
+      <div aria-hidden className="absolute inset-0" style={{ background: "var(--cream)" }} />
+
+      {/* Ambient pastel wash */}
       <div
         aria-hidden
-        className="absolute inset-0"
+        className="absolute inset-0 animate-ambient"
+        style={{ background: "var(--gradient-ambient)" }}
+      />
+
+      {/* Soft hero glow behind cake */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[34vh] -translate-x-1/2 -translate-y-1/2"
         style={{
+          width: 720,
+          height: 720,
           background:
-            "linear-gradient(180deg, #FFE5F1 0%, #FFE9D6 22%, #FFF5C2 42%, #DFF5DD 62%, #DCEEFF 82%, #ECE0FF 100%)",
+            "radial-gradient(closest-side, color-mix(in oklab, var(--cream) 92%, transparent) 0%, color-mix(in oklab, var(--strawberry) 12%, transparent) 40%, transparent 75%)",
+          filter: "blur(8px)",
         }}
       />
+
+      {/* Grain */}
+      <div aria-hidden className="grain-overlay" />
 
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 28 }).map((_, i) => {
@@ -113,7 +134,7 @@ function Splash() {
           return (
             <span
               key={i}
-              className="absolute rounded-full opacity-70 animate-float"
+              className="absolute rounded-full opacity-50 animate-float"
               style={{
                 left: `${left}%`,
                 top: `-20px`,
@@ -130,32 +151,37 @@ function Splash() {
 
       <header className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12">
         <div className="font-display text-xl font-semibold tracking-tight text-foreground/80">
-          layercake<span style={{ color: "#FF6FA3" }}>.</span>
+          layercake<span style={{ color: "var(--strawberry)" }}>.</span>
         </div>
         <div className="hidden text-[11px] uppercase tracking-[0.3em] text-foreground/50 md:block">
-          est. 2026 · small batches
+          visual identity studio · est. 2026
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-16 text-center">
-        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
-          A new kind of visual studio
+      <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-20 text-center">
+        <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
+          AI-native visual identity studio
         </p>
 
-        <h1 className="font-display text-5xl font-semibold leading-[1.02] text-foreground md:text-7xl">
-          Make beautiful things,
+        <h1 className="font-display font-semibold leading-[0.98] text-foreground" style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)" }}>
+          Make <span className="font-editorial font-normal text-foreground/85" style={{ fontSize: "1.18em" }}>beautiful</span> things,
           <br />
-          <span className="italic text-foreground/70">layer by layer.</span>
+          <span className="font-editorial font-normal text-foreground/70">layer by layer.</span>
         </h1>
+
+        <p className="mx-auto mt-7 max-w-[46ch] text-base leading-relaxed text-foreground/60 md:text-lg">
+          AI-native visual identity systems for the next generation of creators, brands and worlds.
+        </p>
 
         {/* Cake stage */}
         <div
-          className="relative mt-8 mb-6"
+          className="relative mt-10 mb-8 animate-floaty"
           style={{
             width: CAKE_W,
             height: CAKE_H + 36,
           }}
         >
+
           {/* Soft ground shadow */}
           <div
             aria-hidden
@@ -405,39 +431,209 @@ function Splash() {
           )}
         </div>
 
-        {/* Simple CTA */}
-        <button
-          type="button"
-          onClick={handleEnter}
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          disabled={exiting !== "idle"}
-          className="rounded-full px-8 py-3.5 text-sm font-medium text-white transition-all disabled:opacity-70"
-          style={{
-            background: "#FF6FA3",
-            boxShadow: hover && fullyBuilt
-              ? "0 14px 30px -10px rgba(255,111,163,0.6)"
-              : "0 8px 20px -8px rgba(255,111,163,0.5)",
-            opacity: fullyBuilt ? 1 : 0,
-            transform: fullyBuilt ? (hover ? "translateY(-2px)" : "translateY(0)") : "translateY(8px)",
-            transition: "transform 220ms ease-out, opacity 400ms, box-shadow 220ms",
-            animation:
-              fullyBuilt && exiting === "idle" && !hover
-                ? "btnPulse 2.6s ease-in-out infinite"
-                : undefined,
-          }}
-        >
-          Enter the bakery →
-        </button>
+        {/* Premium CTA */}
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6" style={{ opacity: fullyBuilt ? 1 : 0, transition: "opacity 500ms" }}>
+          <button
+            type="button"
+            onClick={handleEnter}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            disabled={exiting !== "idle"}
+            className="btn-premium"
+            style={{
+              animation: fullyBuilt && exiting === "idle" && !hover ? "btnPulse 2.8s ease-in-out infinite" : undefined,
+            }}
+          >
+            Bake your first slice →
+          </button>
+          <a href="#system" className="btn-ghost-premium">See how layercake works</a>
+        </div>
 
         <p className="mt-6 max-w-md text-sm text-foreground/55">
-          One free slice on the house. After that, just a few sweet cents per render.
+          One free slice on the house — then just a few sweet cents per render.
         </p>
       </section>
 
-      <footer className="relative z-10 px-6 pb-8 text-center text-[11px] uppercase tracking-[0.25em] text-foreground/40">
-        layercake · visual generation, layered
+      {/* World, not logo */}
+      <WorldSection />
+
+      {/* Showcase */}
+      <ShowcaseSection />
+
+      {/* Layer stack */}
+      <SystemSection />
+
+      {/* Prompts -> systems */}
+      <PromptsToSystems />
+
+      {/* Closing CTA */}
+      <ClosingCTA onEnter={handleEnter} />
+
+      <footer className="relative z-10 px-6 pb-10 pt-6 text-center text-[11px] uppercase tracking-[0.3em] text-foreground/40">
+        layercake · a visual operating system for creators
       </footer>
     </main>
   );
 }
+
+function SectionShell({ children, id, className = "" }: { children: React.ReactNode; id?: string; className?: string }) {
+  const { ref, revealed } = useReveal<HTMLElement>();
+  return (
+    <section
+      id={id}
+      ref={ref as React.RefObject<HTMLElement>}
+      className={`relative z-10 mx-auto w-full max-w-6xl px-6 py-20 md:py-28 ${className}`}
+      style={{
+        opacity: revealed ? 1 : 0,
+        transform: revealed ? "translateY(0)" : "translateY(28px)",
+        transition: "opacity 800ms ease-out, transform 800ms cubic-bezier(.2,.8,.2,1)",
+      }}
+    >
+      {children}
+    </section>
+  );
+}
+
+function WorldSection() {
+  return (
+    <SectionShell id="world">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-16">
+        <div className="md:col-span-7">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/50">Chapter 01</p>
+          <h2 className="font-display font-semibold leading-[0.95] tracking-tight text-foreground" style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.5rem)" }}>
+            Build a <span className="font-editorial font-normal text-foreground/85">world,</span>
+            <br /> not just a logo.
+          </h2>
+        </div>
+        <div className="md:col-span-5 md:pt-6">
+          <p className="text-lg leading-relaxed text-foreground/65">
+            Every Layercake slice is a complete creative direction — logo, palette, type, motion, voice and atmosphere — generated as one coherent system. No more isolated images that don't speak the same language.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {["logo", "palette", "typography", "motion", "voice", "world"].map((t) => (
+              <span key={t} className="rounded-full border border-foreground/15 bg-cream/60 px-3 py-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+function ShowcaseSection() {
+  return (
+    <SectionShell id="showcase">
+      <div className="mb-12 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/50">Chapter 02 · outputs</p>
+          <h2 className="font-display font-semibold leading-[0.95] tracking-tight text-foreground" style={{ fontSize: "clamp(2rem, 4.5vw, 3.6rem)" }}>
+            One prompt. A whole <span className="font-editorial font-normal">universe.</span>
+          </h2>
+        </div>
+        <p className="max-w-sm text-sm text-foreground/55">
+          From brand identities and posters to packaging, editorial, social and character casts — Layercake bakes them all in one tin.
+        </p>
+      </div>
+      <ShowcaseGrid />
+    </SectionShell>
+  );
+}
+
+function SystemSection() {
+  return (
+    <SectionShell id="system">
+      <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-16">
+        <div className="md:col-span-6">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/50">Chapter 03 · the recipe</p>
+          <h2 className="font-display font-semibold leading-[0.95] tracking-tight text-foreground" style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.2rem)" }}>
+            Identity, <span className="font-editorial font-normal">layered.</span>
+          </h2>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-foreground/65">
+            Each slice is assembled the way a real studio would — concept first, then palette, type, mark, motion, and finally the world it lives in. You watch it stack in real time.
+          </p>
+        </div>
+        <div className="md:col-span-6">
+          <LayerStack />
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+function PromptsToSystems() {
+  return (
+    <SectionShell id="systems">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/50">Chapter 04 · the difference</p>
+        <h2 className="font-display font-semibold leading-[1.05] tracking-tight text-foreground" style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)" }}>
+          Layercake turns prompts into <span className="font-editorial font-normal">cohesive visual systems</span> — not isolated images.
+        </h2>
+
+        <div className="mt-12 flex items-center justify-center gap-4 md:gap-8">
+          <div className="rounded-2xl border border-foreground/10 bg-cream/70 px-5 py-3 text-left shadow-[0_10px_30px_-15px_rgba(0,0,0,0.25)]">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-foreground/45">prompt</div>
+            <div className="font-editorial text-lg text-foreground/85">"a quiet Parisian patisserie brand"</div>
+          </div>
+          <div className="relative flex-shrink-0">
+            <svg width="80" height="24" viewBox="0 0 80 24" className="hidden md:block">
+              <defs>
+                <linearGradient id="arrow" x1="0" x2="1">
+                  <stop offset="0" stopColor="var(--strawberry)" stopOpacity="0.2" />
+                  <stop offset="1" stopColor="var(--strawberry)" />
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="12" x2="70" y2="12" stroke="url(#arrow)" strokeWidth="2" strokeDasharray="4 3" />
+              <path d="M 66 6 L 78 12 L 66 18" stroke="var(--strawberry)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div className="md:hidden text-2xl">↓</div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-1.5">
+              {["var(--strawberry)", "var(--cream)", "var(--ube)", "var(--matcha)"].map((c, i) => (
+                <span key={i} className="h-8 w-8 rounded-lg" style={{ background: c, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 10px -4px rgba(0,0,0,0.2)" }} />
+              ))}
+            </div>
+            <div className="flex gap-1.5">
+              <span className="rounded-lg bg-cream/80 px-2 py-1 text-[10px] font-display">Aa</span>
+              <span className="rounded-lg bg-cream/80 px-2 py-1 font-editorial text-[12px] leading-none">Aa</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full" style={{ background: "var(--strawberry)" }}>
+                <span className="text-[10px] text-cream font-display font-semibold">L</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+function ClosingCTA({ onEnter }: { onEnter: () => void }) {
+  return (
+    <section className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-24 pt-8">
+      <div
+        className="relative overflow-hidden rounded-[2.5rem] px-8 py-20 text-center md:px-16"
+        style={{
+          background:
+            "radial-gradient(80% 100% at 50% 0%, color-mix(in oklab, var(--strawberry) 25%, transparent) 0%, transparent 70%), linear-gradient(180deg, color-mix(in oklab, var(--cream) 95%, transparent) 0%, color-mix(in oklab, var(--melon) 18%, transparent) 100%)",
+          boxShadow: "var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.5)",
+        }}
+      >
+        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">your turn</p>
+        <h3 className="mx-auto max-w-2xl font-display font-semibold leading-[1] tracking-tight text-foreground" style={{ fontSize: "clamp(2rem, 5vw, 3.6rem)" }}>
+          A whole world, <span className="font-editorial font-normal">in one slice.</span>
+        </h3>
+        <p className="mx-auto mt-5 max-w-md text-foreground/60">
+          Bring a feeling. Leave with an identity system. Your first slice is on the house.
+        </p>
+        <div className="mt-9 flex justify-center">
+          <button type="button" onClick={onEnter} className="btn-premium">
+            Bake your first slice →
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
