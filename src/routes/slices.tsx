@@ -28,6 +28,7 @@ function SlicesPage() {
   const navigate = useNavigate();
   const [slices, setSlices] = useState<Slice[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
 
   const openSave = (s: Slice) => {
@@ -51,16 +52,27 @@ function SlicesPage() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+    setError(null);
+    setSlices(null);
     (async () => {
       const { data, error } = await supabase
         .from("designs")
         .select("id, name, preview_url, is_unlocked, updated_at")
         .order("updated_at", { ascending: false })
         .limit(24);
-      if (error) setError(error.message);
-      else setSlices(data as Slice[]);
+      if (cancelled) return;
+      if (error) {
+        setError(error.message);
+        setSlices([]);
+      } else {
+        setSlices(data as Slice[]);
+      }
     })();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, reloadKey]);
 
   const remove = async (id: string) => {
     if (!confirm("Delete this slice?")) return;
