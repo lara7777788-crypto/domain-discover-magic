@@ -1,8 +1,39 @@
-import { useEffect, useMemo, useState, lazy, Suspense } from "react";
-import { useStripeCheckout as useStripeCheckoutInner } from "./useStripeCheckout.inner";
+import { useState, useCallback, lazy, Suspense } from "react";
 
-// Re-exports the inner hook untouched; centralizing the import here means
-// any caller naturally picks up the lazy/SSR-safe StripeEmbeddedCheckout.
+// Lazy import — keeps @stripe/react-stripe-js out of the initial /bake bundle
+// and ensures it only loads in the browser when a checkout actually opens.
+const StripeEmbeddedCheckout = lazy(() =>
+  import("@/components/StripeEmbeddedCheckout").then((m) => ({ default: m.StripeEmbeddedCheckout })),
+);
+
+interface CheckoutOptions {
+  priceId: string;
+  quantity?: number;
+  customerEmail?: string;
+  sliceId?: string;
+  returnUrl?: string;
+}
+
 export function useStripeCheckout() {
-  return useStripeCheckoutInner();
+  const [isOpen, setIsOpen] = useState(false);
+  const [options, setOptions] = useState<CheckoutOptions | null>(null);
+
+  const openCheckout = useCallback((opts: CheckoutOptions) => {
+    setOptions(opts);
+    setIsOpen(true);
+  }, []);
+
+  const closeCheckout = useCallback(() => {
+    setIsOpen(false);
+    setOptions(null);
+  }, []);
+
+  const checkoutElement =
+    isOpen && options ? (
+      <Suspense fallback={<div className="py-10 text-center text-sm text-foreground/60">Loading checkout…</div>}>
+        <StripeEmbeddedCheckout {...options} />
+      </Suspense>
+    ) : null;
+
+  return { openCheckout, closeCheckout, isOpen, checkoutElement };
 }
