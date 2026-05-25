@@ -28,6 +28,7 @@ function SlicesPage() {
   const navigate = useNavigate();
   const [slices, setSlices] = useState<Slice[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
 
   const openSave = (s: Slice) => {
@@ -51,16 +52,27 @@ function SlicesPage() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+    setError(null);
+    setSlices(null);
     (async () => {
       const { data, error } = await supabase
         .from("designs")
         .select("id, name, preview_url, is_unlocked, updated_at")
         .order("updated_at", { ascending: false })
         .limit(24);
-      if (error) setError(error.message);
-      else setSlices(data as Slice[]);
+      if (cancelled) return;
+      if (error) {
+        setError(error.message);
+        setSlices([]);
+      } else {
+        setSlices(data as Slice[]);
+      }
     })();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, reloadKey]);
 
   const remove = async (id: string) => {
     if (!confirm("Delete this slice?")) return;
@@ -104,7 +116,17 @@ function SlicesPage() {
           </Link>
         </div>
 
-        {error && <div className="mt-8 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mt-8 flex items-center justify-between gap-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <span>{error}</span>
+            <button
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="rounded-full bg-red-700 px-3 py-1 text-xs font-semibold text-white"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {slices === null ? (
           <div className="mt-12 text-foreground/50">Loading…</div>
