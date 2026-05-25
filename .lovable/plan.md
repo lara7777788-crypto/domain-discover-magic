@@ -1,79 +1,48 @@
 
-# Layercake — Premium Refinement Plan
+# Fix the `/bake` "dispatcher.useContext" crash
 
-A focused pass on the homepage and global visual system. No backend, auth, or pricing changes. All work lives in frontend/presentation code.
+## What we know
 
-## 1. Visual System Upgrade (`src/styles.css`)
+- User clicked the homepage CTA → navigated to `/bake` → error boundary rendered with `null is not an object (evaluating 'dispatcher.useContext')`.
+- Console shows `Warning: Error in route match: /bake/bake` (note the doubled segment).
+- Stripe's `stripe.js` was injected immediately before the crash.
+- The error did NOT appear before this turn's homepage rewrite — but nothing I changed touches `/bake` or Stripe directly, so the most likely trigger is a pre-existing latent bug in `bake.tsx` / `StripeEmbeddedCheckout` that the new CTA path now reaches more easily.
 
-Refine the pastel palette into a more cinematic, editorial register without losing the wagashi soul.
+`dispatcher.useContext is null` in React almost always means one of:
+1. A hook is being called outside a React render (e.g. at module top-level, in a class, in an event handler).
+2. Two copies of React are loaded (Stripe's embedded checkout sometimes pulls one in via a dynamic bundle).
+3. A component is rendered before its provider is mounted (e.g. `useAuth()` outside `AuthProvider`).
 
-- Slightly deepen `--foreground` for stronger editorial contrast.
-- Add new tokens: `--gradient-ambient` (soft multi-stop pastel wash), `--gradient-icing` (hero radial), `--shadow-soft` (long, low-opacity), `--shadow-tactile` (button), `--grain` (SVG noise data URL).
-- Add a global `.grain` overlay utility (fixed, mix-blend-overlay, ~6% opacity) applied at the root.
-- Add new keyframes: `floaty` (cake hover), `ambient` (slow gradient drift), `layerRise` (stack assembly), `shimmer` (button sheen).
-- Introduce two display weights for editorial hierarchy: Fredoka 600 for the wordmark/CTAs, plus an italic serif accent via `Instrument Serif` for the subheading word "beautiful" to add Parisian editorial flavor.
+The `/bake/bake` warning suggests a `<Link to="bake">` somewhere is being resolved relative to `/bake`, doubling the path. That's a separate, smaller bug but worth fixing in the same pass.
 
-## 2. Hero Refinement (`src/routes/index.tsx`, `src/components/LayerCake.tsx`)
+## Investigation steps
 
-- Wrap the hero in an ambient gradient stage with a soft radial light behind the cake and a faint grain layer on top.
-- LayerCake gets: subtle perspective tilt, drop shadow under the plate, gentle `floaty` animation (6s ease-in-out), specular highlight on each tier, and a glow ring behind the cherry.
-- Typography hierarchy:
-  - Eyebrow: small uppercase tracked label "Visual identity studio".
-  - H1: "Make *beautiful* things, layer by layer." — "beautiful" in Instrument Serif italic, oversized, tighter leading, more negative space around it.
-  - Subheading (new): "AI-native visual identity systems for the next generation of creators, brands and worlds." — max-width ~46ch, muted foreground, generous line-height.
-  - Primary CTA: tactile pill with soft inner highlight, shadow-tactile, hover lift + shimmer sweep.
-  - Secondary ghost link beside it.
-- Rhythm: increase vertical spacing, center column max-w ~960px, asymmetric placement of small floating "ingredient" chips (sprinkles, dots) for whimsy.
+1. Read `src/routes/bake.tsx`, `src/components/StripeEmbeddedCheckout.tsx`, `src/hooks/useStripeCheckout.tsx`, `src/lib/stripe.ts` to find:
+   - any hook called outside a component body,
+   - any module-level `useContext`/store access,
+   - any `<Link to="bake">` that should be `to="/bake"`.
+2. Check whether `@stripe/react-stripe-js` and `@stripe/stripe-js` are both pinned (a version mismatch is a known cause).
+3. Check `package.json` for a duplicate React (e.g. an alias or a `resolutions` override gone wrong).
+4. Reproduce: I'll add a one-line `console.error` with the real error object in `src/router.tsx`'s `DefaultErrorComponent` so the next run prints the full stack instead of just the message.
 
-## 3. New Homepage Sections (below hero)
+## Likely fix shape (pending investigation)
 
-Added in order inside `src/routes/index.tsx`, each with smooth scroll-reveal (IntersectionObserver + CSS transitions, no new deps).
+Most probable: the `StripeEmbeddedCheckout` component is being rendered during SSR or before the auth context is ready, and one of its hooks dereferences a null React internal because it runs on the server where Stripe.js has no DOM.
 
-**A. "Build a world, not just a logo."**
-Editorial two-column: oversized serif headline left, short paragraph right explaining Layercake builds cohesive systems — logo, type, color, motion, voice — not isolated assets.
+Planned remedy:
+- Gate `<StripeEmbeddedCheckout>` behind a client-only mount guard (`useEffect`-driven `mounted` flag) so it never renders during SSR.
+- Wrap it in an isolated error boundary so a Stripe failure doesn't blow up the whole `/bake` route.
+- If a `<Link to="bake">` is found inside `/bake`, change it to `to="/bake"` (absolute) to kill the `/bake/bake` warning.
+- If versions are mismatched, align `@stripe/stripe-js` and `@stripe/react-stripe-js`.
 
-**B. Output Showcase Grid**
-Bento-style masonry of 6 categories with pastel placeholder cards (CSS-only mock artifacts — no image generation needed, keeps it fast and on-brand):
-brand identities · posters · packaging · editorial graphics · social campaigns · AI character worlds.
-Each card uses a different palette token + a stylized SVG mock so it reads as a real output sample. Hover: subtle lift + tilt.
+## Out of scope
 
-**C. Layer Stack Animation**
-New component `src/components/LayerStack.tsx`. On scroll-into-view, six labeled layers (Concept → Palette → Type → Logo → Motion → World) rise and stack with staggered `layerRise` animation, forming a small identity system card at the end. Loops gently after assembly.
+- No changes to the homepage I just shipped.
+- No changes to auth, RLS, server functions, or pricing logic.
+- No new dependencies unless a version mismatch is the proven cause.
 
-**D. "Prompts → Systems" explainer**
-Centered short statement: "Layercake turns prompts into cohesive visual systems instead of isolated images." Flanked by a left "prompt" chip and right "system" cluster of 4 mini swatches/glyphs, with an animated connecting line.
+## Verification
 
-**E. Closing CTA band**
-Soft gradient band, single tactile CTA ("Bake your first slice"), one-line whisper below.
-
-## 4. Global Polish
-
-- `TopNav`: increase blur, add subtle bottom hairline only on scroll, refine spacing.
-- Buttons: introduce a `premium` variant in `button.tsx` (gradient + inner highlight + shadow-tactile + shimmer on hover) used in hero + closing CTA. Existing button usage elsewhere untouched.
-- Add scroll-reveal hook `src/hooks/useReveal.ts` (tiny, no deps) used by new sections.
-- Mobile: stack everything single-column at <768px, reduce hero type scale fluidly with `clamp()`, ensure the cake scales down to ~240px, ensure showcase grid becomes 1–2 cols.
-- Reduced-motion: all new animations gated behind `@media (prefers-reduced-motion: no-preference)`.
-
-## 5. Out of Scope
-
-- No changes to auth, credits, Stripe, server functions, RLS, or routes other than `/`.
-- No new dependencies. All animation is CSS + a tiny IntersectionObserver hook.
-- No image generation — showcase artifacts are SVG/CSS mocks for speed and brand cohesion.
-
-## Files Touched
-
-- `src/styles.css` — tokens, gradients, grain, keyframes, premium button styles.
-- `src/routes/__root.tsx` — add Instrument Serif font link, grain overlay.
-- `src/routes/index.tsx` — full homepage rewrite per above.
-- `src/components/LayerCake.tsx` — dimensional refinements, float, glow.
-- `src/components/LayerStack.tsx` — new.
-- `src/components/ShowcaseGrid.tsx` — new.
-- `src/components/ui/button.tsx` — add `premium` variant.
-- `src/hooks/useReveal.ts` — new.
-
-## Technical Notes
-
-- Animations: pure CSS keyframes + transitions; reveal via a 30-line IntersectionObserver hook that toggles a `data-revealed` attribute. No framer-motion added.
-- Grain: inline SVG turbulence as a data URL on a fixed `pointer-events-none` div at `z-0` with `mix-blend-overlay` and ~6% opacity.
-- Editorial serif loaded alongside existing Fredoka/Plus Jakarta from Google Fonts (one extra `<link>`, negligible weight).
-- All colors use semantic tokens — no hard-coded hex in components.
+- Reload `/`, click "Bake your first slice", confirm `/bake` mounts without the error boundary.
+- Confirm console no longer shows `Error in route match: /bake/bake`.
+- Confirm Stripe checkout still loads when reached normally.
