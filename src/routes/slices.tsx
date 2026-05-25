@@ -116,7 +116,17 @@ function SlicesPage() {
           </Link>
         </div>
 
-        {error && <div className="mt-8 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mt-8 flex items-center justify-between gap-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            <span>{error}</span>
+            <button
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="rounded-full bg-red-700 px-3 py-1 text-xs font-semibold text-white"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {slices === null ? (
           <div className="mt-12 text-foreground/50">Loading…</div>
