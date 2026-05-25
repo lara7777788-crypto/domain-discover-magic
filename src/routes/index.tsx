@@ -637,6 +637,3 @@ function ClosingCTA({ onEnter }: { onEnter: () => void }) {
   );
 }
 
-    </main>
-  );
-}
