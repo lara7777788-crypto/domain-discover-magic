@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.png";
+import { ShowcaseGrid } from "@/components/ShowcaseGrid";
+import { LayerStack } from "@/components/LayerStack";
+import { useReveal } from "@/hooks/useReveal";
+
 
 export const Route = createFileRoute("/")({
   component: Splash,
