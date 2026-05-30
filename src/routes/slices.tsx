@@ -23,6 +23,8 @@ type Slice = {
   updated_at: string;
 };
 
+type SliceMeta = Omit<Slice, "preview_url">;
+
 function SlicesPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -58,7 +60,8 @@ function SlicesPage() {
     (async () => {
       const { data, error } = await supabase
         .from("designs")
-        .select("id, name, preview_url, is_unlocked, updated_at")
+        .select("id, name, is_unlocked, updated_at")
+        .eq("user_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(24);
       if (cancelled) return;
@@ -66,7 +69,27 @@ function SlicesPage() {
         setError(error.message);
         setSlices([]);
       } else {
-        setSlices(data as Slice[]);
+        const rows = (data ?? []) as SliceMeta[];
+        setSlices(rows.map((row) => ({ ...row, preview_url: null })));
+
+        for (const row of rows) {
+          if (cancelled) return;
+          const { data: preview } = await supabase
+            .from("designs")
+            .select("id, preview_url")
+            .eq("id", row.id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (cancelled) return;
+          if (preview?.preview_url) {
+            setSlices((current) =>
+              current?.map((slice) =>
+                slice.id === row.id ? { ...slice, preview_url: preview.preview_url as string } : slice,
+              ) ?? current,
+            );
+          }
+        }
       }
     })();
     return () => {
