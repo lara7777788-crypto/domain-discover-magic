@@ -303,14 +303,14 @@ function BakePage() {
           <div className="flex items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
             <Link
               to="/bake"
-              search={(prev) => ({ ...prev, mode: undefined })}
+              search={{ slice: sliceId, mode: "image" as Mode }}
               className={`rounded-full px-3 py-1 transition ${!isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
               Slice
             </Link>
             <Link
               to="/bake"
-              search={(prev) => ({ ...prev, mode: "copy" })}
+              search={{ slice: sliceId, mode: "copy" as Mode }}
               className={`rounded-full px-3 py-1 transition ${isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
               Copy
