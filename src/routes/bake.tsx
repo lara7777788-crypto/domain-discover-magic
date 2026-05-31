@@ -75,12 +75,6 @@ const emptyValues = (layers: LayerDef[]): Record<LayerKey, string> =>
 function BakePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { slice: sliceId } = Route.useSearch();
-  const [active, setActive] = useState(0);
-  const [values, setValues] = useState<Record<LayerKey, string>>(emptyValues);
-function BakePage() {
-  const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
   const { slice: sliceId, mode } = Route.useSearch();
   const isCopy = mode === "copy";
 
