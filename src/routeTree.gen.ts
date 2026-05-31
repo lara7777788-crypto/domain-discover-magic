@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SlicesRouteImport } from './routes/slices'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as IngredientsRouteImport } from './routes/ingredients'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -31,6 +32,11 @@ const PricingRoute = PricingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IngredientsRoute = IngredientsRouteImport.update({
+  id: '/ingredients',
+  path: '/ingredients',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BakeRoute = BakeRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/slices': typeof SlicesRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/ingredients'
     | '/login'
     | '/pricing'
     | '/slices'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/ingredients'
     | '/login'
     | '/pricing'
     | '/slices'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/ingredients'
     | '/login'
     | '/pricing'
     | '/slices'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BakeRoute: typeof BakeRoute
+  IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   SlicesRoute: typeof SlicesRoute
@@ -156,6 +169,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ingredients': {
+      id: '/ingredients'
+      path: '/ingredients'
+      fullPath: '/ingredients'
+      preLoaderRoute: typeof IngredientsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bake': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BakeRoute: BakeRoute,
+  IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   SlicesRoute: SlicesRoute,
@@ -209,12 +230,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
