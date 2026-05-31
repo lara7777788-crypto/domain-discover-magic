@@ -1,15 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, type GenerateInput } from "../server/generate.functions";
+import { generateCopy, type GenerateCopyInput } from "../server/generateCopy.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
 import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
+type Mode = "image" | "copy";
+
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
     slice: typeof s.slice === "string" ? s.slice : undefined,
+    mode: (s.mode === "copy" ? "copy" : "image") as Mode,
   }),
   head: () => ({
     meta: [
@@ -31,7 +35,7 @@ type LayerDef = {
   ink: string;
 };
 
-const LAYERS: LayerDef[] = [
+const IMAGE_LAYERS: LayerDef[] = [
   { key: "wish",   name: "Wish",   tagline: "Say it plainly.",        hint: "A poster for a pastry shop in Kyoto, soft and dreamy.",  bg: "#FFE0EC", ink: "#7A2A4E" },
   { key: "visual", name: "Visual", tagline: "Choose a mood.",         hint: "Editorial · Playful · Hand-drawn · Cinematic",           bg: "#FFE6CF", ink: "#7A4A1F" },
   { key: "text",   name: "Text",   tagline: "What words live on it?", hint: "A title, a tagline, or nothing at all.",                 bg: "#FFF6BE", ink: "#6E5A0E" },
@@ -39,14 +43,34 @@ const LAYERS: LayerDef[] = [
   { key: "logo",   name: "Brand",  tagline: "Anything that's yours.",  hint: "Product · logo · packaging · vibe shot · photo — describe or drop it in.", bg: "#D4E8FF", ink: "#1A3D6E" },
 ];
 
-const FORMATS: { key: GenerateInput["format"]; label: string; desc: string }[] = [
+// Copy mode: same 5 layer KEYS (so saved chips reuse cleanly), reframed as
+// pantry ingredients with a blue palette. Flour, sugar, yeast, milk, salt.
+const COPY_LAYERS: LayerDef[] = [
+  { key: "wish",   name: "Flour",    tagline: "What are you writing about?",       hint: "Launch announcement for our sourdough starter kit — friends-and-family preview.", bg: "#DCE7F8", ink: "#13265C" },
+  { key: "visual", name: "Sugar",    tagline: "How sweet should it taste?",        hint: "Warm, slightly cheeky, never corporate. Confident but not loud.",                  bg: "#CFDDF3", ink: "#0F2050" },
+  { key: "text",   name: "Yeast",    tagline: "How much should it rise?",          hint: "One Instagram caption, under 60 words. Or: 'long enough to breathe, short enough to read'.", bg: "#C2D2EE", ink: "#0B1A45" },
+  { key: "layout", name: "Milk",     tagline: "Who's drinking it in?",             hint: "Home bakers, 25–45, curious not expert. They love process, not jargon.",            bg: "#B6CAE9", ink: "#08153A" },
+  { key: "logo",   name: "Salt",     tagline: "Signature notes & sign-off.",       hint: "First person, occasional baker's pun. Sign off: 'with butter, Lev.' Avoid: 'circle back', 'unlock', 'leverage'.", bg: "#AAC1E4", ink: "#06112F" },
+];
+
+type ImageFormat = GenerateInput["format"];
+type CopyFormat = GenerateCopyInput["format"];
+type AnyFormat = ImageFormat | CopyFormat;
+
+const IMAGE_FORMATS: { key: ImageFormat; label: string; desc: string }[] = [
   { key: "social",    label: "Social",    desc: "1:1 — Instagram, TikTok" },
   { key: "print",     label: "Print",     desc: "Vertical poster, A3" },
   { key: "marketing", label: "Marketing", desc: "16:9 banner, hero" },
 ];
 
-const emptyValues = (): Record<LayerKey, string> =>
-  LAYERS.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
+const COPY_FORMATS: { key: CopyFormat; label: string; desc: string }[] = [
+  { key: "caption",  label: "Caption",  desc: "Short — Instagram, TikTok" },
+  { key: "post",     label: "Post",     desc: "Medium — LinkedIn, newsletter" },
+  { key: "headline", label: "Headline", desc: "Pack of 5 — hero, sub, subject, button, teaser" },
+];
+
+const emptyValues = (layers: LayerDef[]): Record<LayerKey, string> =>
+  layers.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
 
 function BakePage() {
   const { user, loading: authLoading } = useAuth();
