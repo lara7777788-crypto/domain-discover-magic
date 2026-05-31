@@ -1,15 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, type GenerateInput } from "../server/generate.functions";
+import { generateCopy, type GenerateCopyInput } from "../server/generateCopy.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
 import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 
+type Mode = "image" | "copy";
+
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
     slice: typeof s.slice === "string" ? s.slice : undefined,
+    mode: (s.mode === "copy" ? "copy" : "image") as Mode,
   }),
   head: () => ({
     meta: [
@@ -31,7 +35,7 @@ type LayerDef = {
   ink: string;
 };
 
-const LAYERS: LayerDef[] = [
+const IMAGE_LAYERS: LayerDef[] = [
   { key: "wish",   name: "Wish",   tagline: "Say it plainly.",        hint: "A poster for a pastry shop in Kyoto, soft and dreamy.",  bg: "#FFE0EC", ink: "#7A2A4E" },
   { key: "visual", name: "Visual", tagline: "Choose a mood.",         hint: "Editorial · Playful · Hand-drawn · Cinematic",           bg: "#FFE6CF", ink: "#7A4A1F" },
   { key: "text",   name: "Text",   tagline: "What words live on it?", hint: "A title, a tagline, or nothing at all.",                 bg: "#FFF6BE", ink: "#6E5A0E" },
@@ -39,29 +43,86 @@ const LAYERS: LayerDef[] = [
   { key: "logo",   name: "Brand",  tagline: "Anything that's yours.",  hint: "Product · logo · packaging · vibe shot · photo — describe or drop it in.", bg: "#D4E8FF", ink: "#1A3D6E" },
 ];
 
-const FORMATS: { key: GenerateInput["format"]; label: string; desc: string }[] = [
+// Copy mode: same 5 layer KEYS (so saved chips reuse cleanly), reframed as
+// pantry ingredients with a blue palette. Flour, sugar, yeast, milk, salt.
+const COPY_LAYERS: LayerDef[] = [
+  { key: "wish",   name: "Flour",    tagline: "What are you writing about?",       hint: "Launch announcement for our sourdough starter kit — friends-and-family preview.", bg: "#DCE7F8", ink: "#13265C" },
+  { key: "visual", name: "Sugar",    tagline: "How sweet should it taste?",        hint: "Warm, slightly cheeky, never corporate. Confident but not loud.",                  bg: "#CFDDF3", ink: "#0F2050" },
+  { key: "text",   name: "Yeast",    tagline: "How much should it rise?",          hint: "One Instagram caption, under 60 words. Or: 'long enough to breathe, short enough to read'.", bg: "#C2D2EE", ink: "#0B1A45" },
+  { key: "layout", name: "Milk",     tagline: "Who's drinking it in?",             hint: "Home bakers, 25–45, curious not expert. They love process, not jargon.",            bg: "#B6CAE9", ink: "#08153A" },
+  { key: "logo",   name: "Salt",     tagline: "Signature notes & sign-off.",       hint: "First person, occasional baker's pun. Sign off: 'with butter, Lev.' Avoid: 'circle back', 'unlock', 'leverage'.", bg: "#AAC1E4", ink: "#06112F" },
+];
+
+type ImageFormat = GenerateInput["format"];
+type CopyFormat = GenerateCopyInput["format"];
+type AnyFormat = ImageFormat | CopyFormat;
+
+const IMAGE_FORMATS: { key: ImageFormat; label: string; desc: string }[] = [
   { key: "social",    label: "Social",    desc: "1:1 — Instagram, TikTok" },
   { key: "print",     label: "Print",     desc: "Vertical poster, A3" },
   { key: "marketing", label: "Marketing", desc: "16:9 banner, hero" },
 ];
 
-const emptyValues = (): Record<LayerKey, string> =>
-  LAYERS.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
+const COPY_FORMATS: { key: CopyFormat; label: string; desc: string }[] = [
+  { key: "caption",  label: "Caption",  desc: "Short — Instagram, TikTok" },
+  { key: "post",     label: "Post",     desc: "Medium — LinkedIn, newsletter" },
+  { key: "headline", label: "Headline", desc: "Pack of 5 — hero, sub, subject, button, teaser" },
+];
+
+const emptyValues = (layers: LayerDef[]): Record<LayerKey, string> =>
+  layers.reduce((a, l) => ({ ...a, [l.key]: "" }), {} as Record<LayerKey, string>);
 
 function BakePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { slice: sliceId } = Route.useSearch();
+  const { slice: sliceId, mode } = Route.useSearch();
+  const isCopy = mode === "copy";
+
+  const LAYERS = useMemo(() => (isCopy ? COPY_LAYERS : IMAGE_LAYERS), [isCopy]);
+  const FORMATS = useMemo(() => (isCopy ? COPY_FORMATS : IMAGE_FORMATS), [isCopy]);
+
   const [active, setActive] = useState(0);
-  const [values, setValues] = useState<Record<LayerKey, string>>(emptyValues);
-  const [format, setFormat] = useState<GenerateInput["format"]>("social");
+  const [values, setValues] = useState<Record<LayerKey, string>>(() => emptyValues(LAYERS));
+  const [format, setFormat] = useState<AnyFormat>(isCopy ? "caption" : "social");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ prompt: string; imageDataUrl: string } | null>(null);
+  const [result, setResult] = useState<{ prompt: string; imageDataUrl?: string; copy?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Per-mode terminology
+  const TERMS = isCopy
+    ? {
+        noun: "ingredient",
+        nounPlural: "ingredients",
+        finalLabel: "Your copy",
+        finalKicker: "The sign-off",
+        finalHeadline: "Whip the copy.",
+        finalSub: "What format should it come out as?",
+        ctaIdle: "Whip the copy 🥣",
+        ctaBusy: "Whipping…",
+        firstFreeNote: "Costs one slice — same wallet as image slices.",
+        validationMissing: "Add a brief first — flour is the base.",
+        finalBg: "linear-gradient(180deg, #B6CAE9 0%, #FFFDF8 100%)",
+        finalInk: "#06112F",
+      }
+    : {
+        noun: "slice",
+        nounPlural: "slices",
+        finalLabel: "Your slice",
+        finalKicker: "The cherry on top",
+        finalHeadline: "Bake the slice.",
+        finalSub: "Where will it live?",
+        ctaIdle: "Bake my slice 🍰",
+        ctaBusy: "Baking…",
+        firstFreeNote: "First slice is on the house.",
+        validationMissing: "Add a wish first — it's the base of the cake.",
+        finalBg: "linear-gradient(180deg, #ECE0FF 0%, #FFFDF8 100%)",
+        finalInk: "#3E1F70",
+      };
 
   // Redirect to login if not authed
   useEffect(() => {
@@ -78,15 +139,20 @@ function BakePage() {
         .eq("id", sliceId)
         .maybeSingle();
       if (data?.data) {
-        const d = data.data as { values?: Record<LayerKey, string>; format?: GenerateInput["format"]; result?: typeof result; icing?: IcingState };
-        if (d.values) setValues({ ...emptyValues(), ...d.values });
+        const d = data.data as {
+          values?: Record<LayerKey, string>;
+          format?: AnyFormat;
+          result?: typeof result;
+          icing?: IcingState;
+        };
+        if (d.values) setValues({ ...emptyValues(LAYERS), ...d.values });
         if (d.format) setFormat(d.format);
         if (d.result) setResult(d.result);
         if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
         setSavedId(data.id);
       }
     })();
-  }, [user, sliceId]);
+  }, [user, sliceId, LAYERS]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<Record<LayerKey, HTMLTextAreaElement | null>>({
@@ -121,7 +187,13 @@ function BakePage() {
   };
 
   const persistSlice = async (
-    payload: { values: typeof values; format: typeof format; result: typeof result | null; icing: IcingState },
+    payload: {
+      values: typeof values;
+      format: typeof format;
+      result: typeof result | null;
+      icing: IcingState;
+      mode: Mode;
+    },
     name: string,
   ) => {
     if (!user) return;
@@ -147,7 +219,7 @@ function BakePage() {
         if (data) setSavedId(data.id);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't save your slice.");
+      setError(e instanceof Error ? e.message : `Couldn't save your ${TERMS.noun}.`);
     } finally {
       setSaving(false);
     }
@@ -155,12 +227,15 @@ function BakePage() {
 
   const onBake = async () => {
     const currentValues = LAYERS.reduce(
-      (next, layer) => ({ ...next, [layer.key]: textRefs.current[layer.key]?.value ?? values[layer.key] }),
+      (next, layer) => ({
+        ...next,
+        [layer.key]: textRefs.current[layer.key]?.value ?? values[layer.key],
+      }),
       {} as Record<LayerKey, string>,
     );
 
     if (!currentValues.wish.trim()) {
-      setError("Add a wish first — it's the base of the cake.");
+      setError(TERMS.validationMissing);
       goTo(0);
       return;
     }
@@ -169,12 +244,17 @@ function BakePage() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await generate({ data: { ...currentValues, format } });
+      const res = isCopy
+        ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat } })
+        : await generate({ data: { ...currentValues, format: format as ImageFormat } });
       setResult(res);
       goTo(LAYERS.length);
-      // Auto-save
-      const name = currentValues.wish.trim().slice(0, 60) || "Untitled slice";
-      await persistSlice({ values: currentValues, format, result: res, icing }, name);
+      const fallback = isCopy ? "Untitled copy" : "Untitled slice";
+      const name = currentValues.wish.trim().slice(0, 60) || fallback;
+      await persistSlice(
+        { values: currentValues, format, result: res, icing, mode: isCopy ? "copy" : "image" },
+        name,
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
@@ -182,12 +262,12 @@ function BakePage() {
     }
   };
 
-  // Debounced autosave for icing edits on already-saved slices with a result
+  // Debounced autosave for icing edits on already-saved image slices with a result
   useEffect(() => {
-    if (!savedId || !result) return;
+    if (isCopy || !savedId || !result) return;
     const t = setTimeout(() => {
       const name = values.wish.trim().slice(0, 60) || "Untitled slice";
-      persistSlice({ values, format, result, icing }, name);
+      persistSlice({ values, format, result, icing, mode: "image" }, name);
     }, 700);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -200,6 +280,17 @@ function BakePage() {
     setSavePayload(null);
   };
 
+  const onCopyText = async () => {
+    if (!result?.copy) return;
+    try {
+      await navigator.clipboard.writeText(result.copy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setError("Couldn't copy — select the text and copy manually.");
+    }
+  };
+
   return (
     <div className="relative h-screen overflow-hidden">
       {/* Top bar */}
@@ -208,14 +299,35 @@ function BakePage() {
           ← layercake
         </Link>
         <div className="pointer-events-auto flex items-center gap-3">
+          {/* Mode toggle */}
+          <div className="flex items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
+            <Link
+              to="/bake"
+              search={{ slice: sliceId, mode: "image" as Mode }}
+              className={`rounded-full px-3 py-1 transition ${!isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
+            >
+              Slice
+            </Link>
+            <Link
+              to="/bake"
+              search={{ slice: sliceId, mode: "copy" as Mode }}
+              className={`rounded-full px-3 py-1 transition ${isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
+            >
+              Copy
+            </Link>
+          </div>
           <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
-            {saving ? "Saving…" : active < LAYERS.length ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}` : "Your slice"}
+            {saving
+              ? "Saving…"
+              : active < LAYERS.length
+                ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}`
+                : TERMS.finalLabel}
           </div>
           <Link
             to="/slices"
             className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
           >
-            My slices
+            My {TERMS.nounPlural}
           </Link>
         </div>
       </header>
@@ -245,7 +357,7 @@ function BakePage() {
         })}
         <button onClick={() => goTo(LAYERS.length)} aria-label="Result" className="group mt-2 flex items-center gap-3">
           <span className={`text-[10px] font-medium uppercase tracking-[0.2em] ${active === LAYERS.length ? "opacity-90" : "opacity-0 group-hover:opacity-60"}`}>
-            Slice
+            {isCopy ? "Copy" : "Slice"}
           </span>
           <span className="block h-3 w-3 rounded-full border" style={{ background: active === LAYERS.length ? "#222" : "transparent", borderColor: "#222" }} />
         </button>
@@ -263,7 +375,7 @@ function BakePage() {
           >
             <div className="mx-auto w-full max-w-xl">
               <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] opacity-60" style={{ color: l.ink }}>
-                Layer {String(i + 1).padStart(2, "0")}
+                {isCopy ? "Ingredient" : "Layer"} {String(i + 1).padStart(2, "0")}
               </p>
               <h2 className="font-display text-5xl font-semibold leading-[1.02] md:text-6xl" style={{ color: l.ink }}>
                 {l.name}.
@@ -314,12 +426,12 @@ function BakePage() {
           data-idx={LAYERS.length}
           ref={(el) => { sectionRefs.current[LAYERS.length] = el; }}
           className="relative flex min-h-screen w-full snap-start items-center justify-center px-6 py-24"
-          style={{ background: "linear-gradient(180deg, #ECE0FF 0%, #FFFDF8 100%)", color: "#3E1F70" }}
+          style={{ background: TERMS.finalBg, color: TERMS.finalInk }}
         >
           <div className="mx-auto w-full max-w-2xl">
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] opacity-60">The cherry on top</p>
-            <h2 className="font-display text-5xl font-semibold leading-[1.02] md:text-6xl">Bake the slice.</h2>
-            <p className="mt-3 text-lg italic opacity-75">Where will it live?</p>
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] opacity-60">{TERMS.finalKicker}</p>
+            <h2 className="font-display text-5xl font-semibold leading-[1.02] md:text-6xl">{TERMS.finalHeadline}</h2>
+            <p className="mt-3 text-lg italic opacity-75">{TERMS.finalSub}</p>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {FORMATS.map((f) => {
@@ -330,9 +442,9 @@ function BakePage() {
                     onClick={() => setFormat(f.key)}
                     className="rounded-2xl border-2 p-4 text-left transition"
                     style={{
-                      borderColor: on ? "#3E1F70" : "rgba(62,31,112,0.15)",
-                      background: on ? "#3E1F70" : "rgba(255,255,255,0.7)",
-                      color: on ? "#fff" : "#3E1F70",
+                      borderColor: on ? TERMS.finalInk : `${TERMS.finalInk}26`,
+                      background: on ? TERMS.finalInk : "rgba(255,255,255,0.7)",
+                      color: on ? "#fff" : TERMS.finalInk,
                     }}
                   >
                     <div className="font-display text-lg font-semibold">{f.label}</div>
@@ -354,20 +466,56 @@ function BakePage() {
                 disabled={loading}
                 className="rounded-full bg-foreground px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-60"
               >
-                {loading ? "Baking…" : "Bake my slice 🍰"}
+                {loading ? TERMS.ctaBusy : TERMS.ctaIdle}
               </button>
-              <span className="text-xs opacity-60">First slice is on the house.</span>
+              <span className="text-xs opacity-60">{TERMS.firstFreeNote}</span>
             </div>
 
             {result && (
               <div className="mt-10 space-y-4">
-                <IcingPanel
-                  imageUrl={result.imageDataUrl}
-                  icing={icing}
-                  setIcing={setIcing}
-                  onDownload={onDownload}
-                  onDownloadError={setError}
-                />
+                {isCopy && result.copy ? (
+                  <div
+                    className="rounded-3xl border bg-white/85 p-6 shadow-[0_30px_60px_-30px_rgba(6,17,47,0.35)] backdrop-blur"
+                    style={{ borderColor: `${TERMS.finalInk}1f` }}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-[10px] font-medium uppercase tracking-[0.3em]" style={{ color: TERMS.finalInk, opacity: 0.6 }}>
+                        Fresh from the oven
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={onCopyText}
+                          className="rounded-full px-3 py-1 text-xs font-medium text-white transition"
+                          style={{ background: TERMS.finalInk }}
+                        >
+                          {copied ? "Copied ✓" : "Copy text"}
+                        </button>
+                        <button
+                          onClick={onBake}
+                          disabled={loading}
+                          className="rounded-full border px-3 py-1 text-xs font-medium transition disabled:opacity-50"
+                          style={{ borderColor: `${TERMS.finalInk}40`, color: TERMS.finalInk }}
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+                    </div>
+                    <p
+                      className="whitespace-pre-wrap font-display text-lg leading-relaxed"
+                      style={{ color: TERMS.finalInk }}
+                    >
+                      {result.copy}
+                    </p>
+                  </div>
+                ) : result.imageDataUrl ? (
+                  <IcingPanel
+                    imageUrl={result.imageDataUrl}
+                    icing={icing}
+                    setIcing={setIcing}
+                    onDownload={onDownload}
+                    onDownloadError={setError}
+                  />
+                ) : null}
                 <details className="text-sm">
                   <summary className="cursor-pointer text-foreground/70">See the prompt layer</summary>
                   <p className="mt-2 whitespace-pre-wrap rounded-xl bg-foreground/5 p-3 font-mono text-xs text-foreground/80">
