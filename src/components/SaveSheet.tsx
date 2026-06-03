@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { supabase } from "@/integrations/supabase/client";
-import { spendSliceCredit } from "@/server/credits.functions";
+import { spendSliceCredit } from "@/lib/credits.functions";
 
 export type SavePayload = {
   url: string;       // object URL or data URL of the final image

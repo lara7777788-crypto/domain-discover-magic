@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const spendSliceCredit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -10,6 +9,7 @@ export const spendSliceCredit = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: remaining, error } = await supabaseAdmin.rpc("spend_slice_credit", {
       p_user_id: userId,
