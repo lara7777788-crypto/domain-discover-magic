@@ -47,6 +47,29 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Layercake",
+          url: "https://layercake.site",
+          description: "Layercake is a generative AI design studio for brand identities, posters, packaging, and social campaigns — built layer by layer.",
+          founder: { "@type": "Organization", name: "Vela Protocol" },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Layercake",
+          url: "https://layercake.site",
+          description: "Visual generation, layer by layer.",
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

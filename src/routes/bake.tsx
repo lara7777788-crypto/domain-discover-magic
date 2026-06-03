@@ -17,8 +17,14 @@ export const Route = createFileRoute("/bake")({
   }),
   head: () => ({
     meta: [
-      { title: "Bake — Layercake" },
-      { name: "description", content: "Design social, print, and marketing visuals — one delicious layer at a time." },
+      { title: "Bake a Slice — Layercake" },
+      { name: "description", content: "Design social, print, and marketing visuals — one delicious layer at a time. Wish, visual, text, layout, brand." },
+      { property: "og:title", content: "Bake a Slice — Layercake" },
+      { property: "og:description", content: "Layer your wish, mood, text, layout, and brand. Bake a slice for social, print, or marketing." },
+      { property: "og:url", content: "https://layercake.site/bake" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/bake" },
     ],
   }),
   component: BakePage,
@@ -293,6 +299,7 @@ function BakePage() {
 
   return (
     <div className="relative h-screen overflow-hidden">
+      <h1 className="sr-only">{isCopy ? "Whip a copy ingredient" : "Bake a new slice"}</h1>
       {/* Top bar */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 md:px-10">
         <Link to="/" className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground">

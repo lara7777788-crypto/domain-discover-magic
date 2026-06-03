@@ -16,6 +16,28 @@ export const Route = createFileRoute("/about")({
         content:
           "Meet Vela Protocol, read our disclaimer, user protocols, refund policy, and contact info.",
       },
+      { property: "og:url", content: "https://layercake.site/about" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/about" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "About Layercake",
+          url: "https://layercake.site/about",
+          description: "About Layercake, our founder Vela Protocol, acceptable use, refund policy, and support contact.",
+          mainEntity: {
+            "@type": "Organization",
+            name: "Layercake",
+            url: "https://layercake.site",
+            founder: { "@type": "Organization", name: "Vela Protocol" },
+          },
+        }),
+      },
     ],
   }),
   component: AboutPage,

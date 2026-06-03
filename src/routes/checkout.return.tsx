@@ -1,7 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/checkout/return")({
-  head: () => ({ meta: [{ title: "Checkout complete — Layercake" }] }),
+  head: () => ({
+    meta: [
+      { title: "Checkout complete — Layercake" },
+      { name: "description", content: "Your Layercake subscription is active. Pro features and slice unlocks are ready to use." },
+      { property: "og:title", content: "Checkout complete — Layercake" },
+      { property: "og:description", content: "Your Pro subscription is active — start baking unlimited slices." },
+      { property: "og:url", content: "https://layercake.site/checkout/return" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/checkout/return" },
+    ],
+  }),
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
     session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),

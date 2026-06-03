@@ -9,7 +9,13 @@ export const Route = createFileRoute("/slices")({
   head: () => ({
     meta: [
       { title: "My Slices — Layercake" },
-      { name: "description", content: "Your saved cake slices, ready to edit or download." },
+      { name: "description", content: "Your saved cake slices, ready to edit, download, or remix." },
+      { property: "og:title", content: "My Slices — Layercake" },
+      { property: "og:description", content: "Open, edit, and download the slices you've baked." },
+      { property: "og:url", content: "https://layercake.site/slices" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/slices" },
     ],
   }),
   component: SlicesPage,

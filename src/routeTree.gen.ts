@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SlicesRouteImport } from './routes/slices'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IngredientsRouteImport } from './routes/ingredients'
@@ -22,6 +23,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const SlicesRoute = SlicesRouteImport.update({
   id: '/slices',
   path: '/slices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/sitemap.xml'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/sitemap.xml'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/sitemap.xml'
     | '/slices'
     | '/checkout/return'
     | '/api/public/payments/webhook'
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SlicesRoute: typeof SlicesRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/slices'
       fullPath: '/slices'
       preLoaderRoute: typeof SlicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SlicesRoute: SlicesRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -230,12 +251,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

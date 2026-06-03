@@ -1,0 +1,15 @@
+# Layercake
+
+> Layercake is a generative AI design studio that helps creators build brand identities, posters, packaging, editorial graphics, and social campaigns one layer at a time.
+
+Layercake is built by Vela Protocol. Users describe a wish, mood, words, layout, and brand layer; Layercake generates the slice (image or copy) for social, print, and marketing.
+
+## Pages
+
+- [Home](/): What Layercake is and how layered generation works.
+- [Pricing](/pricing): Monthly and yearly Pro plans, slice packs, and the Creator Pass code redemption.
+- [About](/about): Vela Protocol, disclaimer, acceptable use, refund policy, and support contact.
+
+## Optional
+
+- [Ingredients](/ingredients): Reusable chip library for layers.

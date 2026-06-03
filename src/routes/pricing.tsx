@@ -16,8 +16,14 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Layercake Pro: unlimited slices, HD downloads, and full unlocks. Try free or upgrade for $12/month.",
+          "Layercake Pro: unlimited slices, HD downloads, and full unlocks. Try free or upgrade for $20/month or $110/year.",
       },
+      { property: "og:title", content: "Pricing — Layercake" },
+      { property: "og:description", content: "Pro plans, slice packs, and Creator Pass redemption — pick the size that fits." },
+      { property: "og:url", content: "https://layercake.site/pricing" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/pricing" },
     ],
   }),
   component: PricingPage,
@@ -152,9 +158,9 @@ function PricingPage() {
         </div>
 
         <div className="mx-auto mt-10 max-w-md rounded-2xl border border-white bg-white/70 p-5 text-center backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
+          <h2 className="text-xs uppercase tracking-[0.3em] text-foreground/50">
             🎟️ Creator Pass
-          </p>
+          </h2>
           <p className="mt-2 text-sm text-foreground/70">
             Got a Creator Pass? Redeem it for free slices.
           </p>
@@ -240,9 +246,9 @@ function PlanCard({
           : "border-white bg-white/70"
       }`}
     >
-      <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-foreground/50">
+      <h2 className="text-[11px] font-medium uppercase tracking-[0.3em] text-foreground/50">
         {name}
-      </p>
+      </h2>
       <div className="mt-3 flex items-baseline gap-1">
         <span className="font-display text-5xl font-semibold text-foreground">{price}</span>
         <span className="text-foreground/50">{period}</span>
