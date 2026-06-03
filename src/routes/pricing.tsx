@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { createPortalSession } from "@/utils/payments.functions";
-import { redeemCoupon } from "@/server/coupons.functions";
+import { redeemCoupon } from "@/lib/coupons.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { TopNav } from "@/components/TopNav";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
