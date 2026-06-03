@@ -17,8 +17,14 @@ export const Route = createFileRoute("/bake")({
   }),
   head: () => ({
     meta: [
-      { title: "Bake — Layercake" },
-      { name: "description", content: "Design social, print, and marketing visuals — one delicious layer at a time." },
+      { title: "Bake a Slice — Layercake" },
+      { name: "description", content: "Design social, print, and marketing visuals — one delicious layer at a time. Wish, visual, text, layout, brand." },
+      { property: "og:title", content: "Bake a Slice — Layercake" },
+      { property: "og:description", content: "Layer your wish, mood, text, layout, and brand. Bake a slice for social, print, or marketing." },
+      { property: "og:url", content: "https://layercake.site/bake" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/bake" },
     ],
   }),
   component: BakePage,

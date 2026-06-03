@@ -8,7 +8,13 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Sign in — Layercake" },
-      { name: "description", content: "Sign in to save your slices and download your work." },
+      { name: "description", content: "Sign in or create a Layercake account to save your slices and download your work." },
+      { property: "og:title", content: "Sign in — Layercake" },
+      { property: "og:description", content: "Sign in to bake, save, and download your slices." },
+      { property: "og:url", content: "https://layercake.site/login" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/login" },
     ],
   }),
   component: LoginPage,

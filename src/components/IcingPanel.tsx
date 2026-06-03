@@ -121,8 +121,14 @@ export function IcingPanel({
         {icing.stickers.map((s) => (
           <div
             key={s.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`${s.emoji} sticker — drag to move, double-click or press Delete to remove`}
             onPointerDown={(e) => onPointerDown(e, s.id)}
             onDoubleClick={() => removeSticker(s.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Delete" || e.key === "Backspace") removeSticker(s.id);
+            }}
             title="Drag to move · double-click to remove"
             className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none select-none active:cursor-grabbing"
             style={{ left: `${s.x}%`, top: `${s.y}%`, fontSize: s.size, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))" }}
