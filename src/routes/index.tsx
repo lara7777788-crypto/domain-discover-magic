@@ -7,6 +7,15 @@ import { useReveal } from "@/hooks/useReveal";
 
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { property: "og:url", content: "https://layercake.site/" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://layercake.site/" },
+      { rel: "preload", as: "image", href: cakeImg, fetchpriority: "high" },
+    ],
+  }),
   component: Splash,
 });
 
@@ -254,6 +263,11 @@ function Splash() {
                   <img
                     src={cakeImg}
                     alt=""
+                    width={CAKE_W}
+                    height={CAKE_H}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                     draggable={false}
                     style={{
                       position: "absolute",

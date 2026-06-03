@@ -299,6 +299,7 @@ function BakePage() {
 
   return (
     <div className="relative h-screen overflow-hidden">
+      <h1 className="sr-only">{isCopy ? "Whip a copy ingredient" : "Bake a new slice"}</h1>
       {/* Top bar */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 md:px-10">
         <Link to="/" className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground">
