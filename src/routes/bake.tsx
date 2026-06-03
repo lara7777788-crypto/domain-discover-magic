@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { generate, type GenerateInput } from "../server/generate.functions";
-import { generateCopy, type GenerateCopyInput } from "../server/generateCopy.functions";
+import { generate, type GenerateInput } from "@/lib/generate.functions";
+import { generateCopy, type GenerateCopyInput } from "@/lib/generateCopy.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
