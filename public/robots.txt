@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /slices
+Disallow: /checkout/
 
 Sitemap: https://layercake.site/sitemap.xml
