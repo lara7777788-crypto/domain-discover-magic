@@ -9,18 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SlicesRouteImport } from './routes/slices'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IngredientsRouteImport } from './routes/ingredients'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as BlogVisualSystemsVsLogoGeneratorsRouteImport } from './routes/blog.visual-systems-vs-logo-generators'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SlicesRoute = SlicesRouteImport.update({
   id: '/slices',
   path: '/slices',
@@ -29,6 +39,21 @@ const SlicesRoute = SlicesRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -61,6 +86,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
@@ -86,10 +116,15 @@ export interface FileRoutesByFullPath {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/terms': typeof TermsRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -99,10 +134,15 @@ export interface FileRoutesByTo {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/terms': typeof TermsRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/blog': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -113,10 +153,15 @@ export interface FileRoutesById {
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/terms': typeof TermsRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/blog/': typeof BlogIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -128,10 +173,15 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/slices'
+    | '/terms'
     | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
+    | '/blog/'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -141,10 +191,15 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/slices'
+    | '/terms'
     | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
+    | '/blog'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -154,10 +209,15 @@ export interface FileRouteTypes {
     | '/ingredients'
     | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/slices'
+    | '/terms'
     | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
+    | '/blog/'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -168,15 +228,27 @@ export interface RootRouteChildren {
   IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SlicesRoute: typeof SlicesRoute
+  TermsRoute: typeof TermsRoute
   BlogVisualSystemsVsLogoGeneratorsRoute: typeof BlogVisualSystemsVsLogoGeneratorsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/slices': {
       id: '/slices'
       path: '/slices'
@@ -189,6 +261,27 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -233,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout/return': {
       id: '/checkout/return'
       path: '/checkout/return'
@@ -264,11 +364,16 @@ const rootRouteChildren: RootRouteChildren = {
   IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SlicesRoute: SlicesRoute,
+  TermsRoute: TermsRoute,
   BlogVisualSystemsVsLogoGeneratorsRoute:
     BlogVisualSystemsVsLogoGeneratorsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
