@@ -14,8 +14,9 @@ export const Route = createFileRoute("/ingredients")({
       {
         property: "og:description",
         content: "Stack copy ingredients the way you stack frosting. Same studio, same wallet, new pantry.",
-      },
+      { property: "og:url", content: "https://layercake.site/ingredients" },
     ],
+    links: [{ rel: "canonical", href: "https://layercake.site/ingredients" }],
   }),
   component: IngredientsPage,
 });
