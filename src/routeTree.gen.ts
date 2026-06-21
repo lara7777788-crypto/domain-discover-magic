@@ -18,6 +18,7 @@ import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as BlogVisualSystemsVsLogoGeneratorsRouteImport } from './routes/blog.visual-systems-vs-logo-generators'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const SlicesRoute = SlicesRouteImport.update({
@@ -65,6 +66,12 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogVisualSystemsVsLogoGeneratorsRoute =
+  BlogVisualSystemsVsLogoGeneratorsRouteImport.update({
+    id: '/blog/visual-systems-vs-logo-generators',
+    path: '/blog/visual-systems-vs-logo-generators',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -81,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
+  '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sitemap.xml'
     | '/slices'
+    | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sitemap.xml'
     | '/slices'
+    | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
     | '/api/public/payments/webhook'
   id:
@@ -144,6 +156,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/sitemap.xml'
     | '/slices'
+    | '/blog/visual-systems-vs-logo-generators'
     | '/checkout/return'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -157,6 +170,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SlicesRoute: typeof SlicesRoute
+  BlogVisualSystemsVsLogoGeneratorsRoute: typeof BlogVisualSystemsVsLogoGeneratorsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -226,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/visual-systems-vs-logo-generators': {
+      id: '/blog/visual-systems-vs-logo-generators'
+      path: '/blog/visual-systems-vs-logo-generators'
+      fullPath: '/blog/visual-systems-vs-logo-generators'
+      preLoaderRoute: typeof BlogVisualSystemsVsLogoGeneratorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -245,6 +266,8 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SlicesRoute: SlicesRoute,
+  BlogVisualSystemsVsLogoGeneratorsRoute:
+    BlogVisualSystemsVsLogoGeneratorsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
