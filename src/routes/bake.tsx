@@ -96,6 +96,7 @@ function BakePage() {
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copied, setCopied] = useState(false);
@@ -140,13 +141,29 @@ function BakePage() {
   useEffect(() => {
     if (!user) return;
     const sourceId = sliceId ?? remixId;
-    if (!sourceId) return;
+    if (!sourceId) {
+      setSavedId(null);
+      setSaveNotice(null);
+      return;
+    }
+    let cancelled = false;
+    setError(null);
+    setSaveNotice(null);
+    setSavedId(null);
+    if (remixId) setResult(null);
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("designs")
         .select("id, data")
         .eq("id", sourceId)
+        .eq("user_id", user.id)
         .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        console.error("[bake] failed to load slice", error);
+        setError(`Couldn't load that ${TERMS.noun}. Please try again.`);
+        return;
+      }
       if (data?.data) {
         const d = data.data as {
           values?: Record<LayerKey, string>;
@@ -163,7 +180,10 @@ function BakePage() {
         if (!remixId) setSavedId(data.id);
       }
     })();
-  }, [user, sliceId, remixId, LAYERS]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, sliceId, remixId, LAYERS, isCopy]);
 
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -208,30 +228,48 @@ function BakePage() {
     },
     name: string,
   ) => {
-    if (!user) return;
+    if (!user) return null;
     setSaving(true);
+    setSaveNotice(null);
     try {
+      const row = {
+        data: payload,
+        name,
+        preview_url: payload.result?.imageDataUrl ?? null,
+      };
+
       if (savedId) {
-        await supabase
+        const { data, error } = await supabase
           .from("designs")
-          .update({ data: payload, name, preview_url: payload.result?.imageDataUrl ?? null })
-          .eq("id", savedId);
+          .update(row)
+          .eq("id", savedId)
+          .eq("user_id", user.id)
+          .select("id")
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data?.id) throw new Error("save_missing_row");
+        setSaveNotice("Saved to My slices.");
+        return data.id;
       } else {
         const { data, error } = await supabase
           .from("designs")
           .insert({
             user_id: user.id,
-            name,
-            data: payload,
-            preview_url: payload.result?.imageDataUrl ?? null,
+            ...row,
           })
           .select("id")
-          .single();
+          .maybeSingle();
         if (error) throw error;
-        if (data) setSavedId(data.id);
+        if (!data?.id) throw new Error("save_missing_row");
+        setSavedId(data.id);
+        setSaveNotice("Saved to My slices.");
+        return data.id;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : `Couldn't save your ${TERMS.noun}.`);
+      console.error("[bake] save failed", e);
+      setError(`Couldn't save your ${TERMS.noun}. Please try again.`);
+      return null;
     } finally {
       setSaving(false);
     }
@@ -253,6 +291,7 @@ function BakePage() {
     }
     setValues(currentValues);
     setError(null);
+    setSaveNotice(null);
     setLoading(true);
     setResult(null);
     try {
@@ -301,13 +340,13 @@ function BakePage() {
     <div className="relative h-screen overflow-hidden">
       <h1 className="sr-only">{isCopy ? "Whip a copy ingredient" : "Bake a new slice"}</h1>
       {/* Top bar */}
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 md:px-10">
-        <Link to="/" className="pointer-events-auto font-display text-base font-semibold text-foreground/70 transition hover:text-foreground">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-5 md:px-10">
+        <Link to="/" className="pointer-events-auto shrink-0 font-display text-base font-semibold text-foreground/70 transition hover:text-foreground max-[480px]:w-7 max-[480px]:overflow-hidden max-[480px]:whitespace-nowrap">
           ← layercake
         </Link>
-        <div className="pointer-events-auto flex items-center gap-3">
+        <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-end gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3">
           {/* Mode toggle */}
-          <div className="flex items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
             <Link
               to="/bake"
               search={{ slice: sliceId, remix: remixId, mode: "image" as Mode }}
@@ -327,10 +366,12 @@ function BakePage() {
             <button
               onClick={onSave}
               disabled={saving}
-              className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5 disabled:opacity-60"
+              className="shrink-0 rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5 disabled:opacity-60 max-[480px]:px-3 max-[480px]:tracking-[0.16em]"
             >
               {saving
                 ? "Saving…"
+                : saveNotice
+                  ? "Saved ✓"
                 : savedId
                   ? "Save changes"
                   : remixId
@@ -344,12 +385,13 @@ function BakePage() {
                 : TERMS.finalLabel}
             </div>
           )}
-          <Link
-            to="/slices"
-            className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+          <a
+            href="/slices"
+            className="shrink-0 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:tracking-[0.14em]"
           >
-            My {TERMS.nounPlural}
-          </Link>
+            <span className="hidden sm:inline">My {TERMS.nounPlural}</span>
+            <span className="sm:hidden">My</span>
+          </a>
         </div>
       </header>
 
@@ -478,6 +520,15 @@ function BakePage() {
             {error && (
               <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
+              </div>
+            )}
+
+            {saveNotice && (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                <span>{saveNotice}</span>
+                <a href="/slices" className="font-semibold underline underline-offset-4">
+                  Open My slices
+                </a>
               </div>
             )}
 
