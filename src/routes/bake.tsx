@@ -144,13 +144,18 @@ function BakePage() {
     if (!sourceId) {
       setSavedId(null);
       setSaveNotice(null);
+      setResult(null);
+      setIcing(defaultIcing);
       return;
     }
     let cancelled = false;
     setError(null);
     setSaveNotice(null);
     setSavedId(null);
-    if (remixId) setResult(null);
+    if (remixId) {
+      setResult(null);
+      setIcing(defaultIcing);
+    }
     (async () => {
       const { data, error } = await supabase
         .from("designs")
@@ -175,7 +180,7 @@ function BakePage() {
         if (d.format) setFormat(d.format);
         // For remix: drop the source's rendered result so nothing saves until they Bake
         if (d.result && !remixId) setResult(d.result);
-        if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
+        if (!remixId && d.icing) setIcing({ ...defaultIcing, ...d.icing });
         // Only attach savedId when opening an existing slice — remix stays an unsaved draft
         if (!remixId) setSavedId(data.id);
       }
@@ -294,6 +299,7 @@ function BakePage() {
     setSaveNotice(null);
     setLoading(true);
     setResult(null);
+    setIcing(defaultIcing);
     try {
       const res = isCopy
         ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat } })
