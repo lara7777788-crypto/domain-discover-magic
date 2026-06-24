@@ -18,7 +18,8 @@ export const spendSliceCredit = createServerFn({ method: "POST" })
     if (error) {
       if (error.message?.includes("no_credits")) throw new Error("No slice credits available");
       if (error.message?.includes("design_not_found")) throw new Error("Design not found");
-      throw error;
+      console.error("[spendSliceCredit] unexpected error", error);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
 
     return { remaining: remaining as number };
