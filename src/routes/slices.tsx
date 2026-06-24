@@ -72,7 +72,8 @@ function SlicesPage() {
         .limit(24);
       if (cancelled) return;
       if (error) {
-        setError(error.message);
+        console.error("[slices] failed to load designs", error);
+        setError("Failed to load your slices. Please refresh and try again.");
         setSlices([]);
       } else {
         const rows = (data ?? []) as SliceMeta[];

@@ -90,7 +90,8 @@ export const generateCopy = createServerFn({ method: "POST" })
       if ((spendErr.message || "").includes("no_credits")) {
         throw new Error("You're out of slices. Subscribe or buy a pack to keep generating.");
       }
-      throw spendErr;
+      console.error("[generateCopy] spend credit failed", spendErr);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
 
     const brief = composeBrief(data);

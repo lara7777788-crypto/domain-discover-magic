@@ -101,7 +101,8 @@ export const generate = createServerFn({ method: "POST" })
           "You're out of slices. Subscribe or buy a pack to keep generating.",
         );
       }
-      throw spendErr;
+      console.error("[generate] spend credit failed", spendErr);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
 
     // 1. Prompt layer — rewrite the wish into a real image prompt
