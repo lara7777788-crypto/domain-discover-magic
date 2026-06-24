@@ -385,13 +385,13 @@ function BakePage() {
                 : TERMS.finalLabel}
             </div>
           )}
-          <Link
-            to="/slices"
+          <a
+            href="/slices"
             className="shrink-0 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:tracking-[0.14em]"
           >
             <span className="hidden sm:inline">My {TERMS.nounPlural}</span>
             <span className="sm:hidden">My</span>
-          </Link>
+          </a>
         </div>
       </header>
 
@@ -526,9 +526,9 @@ function BakePage() {
             {saveNotice && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 <span>{saveNotice}</span>
-                <Link to="/slices" className="font-semibold underline underline-offset-4">
+                <a href="/slices" className="font-semibold underline underline-offset-4">
                   Open My slices
-                </Link>
+                </a>
               </div>
             )}
 
