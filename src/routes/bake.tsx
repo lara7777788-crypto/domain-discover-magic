@@ -323,13 +323,27 @@ function BakePage() {
               Copy
             </Link>
           </div>
-          <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
-            {saving
-              ? "Saving…"
-              : active < LAYERS.length
+          {result ? (
+            <button
+              onClick={onSave}
+              disabled={saving}
+              className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5 disabled:opacity-60"
+            >
+              {saving
+                ? "Saving…"
+                : savedId
+                  ? "Save changes"
+                  : remixId
+                    ? `Save remix`
+                    : `Save ${TERMS.noun}`}
+            </button>
+          ) : (
+            <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
+              {active < LAYERS.length
                 ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}`
                 : TERMS.finalLabel}
-          </div>
+            </div>
+          )}
           <Link
             to="/slices"
             className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
