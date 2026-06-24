@@ -9,6 +9,10 @@ import { useReveal } from "@/hooks/useReveal";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { title: "Layercake — AI-native visual identity studio" },
+      { name: "description", content: "Layercake is an AI-native visual identity studio. Layer a wish, mood, text, and brand into posters, packaging, and social art — one slice at a time." },
+      { property: "og:title", content: "Layercake — AI-native visual identity studio" },
+      { property: "og:description", content: "Bake brand identities, posters, packaging, and social campaigns layer by layer with an AI studio designed for taste, not templates." },
       { property: "og:url", content: "https://layercake.site/" },
     ],
     links: [
