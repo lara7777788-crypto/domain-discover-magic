@@ -82,7 +82,7 @@ const emptyValues = (layers: LayerDef[]): Record<LayerKey, string> =>
 function BakePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { slice: sliceId, mode } = Route.useSearch();
+  const { slice: sliceId, remix: remixId, mode } = Route.useSearch();
   const isCopy = mode === "copy";
 
   const LAYERS = useMemo(() => (isCopy ? COPY_LAYERS : IMAGE_LAYERS), [isCopy]);
