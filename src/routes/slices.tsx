@@ -125,17 +125,11 @@ function SlicesPage() {
     setSlices((s) => s?.filter((x) => x.id !== id) ?? null);
   };
 
-  const remix = async (id: string) => {
+  const remix = (id: string) => {
     if (!user) return;
-    const { data: src } = await supabase.from("designs").select("name, data").eq("id", id).maybeSingle();
-    if (!src) return;
-    const { data: copy, error } = await supabase
-      .from("designs")
-      .insert({ user_id: user.id, name: `${src.name} (remix)`, data: src.data, preview_url: null })
-      .select("id")
-      .single();
-    if (error || !copy) return;
-    navigate({ to: "/bake", search: { slice: copy.id } });
+    // Don't create a DB row here — open the editor with the source pre-filled
+    // as an UNSAVED draft. It only persists when the user clicks Bake.
+    navigate({ to: "/bake", search: { remix: id } });
   };
 
   return (
