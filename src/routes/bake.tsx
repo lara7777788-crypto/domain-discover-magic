@@ -20,9 +20,9 @@ export const Route = createFileRoute("/bake")({
   head: () => ({
     meta: [
       { title: "Bake a Slice — Layercake" },
-      { name: "description", content: "Design social, print, and marketing visuals — one delicious layer at a time. Wish, visual, text, layout, brand." },
+      { name: "description", content: "Bake a slice of branded art or copy in Layercake. Layer your wish, mood, text, layout, and brand for social, print, and marketing visuals." },
       { property: "og:title", content: "Bake a Slice — Layercake" },
-      { property: "og:description", content: "Layer your wish, mood, text, layout, and brand. Bake a slice for social, print, or marketing." },
+      { property: "og:description", content: "Layer your wish, mood, text, layout, and brand to bake a slice of art or copy for social, print, or marketing campaigns." },
       { property: "og:url", content: "https://layercake.site/bake" },
     ],
     links: [
