@@ -105,8 +105,23 @@ function SlicesPage() {
   }, [user, reloadKey]);
 
   const remove = async (id: string) => {
+    if (!user) return;
     if (!confirm("Delete this slice?")) return;
-    await supabase.from("designs").delete().eq("id", id);
+    const { error: delErr, count } = await supabase
+      .from("designs")
+      .delete({ count: "exact" })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    if (delErr) {
+      console.error("delete slice failed", delErr);
+      alert("Couldn't delete that slice. Please try again.");
+      return;
+    }
+    if (!count) {
+      alert("That slice couldn't be deleted (it may already be gone).");
+      setReloadKey((k) => k + 1);
+      return;
+    }
     setSlices((s) => s?.filter((x) => x.id !== id) ?? null);
   };
 
