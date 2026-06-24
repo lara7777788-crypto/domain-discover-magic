@@ -25,7 +25,8 @@ export const redeemCoupon = createServerFn({ method: "POST" })
       if (msg.includes("coupon_expired")) throw new Error("Coupon expired");
       if (msg.includes("coupon_exhausted")) throw new Error("Coupon fully redeemed");
       if (msg.includes("already_redeemed")) throw new Error("You've already used this code");
-      throw error;
+      console.error("[redeemCoupon] unexpected error", error);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
 
     const row = Array.isArray(result) ? result[0] : result;
