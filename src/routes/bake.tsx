@@ -261,12 +261,7 @@ function BakePage() {
         : await generate({ data: { ...currentValues, format: format as ImageFormat } });
       setResult(res);
       goTo(LAYERS.length);
-      const fallback = isCopy ? "Untitled copy" : "Untitled slice";
-      const name = currentValues.wish.trim().slice(0, 60) || fallback;
-      await persistSlice(
-        { values: currentValues, format, result: res, icing, mode: isCopy ? "copy" : "image" },
-        name,
-      );
+      // No auto-save — user saves manually via the Save button on the result.
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went sideways.");
     } finally {
@@ -274,16 +269,15 @@ function BakePage() {
     }
   };
 
-  // Debounced autosave for icing edits on already-saved image slices with a result
-  useEffect(() => {
-    if (isCopy || !savedId || !result) return;
-    const t = setTimeout(() => {
-      const name = values.wish.trim().slice(0, 60) || "Untitled slice";
-      persistSlice({ values, format, result, icing, mode: "image" }, name);
-    }, 700);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [icing]);
+  const onSave = async () => {
+    if (!result) return;
+    const name = values.wish.trim().slice(0, 60) || (isCopy ? "Untitled copy" : "Untitled slice");
+    await persistSlice(
+      { values, format, result, icing, mode: isCopy ? "copy" : "image" },
+      name,
+    );
+  };
+
 
   const onDownload = (payload: SavePayload) => setSavePayload(payload);
 
