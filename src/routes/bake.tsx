@@ -13,6 +13,7 @@ type Mode = "image" | "copy";
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
     slice: typeof s.slice === "string" ? s.slice : undefined,
+    remix: typeof s.remix === "string" ? s.remix : undefined,
     mode: (s.mode === "copy" ? "copy" : "image") as Mode,
   }),
   head: () => ({
