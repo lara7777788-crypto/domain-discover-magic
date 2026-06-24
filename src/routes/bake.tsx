@@ -13,6 +13,7 @@ type Mode = "image" | "copy";
 export const Route = createFileRoute("/bake")({
   validateSearch: (s: Record<string, unknown>) => ({
     slice: typeof s.slice === "string" ? s.slice : undefined,
+    remix: typeof s.remix === "string" ? s.remix : undefined,
     mode: (s.mode === "copy" ? "copy" : "image") as Mode,
   }),
   head: () => ({
@@ -81,7 +82,7 @@ const emptyValues = (layers: LayerDef[]): Record<LayerKey, string> =>
 function BakePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { slice: sliceId, mode } = Route.useSearch();
+  const { slice: sliceId, remix: remixId, mode } = Route.useSearch();
   const isCopy = mode === "copy";
 
   const LAYERS = useMemo(() => (isCopy ? COPY_LAYERS : IMAGE_LAYERS), [isCopy]);
@@ -135,14 +136,16 @@ function BakePage() {
     if (!authLoading && !user) navigate({ to: "/login" });
   }, [authLoading, user, navigate]);
 
-  // Load existing slice if ?slice=ID
+  // Load existing slice (?slice=ID) or seed an unsaved remix draft (?remix=ID)
   useEffect(() => {
-    if (!user || !sliceId) return;
+    if (!user) return;
+    const sourceId = sliceId ?? remixId;
+    if (!sourceId) return;
     (async () => {
       const { data } = await supabase
         .from("designs")
         .select("id, data")
-        .eq("id", sliceId)
+        .eq("id", sourceId)
         .maybeSingle();
       if (data?.data) {
         const d = data.data as {
@@ -153,12 +156,15 @@ function BakePage() {
         };
         if (d.values) setValues({ ...emptyValues(LAYERS), ...d.values });
         if (d.format) setFormat(d.format);
-        if (d.result) setResult(d.result);
+        // For remix: drop the source's rendered result so nothing saves until they Bake
+        if (d.result && !remixId) setResult(d.result);
         if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
-        setSavedId(data.id);
+        // Only attach savedId when opening an existing slice — remix stays an unsaved draft
+        if (!remixId) setSavedId(data.id);
       }
     })();
-  }, [user, sliceId, LAYERS]);
+  }, [user, sliceId, remixId, LAYERS]);
+
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<Record<LayerKey, HTMLTextAreaElement | null>>({
@@ -310,14 +316,14 @@ function BakePage() {
           <div className="flex items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
             <Link
               to="/bake"
-              search={{ slice: sliceId, mode: "image" as Mode }}
+              search={{ slice: sliceId, remix: remixId, mode: "image" as Mode }}
               className={`rounded-full px-3 py-1 transition ${!isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
               Slice
             </Link>
             <Link
               to="/bake"
-              search={{ slice: sliceId, mode: "copy" as Mode }}
+              search={{ slice: sliceId, remix: remixId, mode: "copy" as Mode }}
               className={`rounded-full px-3 py-1 transition ${isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
               Copy
