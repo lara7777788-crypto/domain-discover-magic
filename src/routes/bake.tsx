@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
 import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
+import { renderIcedImageToDataUrl } from "@/lib/icing-render";
 
 type Mode = "image" | "copy";
 
@@ -322,7 +323,7 @@ function BakePage() {
     let savedResult = result;
     if (!isCopy && result.imageDataUrl) {
       try {
-        const baked = await bakeIcingToDataUrl(result.imageDataUrl, icing);
+        const baked = await renderIcedImageToDataUrl(result.imageDataUrl, icing);
         savedResult = { ...result, imageDataUrl: baked };
       } catch (e) {
         console.error("[bake] failed to bake icing into preview", e);
@@ -621,56 +622,3 @@ function BakePage() {
   );
 }
 
-const EFFECT_CSS: Record<IcingState["effect"], string> = {
-  none: "",
-  bw: "grayscale(1)",
-  sepia: "sepia(0.85)",
-  neon: "saturate(2) contrast(1.2) brightness(1.05)",
-  vhs: "hue-rotate(-12deg) saturate(1.4) contrast(1.15)",
-  riso: "contrast(1.3) saturate(1.5) hue-rotate(8deg)",
-  holo: "hue-rotate(40deg) saturate(1.8) brightness(1.05)",
-  noir: "grayscale(1) contrast(1.4) brightness(0.9)",
-};
-
-function buildIcingFilter(s: IcingState) {
-  const base = `hue-rotate(${s.hue}deg) saturate(${s.sat}%) brightness(${s.bright}%) contrast(${s.contrast}%)`;
-  const eff = EFFECT_CSS[s.effect] ?? "";
-  return [base, eff].filter(Boolean).join(" ");
-}
-
-function loadImg(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("image_load_failed"));
-    img.src = src;
-  });
-}
-
-async function bakeIcingToDataUrl(imageUrl: string, icing: IcingState): Promise<string> {
-  const img = await loadImg(imageUrl);
-  const w = img.naturalWidth || 1024;
-  const h = img.naturalHeight || 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("no_canvas_ctx");
-  ctx.filter = buildIcingFilter(icing);
-  ctx.drawImage(img, 0, 0, w, h);
-  ctx.filter = "none";
-  for (const s of icing.stickers) {
-    const x = (s.x / 100) * w;
-    const y = (s.y / 100) * h;
-    const px = s.size * (w / 1024);
-    ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0,0,0,0.25)";
-    ctx.shadowBlur = px * 0.15;
-    ctx.shadowOffsetY = px * 0.06;
-    ctx.fillText(s.emoji, x, y);
-  }
-  return canvas.toDataURL("image/png");
-}

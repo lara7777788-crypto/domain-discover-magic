@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import type { SavePayload } from "@/components/SaveSheet";
+import { buildIcingFilter, renderIcedStageToPayload } from "@/lib/icing-render";
 
 type Sticker = { id: string; emoji: string; x: number; y: number; size: number };
 
@@ -32,12 +33,6 @@ export const defaultIcing: IcingState = {
   hue: 0, sat: 100, bright: 100, contrast: 100, effect: "none", stickers: [],
 };
 
-function buildFilter(s: IcingState) {
-  const base = `hue-rotate(${s.hue}deg) saturate(${s.sat}%) brightness(${s.bright}%) contrast(${s.contrast}%)`;
-  const eff = EFFECTS.find((e) => e.key === s.effect)?.css ?? "";
-  return [base, eff].filter(Boolean).join(" ");
-}
-
 export function IcingPanel({
   imageUrl,
   icing,
@@ -55,7 +50,7 @@ export function IcingPanel({
   const stageRef = useRef<HTMLDivElement>(null);
   const dragging = useRef<{ id: string; offX: number; offY: number } | null>(null);
 
-  const filter = buildFilter(icing);
+  const filter = buildIcingFilter(icing);
 
   const addSticker = (emoji: string) => {
     setIcing({
@@ -98,7 +93,7 @@ export function IcingPanel({
 
   const handleDownloadClick = () => {
     try {
-      const payload = renderIcedFromStage(stageRef.current, icing);
+      const payload = renderIcedStageToPayload(stageRef.current, icing);
       // Always open the Save screen — works in preview iframe, desktop, and mobile.
       // The Save screen has a real <img> (drag/right-click/long-press save)
       // and a Download button that works on the published site.
@@ -237,58 +232,4 @@ export function IcingPanel({
   );
 }
 
-const DOWNLOAD_FILENAME = "bake-a-cake-poster.png";
-
-function needsSaveScreen() {
-  const ua = navigator.userAgent;
-  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
-  return isIOS || isMobileViewport || window.matchMedia("(pointer: coarse)").matches || !("download" in HTMLAnchorElement.prototype);
-}
-
-function dataUrlToBlob(dataUrl: string) {
-  const [meta = "", data = ""] = dataUrl.split(",");
-  const mime = meta.match(/data:([^;]+)/)?.[1] ?? "image/png";
-  const bin = atob(data);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
-  return new Blob([bytes], { type: mime });
-}
-
-function renderIcedFromStage(stage: HTMLDivElement | null, icing: IcingState): SavePayload & { blob: Blob } {
-  if (!stage) throw new Error("The slice is not ready yet. Try Download again in a moment.");
-  const img = stage.querySelector("img");
-  if (!img?.complete) throw new Error("Image is still loading. Try Download again in a moment.");
-
-  const w = img.naturalWidth || 1024;
-  const h = img.naturalHeight || 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Your browser couldn't prepare the PNG.");
-
-  ctx.filter = buildFilter(icing);
-  ctx.drawImage(img, 0, 0, w, h);
-  ctx.filter = "none";
-
-  const rect = stage.getBoundingClientRect();
-  const stageWidth = rect.width || w;
-
-  for (const s of icing.stickers) {
-    const x = (s.x / 100) * w;
-    const y = (s.y / 100) * h;
-    const px = s.size * (w / stageWidth);
-    ctx.font = `${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0,0,0,0.25)";
-    ctx.shadowBlur = px * 0.15;
-    ctx.shadowOffsetY = px * 0.06;
-    ctx.fillText(s.emoji, x, y);
-  }
-
-  const blob = dataUrlToBlob(canvas.toDataURL("image/png"));
-  return { url: URL.createObjectURL(blob), blob, filename: DOWNLOAD_FILENAME };
-}
 
