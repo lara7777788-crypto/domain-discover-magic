@@ -183,7 +183,7 @@ function BakePage() {
     return () => {
       cancelled = true;
     };
-  }, [user, sliceId, remixId, LAYERS, TERMS.noun]);
+  }, [user, sliceId, remixId, LAYERS, isCopy]);
 
 
   const containerRef = useRef<HTMLDivElement>(null);
