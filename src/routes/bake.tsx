@@ -231,6 +231,7 @@ function BakePage() {
       result: typeof result | null;
       icing: IcingState;
       mode: Mode;
+      previewUrl?: string | null;
     },
     name: string,
   ) => {
@@ -241,7 +242,7 @@ function BakePage() {
       const row = {
         data: payload,
         name,
-        preview_url: payload.result?.imageDataUrl ?? null,
+        preview_url: payload.previewUrl ?? payload.result?.imageDataUrl ?? null,
       };
 
       if (savedId) {
@@ -318,19 +319,18 @@ function BakePage() {
   const onSave = async () => {
     if (!result) return;
     const name = values.wish.trim().slice(0, 60) || (isCopy ? "Untitled copy" : "Untitled slice");
-    // Bake icing (filter + stickers) into the saved image so the gallery
-    // thumbnail and downloads reflect what the user sees in the editor.
-    let savedResult = result;
+    // Bake icing (filter + stickers) into the gallery/download preview while
+    // keeping the original generation editable in Bake.
+    let previewUrl = result.imageDataUrl ?? null;
     if (!isCopy && result.imageDataUrl) {
       try {
-        const baked = await renderIcedImageToDataUrl(result.imageDataUrl, icing);
-        savedResult = { ...result, imageDataUrl: baked };
+        previewUrl = await renderIcedImageToDataUrl(result.imageDataUrl, icing);
       } catch (e) {
         console.error("[bake] failed to bake icing into preview", e);
       }
     }
     await persistSlice(
-      { values, format, result: savedResult, icing, mode: isCopy ? "copy" : "image" },
+      { values, format, result, icing, mode: isCopy ? "copy" : "image", previewUrl },
       name,
     );
   };
