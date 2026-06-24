@@ -317,8 +317,19 @@ function BakePage() {
   const onSave = async () => {
     if (!result) return;
     const name = values.wish.trim().slice(0, 60) || (isCopy ? "Untitled copy" : "Untitled slice");
+    // Bake icing (filter + stickers) into the saved image so the gallery
+    // thumbnail and downloads reflect what the user sees in the editor.
+    let savedResult = result;
+    if (!isCopy && result.imageDataUrl) {
+      try {
+        const baked = await bakeIcingToDataUrl(result.imageDataUrl, icing);
+        savedResult = { ...result, imageDataUrl: baked };
+      } catch (e) {
+        console.error("[bake] failed to bake icing into preview", e);
+      }
+    }
     await persistSlice(
-      { values, format, result, icing, mode: isCopy ? "copy" : "image" },
+      { values, format, result: savedResult, icing, mode: isCopy ? "copy" : "image" },
       name,
     );
   };
