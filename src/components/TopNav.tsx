@@ -5,7 +5,8 @@ export function TopNav() {
   const { user, signOut, loading } = useAuth();
   const linkClass =
     "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-foreground/70 transition hover:bg-white/60 hover:text-foreground sm:px-4";
-  const activeClass = "bg-foreground font-medium text-white hover:bg-foreground hover:text-white";
+  const activeClass =
+    "shrink-0 whitespace-nowrap rounded-full bg-foreground px-3 py-1.5 font-medium text-white transition hover:bg-foreground hover:text-white sm:px-4";
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center gap-2 px-4 py-4 md:px-10 md:py-5">
