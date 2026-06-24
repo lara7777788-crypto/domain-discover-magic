@@ -136,14 +136,16 @@ function BakePage() {
     if (!authLoading && !user) navigate({ to: "/login" });
   }, [authLoading, user, navigate]);
 
-  // Load existing slice if ?slice=ID
+  // Load existing slice (?slice=ID) or seed an unsaved remix draft (?remix=ID)
   useEffect(() => {
-    if (!user || !sliceId) return;
+    if (!user) return;
+    const sourceId = sliceId ?? remixId;
+    if (!sourceId) return;
     (async () => {
       const { data } = await supabase
         .from("designs")
         .select("id, data")
-        .eq("id", sliceId)
+        .eq("id", sourceId)
         .maybeSingle();
       if (data?.data) {
         const d = data.data as {
@@ -154,12 +156,15 @@ function BakePage() {
         };
         if (d.values) setValues({ ...emptyValues(LAYERS), ...d.values });
         if (d.format) setFormat(d.format);
-        if (d.result) setResult(d.result);
+        // For remix: drop the source's rendered result so nothing saves until they Bake
+        if (d.result && !remixId) setResult(d.result);
         if (d.icing) setIcing({ ...defaultIcing, ...d.icing });
-        setSavedId(data.id);
+        // Only attach savedId when opening an existing slice — remix stays an unsaved draft
+        if (!remixId) setSavedId(data.id);
       }
     })();
-  }, [user, sliceId, LAYERS]);
+  }, [user, sliceId, remixId, LAYERS]);
+
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<Record<LayerKey, HTMLTextAreaElement | null>>({
