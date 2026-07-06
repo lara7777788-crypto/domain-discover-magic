@@ -26,6 +26,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,9 +34,18 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
+  const goNext = () => {
+    if (next) {
+      window.location.href = next;
+    } else {
+      navigate({ to: "/slices" });
+    }
+  };
+
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/slices" });
-  }, [loading, user, navigate]);
+    if (!loading && user) goNext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user]);
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +57,14 @@ function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/slices" },
+          options: { emailRedirectTo: window.location.origin + (next ?? "/slices") },
         });
         if (error) throw error;
         setInfo("Check your email to confirm your account.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/slices" });
+        goNext();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -67,7 +77,7 @@ function LoginPage() {
     setError(null);
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/slices",
+      redirect_uri: window.location.origin + (next ?? "/slices"),
     });
     if (result.error) {
       setError(result.error instanceof Error ? result.error.message : "Google sign-in failed.");
@@ -75,6 +85,7 @@ function LoginPage() {
     }
     // If redirected, browser navigates away.
   };
+
 
   return (
     <main
