@@ -3,7 +3,7 @@
 // off his lily pad to smash the cake on "try a slice".
 import { useEffect, useRef, useState } from "react";
 import cakeImg from "../assets/jp-cake-pink.webp";
-import pondImg from "../assets/jp-lotus-pond.jpg";
+import pondImg from "../assets/jp-lotus-pond.webp";
 import frogImg from "../assets/jp-frog.webp";
 import markImg from "../assets/jp-mark.webp";
 import frogCatImg from "../assets/jp-frogcat-big.webp";
