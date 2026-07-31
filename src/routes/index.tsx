@@ -166,15 +166,13 @@ function Splash() {
         <div className="font-display text-xl font-semibold tracking-tight text-foreground/80">
           layercake<span style={{ color: "var(--strawberry)" }}>.</span>
         </div>
-        <div className="hidden text-[11px] uppercase tracking-[0.3em] text-foreground/50 md:block">
+        <div className="hidden mono-label text-[10px] text-foreground/50 md:block">
           visual identity studio · est. 2026
         </div>
       </header>
 
       <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-20 text-center">
-        <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
-          AI-native visual identity studio
-        </p>
+        <span className="glass-chip mb-6">AI-native visual identity studio</span>
 
         <h1 className="font-display font-semibold leading-[0.98] text-foreground" style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)" }}>
           Make <span className="font-editorial font-normal text-foreground/85" style={{ fontSize: "1.18em" }}>beautiful</span> things,
@@ -186,14 +184,33 @@ function Splash() {
           AI-native visual identity systems for the next generation of creators, brands and worlds.
         </p>
 
-        {/* Cake stage */}
+        {/* Cake stage — glass pedestal */}
         <div
-          className="relative mt-10 mb-8 animate-floaty"
-          style={{
-            width: CAKE_W,
-            height: CAKE_H + 36,
-          }}
+          className="relative mt-12 mb-8 flex items-center justify-center"
+          style={{ width: "min(100%, 460px)" }}
         >
+          {/* Glass dome / pedestal plate */}
+          <div
+            aria-hidden
+            className="glass-panel shimmer absolute rounded-[2.5rem]"
+            style={{ inset: "auto 0 24px 0", height: CAKE_H * 0.62, top: CAKE_H * 0.52 }}
+          />
+
+          {/* Texture tags */}
+          <div className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col gap-2 sm:flex">
+            <span className="glass-chip">Surface v.02</span>
+            <span className="glass-chip">Layers 06</span>
+            <span className="glass-chip">Realism 98%</span>
+          </div>
+
+          <div
+            className="relative animate-floaty"
+            style={{
+              width: CAKE_W,
+              height: CAKE_H + 36,
+            }}
+          >
+
 
           {/* Soft ground shadow */}
           <div
