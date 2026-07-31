@@ -36,6 +36,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
   const [smashing, setSmashing] = useState(false);
   const timer = useRef<number | null>(null);
+  const sfxTimer = useRef<number | null>(null);
+
 
   useEffect(() => {
     const t = window.setTimeout(() => setLit(true), 100);
