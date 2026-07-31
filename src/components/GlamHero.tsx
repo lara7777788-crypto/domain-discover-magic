@@ -62,8 +62,11 @@ const COPY = {
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
   const [smashing, setSmashing] = useState(false);
+  const [lang, setLang] = useState<"en" | "ja">("en");
+  const t = COPY[lang];
   const timer = useRef<number | null>(null);
   const sfxTimer = useRef<number | null>(null);
+
 
 
   useEffect(() => {
