@@ -1,12 +1,24 @@
-// Japanese poster hero: sunburst rays, woodblock palette, KURO-NEKO style type,
-// and a dramatic cake smash on "try a slice".
+// Japanese poster hero: lotus pond, woodblock palette, KURO-NEKO style type,
+// a pink layer cake labelled with its design layers, and a frog who leaps
+// off his lily pad to smash the cake on "try a slice".
 import { useEffect, useRef, useState } from "react";
-import cakeImg from "../assets/cake-bright.webp";
+import cakeImg from "../assets/jp-cake-pink.png";
+import pondImg from "../assets/jp-lotus-pond.jpg";
+import frogImg from "../assets/jp-frog.png";
+import markImg from "../assets/jp-mark.png";
 
 const RAYS = 28;
 const SHARDS = 26;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
+
+// design layers, top tier -> bottom tier
+const LAYERS = [
+  { label: "logo", jp: "ロゴ", top: "16%", side: "right" as const },
+  { label: "palette", jp: "配色", top: "38%", side: "left" as const },
+  { label: "type", jp: "文字", top: "60%", side: "right" as const },
+  { label: "imagery", jp: "画像", top: "82%", side: "left" as const },
+];
 
 const TICKER = [
   "brand identities",
@@ -34,11 +46,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const handleSmash = () => {
     if (smashing) return;
     setSmashing(true);
-    timer.current = window.setTimeout(onEnter, 1250);
+    timer.current = window.setTimeout(onEnter, 2000);
   };
 
   return (
     <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
+      {/* lotus pond backdrop */}
+      <div aria-hidden className="jp-pond" style={{ backgroundImage: `url(${pondImg})` }} />
       {/* sunburst */}
       <div aria-hidden className="jp-sun" style={{ opacity: lit ? 1 : 0 }}>
         {Array.from({ length: RAYS }).map((_, i) => (
@@ -78,12 +92,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
           match. Baked layer by layer, in your taste.
         </p>
 
-        {/* cake on a lavender disc */}
+        {/* cake on a lavender disc, with its design layers called out */}
         <div className="jp-cake-wrap" style={{ opacity: lit ? 1 : 0 }}>
           <div className="jp-disc" aria-hidden />
           <img
             src={cakeImg}
-            alt="A layered Layercake slice on a lavender poster disc"
+            alt="A pink four-tier Layercake with each design layer labelled"
             width={300}
             height={300}
             fetchPriority="high"
@@ -91,6 +105,25 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             draggable={false}
             className="jp-cake"
           />
+
+          {LAYERS.map((l, i) => (
+            <span
+              key={l.label}
+              className={`jp-layer-tag jp-layer-${l.side}`}
+              style={{ top: l.top, animationDelay: `${0.5 + i * 0.14}s` }}
+            >
+              <i className="jp-layer-dot" aria-hidden />
+              <b>{l.label}</b>
+              <em lang="ja">{l.jp}</em>
+            </span>
+          ))}
+
+          {/* the frog, waiting on his lily pad */}
+          <div className="jp-frog-wrap" aria-hidden>
+            <span className="jp-pad" />
+            <img src={frogImg} alt="" width={150} height={150} className="jp-frog" draggable={false} />
+          </div>
+
           {/* shards, only visible during the smash */}
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
@@ -129,6 +162,14 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         </div>
 
         <p className="jp-fine">First slice on the house · no subscription to try</p>
+
+        {/* frog-and-cat watermark */}
+        <div className="jp-mark">
+          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={64} height={64} loading="lazy" />
+          <span>
+            Layercake<i>:</i> control your noise
+          </span>
+        </div>
       </div>
 
       {/* ticker */}
