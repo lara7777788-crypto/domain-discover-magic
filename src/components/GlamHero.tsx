@@ -106,8 +106,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                       width: 10 + (i % 4) * 8,
                       height: 8 + (i % 3) * 10,
                       borderRadius: i % 2 ? "50%" : "3px",
-                      ["--dx" as string]: `${Math.cos((a * Math.PI) / 180) * dist}px`,
-                      ["--dy" as string]: `${Math.sin((a * Math.PI) / 180) * dist - 60}px`,
+                      ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
+                      ["--dy" as string]: `${Math.round(Math.sin((a * Math.PI) / 180) * dist - 60)}px`,
                       ["--rot" as string]: `${(i % 2 ? 1 : -1) * (180 + i * 22)}deg`,
                       animationDelay: `${(i % 6) * 0.02}s`,
                     } as React.CSSProperties
