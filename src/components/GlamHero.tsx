@@ -68,6 +68,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const t = COPY[lang];
   const timer = useRef<number | null>(null);
   const sfxTimer = useRef<number | null>(null);
+  const hapticTimer = useRef<number | null>(null);
 
 
 
@@ -78,6 +79,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       if (timer.current) clearTimeout(timer.current);
 
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
+      if (hapticTimer.current) clearTimeout(hapticTimer.current);
 
     };
   }, []);
