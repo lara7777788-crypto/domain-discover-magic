@@ -954,7 +954,7 @@
   z-index: 0;
   background-size: cover;
   background-position: center bottom;
-  opacity: 0.42;
+  opacity: 0.28;
   mix-blend-mode: multiply;
   pointer-events: none;
 }
@@ -971,7 +971,7 @@
   position: absolute;
   width: 300px;
   height: auto;
-  opacity: 0.85;
+  opacity: 0.78;
   filter: drop-shadow(0 10px 16px rgba(27, 20, 16, 0.22));
   animation: jpFloat 9s ease-in-out infinite;
 }
