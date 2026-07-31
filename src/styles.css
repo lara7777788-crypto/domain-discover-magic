@@ -1124,7 +1124,31 @@
   gap: 0.6rem;
   opacity: 0.72;
 }
-.jp-mark img { width: 400px; height: 400px; flex: none; object-fit: contain; }
+.jp-mark-art { position: relative; display: inline-block; flex: none; }
+.jp-mark img { width: 400px; height: 400px; flex: none; object-fit: contain; display: block; }
+/* real seal, painted over the illustration's baked-in stamp */
+.jp-seal {
+  position: absolute;
+  left: 68.5%;
+  top: 57.5%;
+  width: 9%;
+  height: 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-family: "Shippori Mincho", "Noto Serif JP", serif;
+  font-size: min(1.05rem, 4.2cqw);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.02em;
+  color: #C0392B;
+  background: #fff;
+  border: 2px solid #C0392B;
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px #fff;
+}
+
 .jp-mark span {
   font-family: "Noto Sans JP", system-ui, sans-serif;
   font-weight: 700;
