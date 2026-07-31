@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.webp";
 import { ShowcaseGrid } from "@/components/ShowcaseGrid";
 import { LayerStack } from "@/components/LayerStack";
+import { CakeSlam3D } from "@/components/CakeSlam3D";
+
 import { useReveal } from "@/hooks/useReveal";
 
 
