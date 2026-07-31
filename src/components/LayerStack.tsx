@@ -1,12 +1,12 @@
 import { useReveal } from "@/hooks/useReveal";
 
 const LAYERS = [
-  { label: "Concept", color: "var(--ube)" },
-  { label: "Palette", color: "var(--strawberry)" },
-  { label: "Type", color: "var(--melon)" },
-  { label: "Logo", color: "var(--matcha)" },
-  { label: "Motion", color: "var(--ramune)" },
-  { label: "World", color: "var(--taiyaki)" },
+  { label: "Concept", color: "var(--jp-purple)", ink: "var(--cream)" },
+  { label: "Palette", color: "var(--jp-pink)", ink: "var(--cream)" },
+  { label: "Type", color: "var(--jp-mustard)", ink: "var(--foreground)" },
+  { label: "Logo", color: "var(--jp-olive)", ink: "var(--cream)" },
+  { label: "Motion", color: "var(--jp-lavender)", ink: "var(--foreground)" },
+  { label: "World", color: "var(--jp-blush)", ink: "var(--foreground)" },
 ];
 
 export function LayerStack() {
@@ -25,7 +25,7 @@ export function LayerStack() {
                 top: revealed ? baseY : 340,
                 transform: "translateX(-50%)",
                 background: l.color,
-                color: "var(--foreground)",
+                color: l.ink,
                 opacity: revealed ? 1 : 0,
                 transition: `top 700ms cubic-bezier(.2,.9,.25,1) ${i * 110}ms, opacity 500ms ease-out ${i * 110}ms`,
                 boxShadow:
