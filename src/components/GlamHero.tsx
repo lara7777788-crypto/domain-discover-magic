@@ -62,7 +62,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       </div>
       <div aria-hidden className="jp-grain" />
 
-      <div className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pb-14 pt-12 text-center md:pt-16">
+      <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-14 pt-12 text-center md:pt-16">
         <span className="jp-chip">日本 · visual identity studio</span>
 
         <h1 className="jp-title mt-6">
