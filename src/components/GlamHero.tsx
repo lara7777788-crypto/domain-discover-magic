@@ -178,12 +178,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
               key={l.label}
               className={`jp-layer-tag jp-layer-${l.side}`}
               style={{ top: l.top, animationDelay: `${0.5 + i * 0.14}s` }}
+              lang={lang}
             >
               <i className="jp-layer-dot" aria-hidden />
-              <b>{l.label}</b>
-              <em lang="ja">{l.jp}</em>
+              <b>{lang === "ja" ? l.jp : l.label}</b>
             </span>
           ))}
+
 
           {/* the frog, waiting on his lily pad */}
           <div className="jp-frog-wrap" aria-hidden>
