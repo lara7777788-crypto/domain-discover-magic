@@ -843,7 +843,7 @@
 .is-smashing .jp-pad { animation: jpPadRipple 620ms ease-out 100ms forwards; }
 .is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
 .is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out 600ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 1100ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
 .is-smashing .jp-layer-tag { animation: jpBlast 700ms ease-in 600ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
@@ -854,11 +854,11 @@
 
 
 @keyframes jpSmash {
-  0% { transform: scale(1) rotate(0deg); }
-  22% { transform: scale(1.22) rotate(-4deg); }
-  38% { transform: scaleX(1.5) scaleY(0.5) rotate(2deg); }
-  55% { transform: scaleX(1.9) scaleY(0.22); opacity: 0.5; filter: brightness(1.6); }
-  100% { transform: scaleX(2.4) scaleY(0.05); opacity: 0; }
+  0% { transform: perspective(900px) translateZ(0) scale(1) rotate(0deg); }
+  18% { transform: perspective(900px) translateZ(0) scale(1.24) rotate(-4deg); }
+  32% { transform: perspective(900px) translateZ(40px) scaleX(1.5) scaleY(0.55) rotate(2deg); filter: brightness(1.5); }
+  55% { transform: perspective(900px) translateZ(320px) scale(2.6) rotate(-3deg); opacity: 0.75; filter: brightness(1.8) blur(2px); }
+  100% { transform: perspective(900px) translateZ(900px) scale(6.2) rotate(4deg); opacity: 0; filter: brightness(2) blur(10px); }
 }
 @keyframes jpDiscPop {
   0% { transform: scale(1); }
@@ -866,9 +866,10 @@
   100% { transform: scale(2.6); opacity: 0; }
 }
 @keyframes jpShard {
-  0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.4); }
-  18% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1.1); }
+  0% { opacity: 0; transform: perspective(800px) translate3d(0, 0, 0) rotate(0deg) scale(0.35); }
+  14% { opacity: 1; }
+  55% { opacity: 1; transform: perspective(800px) translate3d(calc(var(--dx) * 0.6), calc(var(--dy) * 0.6), 260px) rotate(calc(var(--rot) * 0.6)) scale(2.2); }
+  100% { opacity: 0; transform: perspective(800px) translate3d(calc(var(--dx) * 2.2), calc(var(--dy) * 2.2), 760px) rotate(var(--rot)) scale(5); filter: blur(3px); }
 }
 @keyframes jpBlast {
   0% { transform: scale(1); opacity: 1; }
