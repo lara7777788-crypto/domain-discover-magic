@@ -21,7 +21,8 @@ export function playRibbet() {
   if (quiet()) return;
   const ac = getCtx();
   if (!ac) return;
-  const t0 = ac.currentTime;
+  // small pad so notes never get dropped while the context is still resuming
+  const t0 = ac.currentTime + 0.03;
 
   const croak = (start: number, f1: number, f2: number, dur: number, gain: number) => {
     const osc = ac.createOscillator();
@@ -57,6 +58,12 @@ export function playRibbet() {
 
   croak(t0, 220, 150, 0.1, 0.09); // "rib"
   croak(t0 + 0.14, 170, 110, 0.16, 0.075); // "bet"
+
+  // loud front layer: a fatter, lower "RIB-BIT" stacked on top of the subtle croak
+  croak(t0, 150, 96, 0.13, 0.30); // "RIB"
+  croak(t0 + 0.15, 118, 70, 0.2, 0.26); // "BIT"
+  croak(t0 + 0.005, 300, 205, 0.1, 0.12); // bright harmonic for cut-through
+  croak(t0 + 0.155, 236, 150, 0.17, 0.1);
 }
 
 /** Impact: low thud + filtered noise burst — "smash". */
