@@ -220,24 +220,25 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-          <button type="button" onClick={handleSmash} className="btn-jp">
-            Try a slice — free
-            <i lang="ja">一切れ</i>
+          <button type="button" onClick={handleSmash} className="btn-jp" lang={lang}>
+            {t.cta}
+            <i lang={lang}>{t.ctaTag}</i>
           </button>
-          <a href="#showcase" className="jp-link">
-            See what comes out ↓
+          <a href="#showcase" className="jp-link" lang={lang}>
+            {t.link}
           </a>
         </div>
 
-        <p className="jp-fine">First slice on the house · no subscription to try</p>
+        <p className="jp-fine" lang={lang}>
+          {t.fine}
+        </p>
 
         {/* frog-and-cat watermark */}
         <div className="jp-mark">
-          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={64} height={64} loading="lazy" />
-          <span>
-            Layercake<i>:</i> control your noise
-          </span>
+          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={96} height={96} loading="lazy" />
+          <span lang={lang}>{t.mark}</span>
         </div>
+
       </div>
 
       {/* ticker */}
