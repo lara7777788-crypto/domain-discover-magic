@@ -429,11 +429,11 @@
   .slam-slab, .slam-cherry { transform: translate(-50%, 0) !important; opacity: 1 !important; }
 }
 
-/* ---------- Glam splash stage ---------- */
+/* ---------- Lavender glam splash stage (Japanese-inflected) ---------- */
 .glam-stage {
   position: relative;
   isolation: isolate;
-  background: #17040f;
+  background: #5B49A8;
   border-bottom-left-radius: 2.5rem;
   border-bottom-right-radius: 2.5rem;
 }
@@ -441,11 +441,56 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(90% 60% at 50% -10%, rgba(255, 138, 184, 0.35) 0%, transparent 60%),
-    radial-gradient(60% 50% at 12% 20%, rgba(150, 90, 255, 0.28) 0%, transparent 65%),
-    radial-gradient(60% 50% at 88% 25%, rgba(64, 170, 255, 0.22) 0%, transparent 65%),
-    linear-gradient(180deg, #2a0620 0%, #17040f 55%, #10030b 100%);
+    radial-gradient(85% 55% at 50% -8%, rgba(255, 255, 255, 0.42) 0%, transparent 62%),
+    radial-gradient(60% 50% at 10% 18%, rgba(196, 176, 255, 0.55) 0%, transparent 68%),
+    radial-gradient(60% 50% at 90% 22%, rgba(255, 196, 226, 0.38) 0%, transparent 68%),
+    linear-gradient(180deg, #CDBCF7 0%, #A692EA 42%, #7C67CE 78%, #6653B4 100%);
+  z-index: -4;
+}
+/* seigaiha (wave) pattern */
+.glam-seigaiha {
+  position: absolute;
+  inset: 0;
   z-index: -3;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle at 50% 100%, transparent 32%, rgba(255,255,255,0.9) 33%, rgba(255,255,255,0.9) 35%, transparent 36%),
+    radial-gradient(circle at 50% 100%, transparent 52%, rgba(255,255,255,0.75) 53%, rgba(255,255,255,0.75) 55%, transparent 56%),
+    radial-gradient(circle at 50% 100%, transparent 72%, rgba(255,255,255,0.6) 73%, rgba(255,255,255,0.6) 75%, transparent 76%);
+  background-size: 84px 42px;
+  background-position: 0 0, 0 0, 0 0;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 65%, #000 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 65%, #000 100%);
+  pointer-events: none;
+}
+/* asanoha-ish fine lattice */
+.glam-asanoha {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  opacity: 0.10;
+  background-image:
+    linear-gradient(60deg, rgba(255,255,255,0.6) 1px, transparent 1px),
+    linear-gradient(-60deg, rgba(255,255,255,0.6) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 46px 80px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 20%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(70% 60% at 50% 20%, #000 0%, transparent 78%);
+  pointer-events: none;
+}
+/* rising-sun disc behind the type */
+.glam-sun {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: min(560px, 96vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 236, 246, 0.30) 0%, rgba(255, 214, 236, 0.12) 62%, transparent 74%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  z-index: -2;
+  pointer-events: none;
 }
 .glam-spot {
   position: absolute;
@@ -454,7 +499,7 @@
   width: min(1100px, 130%);
   height: 120%;
   transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(255, 236, 245, 0.30) 0%, rgba(255, 190, 220, 0.12) 45%, transparent 72%);
+  background: radial-gradient(closest-side, rgba(255, 250, 255, 0.32) 0%, rgba(226, 208, 255, 0.14) 45%, transparent 72%);
   filter: blur(6px);
   transition: opacity 1400ms ease-out;
   z-index: -2;
@@ -468,24 +513,30 @@
   height: 130%;
   transform: translateX(-50%);
   clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
-  background: linear-gradient(180deg, rgba(255, 245, 250, 0.16) 0%, rgba(255, 200, 230, 0.05) 45%, transparent 85%);
+  background: linear-gradient(180deg, rgba(255, 252, 255, 0.20) 0%, rgba(236, 222, 255, 0.06) 45%, transparent 85%);
   transition: opacity 1800ms ease-out;
   z-index: -2;
   pointer-events: none;
 }
-.glam-sparkles { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.glam-sparkles span {
+/* sakura petals drifting down */
+.glam-petals { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.glam-petals span {
   position: absolute;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px rgba(255, 220, 240, 0.9);
+  top: -6%;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(180deg, #FFE7F1 0%, #FFB9D6 100%);
+  border-radius: 12px 2px 12px 2px;
   opacity: 0;
-  animation: twinkle 5.5s ease-in-out infinite;
+  animation: petalFall 16s linear infinite;
 }
-@keyframes twinkle {
-  0%, 100% { opacity: 0; transform: scale(0.6); }
-  50% { opacity: 0.9; transform: scale(1.3); }
+@keyframes petalFall {
+  0%   { opacity: 0; transform: translate3d(0, -10%, 0) rotate(0deg); }
+  10%  { opacity: 0.85; }
+  90%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translate3d(60px, 110vh, 0) rotate(420deg); }
 }
+
 
 .glam-chip {
   display: inline-flex;
@@ -497,9 +548,10 @@
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #FFE9B0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 220, 160, 0.35);
+  color: #FFF3FA;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
@@ -646,9 +698,10 @@
   position: relative;
   margin-top: 1.5rem;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 220, 170, 0.18);
-  border-bottom: 1px solid rgba(255, 220, 170, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+
   padding: 0.7rem 0;
 }
 .glam-ticker-track { display: flex; width: max-content; animation: tickerScroll 34s linear infinite; }
@@ -662,7 +715,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: #F7D9A6;
+  color: #FFEAF6;
   white-space: nowrap;
 }
 .glam-ticker-item i { font-style: normal; color: rgba(255, 160, 205, 0.8); }
@@ -672,5 +725,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glam-shine, .glam-ticker-track, .glam-sparkles span, .btn-glam::after, .glam-tag { animation: none !important; }
+  .glam-shine, .glam-ticker-track, .glam-petals span, .btn-glam::after, .glam-tag { animation: none !important; }
 }
