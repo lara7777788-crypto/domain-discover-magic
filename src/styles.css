@@ -725,5 +725,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glam-shine, .glam-ticker-track, .glam-sparkles span, .btn-glam::after, .glam-tag { animation: none !important; }
+  .glam-shine, .glam-ticker-track, .glam-petals span, .btn-glam::after, .glam-tag { animation: none !important; }
 }
