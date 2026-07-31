@@ -6,6 +6,8 @@ import cakeImg from "../assets/jp-cake-pink.png";
 import pondImg from "../assets/jp-lotus-pond.jpg";
 import frogImg from "../assets/jp-frog.png";
 import markImg from "../assets/jp-mark.png";
+import { playRibbet, playSmash, buzz } from "../lib/smash-sfx";
+
 
 const RAYS = 28;
 const SHARDS = 26;
@@ -34,20 +36,33 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
   const [smashing, setSmashing] = useState(false);
   const timer = useRef<number | null>(null);
+  const sfxTimer = useRef<number | null>(null);
+
 
   useEffect(() => {
     const t = window.setTimeout(() => setLit(true), 100);
     return () => {
       clearTimeout(t);
       if (timer.current) clearTimeout(timer.current);
+      if (sfxTimer.current) clearTimeout(sfxTimer.current);
+
     };
   }, []);
 
   const handleSmash = () => {
     if (smashing) return;
     setSmashing(true);
+    // frog leaps: croak + light tap
+    playRibbet();
+    buzz(12);
+    // impact lands with the cake explosion (600ms into the leap)
+    sfxTimer.current = window.setTimeout(() => {
+      playSmash();
+      buzz([28, 40, 70]);
+    }, 600);
     timer.current = window.setTimeout(onEnter, 2000);
   };
+
 
   return (
     <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
