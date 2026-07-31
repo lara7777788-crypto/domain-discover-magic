@@ -111,7 +111,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       () => playSmash(AUDIO_LEAD / 1000),
       IMPACT - AUDIO_LEAD,
     );
-    timer.current = window.setTimeout(onEnter, 2000);
+    timer.current = window.setTimeout(onEnter, 1500);
   };
 
 
