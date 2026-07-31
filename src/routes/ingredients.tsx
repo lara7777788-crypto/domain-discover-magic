@@ -83,7 +83,7 @@ function IngredientsPage() {
       style={{
         background: `radial-gradient(120% 80% at 20% 0%, ${PALETTE.cream} 0%, ${PALETTE.parchment} 55%, #DDE7F5 100%)`,
         color: PALETTE.ink,
-        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+        fontFamily: "'DM Sans', system-ui, sans-serif",
       }}
     >
       {/* Paper grain */}
@@ -150,7 +150,7 @@ function IngredientsPage() {
         <h1
           className="mt-5 max-w-3xl text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl"
           style={{
-            fontFamily: "'Instrument Serif', 'Fredoka', serif",
+            fontFamily: "'Instrument Serif', Georgia, serif",
             color: PALETTE.ink,
           }}
         >

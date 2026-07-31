@@ -65,7 +65,7 @@ const TILES: Tile[] = [
       <path d="M 30 40 L 90 30 L 130 50 L 130 110 L 70 120 L 30 100 Z" fill="var(--cream)" stroke="var(--foreground)" strokeWidth="0.8" />
       <path d="M 30 40 L 70 60 L 130 50" fill="none" stroke="var(--foreground)" strokeWidth="0.8" opacity="0.4" />
       <path d="M 70 60 L 70 120" fill="none" stroke="var(--foreground)" strokeWidth="0.8" opacity="0.4" />
-      <text x="78" y="92" fontFamily="Fredoka, sans-serif" fontWeight="600" fontSize="11" fill="var(--foreground)">layer.</text>
+      <text x="78" y="92" fontFamily="Space Grotesk, sans-serif" fontWeight="600" fontSize="11" fill="var(--foreground)">layer.</text>
       <circle cx="100" cy="78" r="3" fill="var(--strawberry)" />
     </svg>,
   ),
