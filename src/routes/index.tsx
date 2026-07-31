@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.webp";
 import { ShowcaseGrid } from "@/components/ShowcaseGrid";
 import { LayerStack } from "@/components/LayerStack";
-import { CakeSlam3D } from "@/components/CakeSlam3D";
+import { GlamHero } from "@/components/GlamHero";
 
 import { useReveal } from "@/hooks/useReveal";
+
 
 
 export const Route = createFileRoute("/")({
