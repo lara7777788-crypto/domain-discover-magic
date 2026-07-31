@@ -1159,8 +1159,9 @@
   z-index: 7;
   pointer-events: none;
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
 }
 .jp-mascot img {
   width: clamp(260px, 26vw, 460px);
@@ -1173,15 +1174,15 @@
   50% { transform: translateY(-10px) rotate(-0.6deg); }
 }
 .jp-bubble {
-  align-self: flex-start;
-  margin-top: clamp(1rem, 4vw, 4rem);
   position: relative;
+  align-self: center;
   background: #FDF7EC;
   color: #1B1410;
   border: 3px solid #1B1410;
   border-radius: 18px;
   padding: 0.7rem 1rem;
-  max-width: 12ch;
+  max-width: 16ch;
+  text-align: center;
   font-family: "Anton", "Noto Sans JP", system-ui, sans-serif;
   font-size: clamp(0.95rem, 1.4vw, 1.35rem);
   line-height: 1.1;
@@ -1192,23 +1193,25 @@
 .jp-bubble::after {
   content: "";
   position: absolute;
-  right: -14px;
-  top: 26px;
+  bottom: -16px;
+  left: 50%;
+  margin-left: -8px;
   width: 0;
   height: 0;
   border: 8px solid transparent;
-  border-left-color: #1B1410;
+  border-top-color: #1B1410;
 }
 .jp-bubble::before {
   content: "";
   position: absolute;
-  right: -9px;
-  top: 27px;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -7px;
   z-index: 1;
   width: 0;
   height: 0;
   border: 7px solid transparent;
-  border-left-color: #FDF7EC;
+  border-top-color: #FDF7EC;
 }
 @media (max-width: 900px) {
   .jp-mascot { opacity: 0.9; right: -3rem; }
