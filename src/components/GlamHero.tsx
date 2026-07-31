@@ -6,6 +6,8 @@ import cakeImg from "../assets/jp-cake-pink.png";
 import pondImg from "../assets/jp-lotus-pond.jpg";
 import frogImg from "../assets/jp-frog.png";
 import markImg from "../assets/jp-mark.png";
+import lotusImg from "../assets/jp-lotus.png";
+
 import { playRibbet, playSmash, buzz } from "../lib/smash-sfx";
 
 
