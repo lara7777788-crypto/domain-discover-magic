@@ -1103,11 +1103,13 @@
   z-index: 6;
   margin-top: 1.6rem;
   display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 0.6rem;
   opacity: 0.72;
 }
-.jp-mark img { width: 400px; height: 400px; object-fit: contain; }
+.jp-mark img { width: 400px; height: 400px; flex: none; object-fit: contain; }
 .jp-mark span {
   font-family: "Noto Sans JP", system-ui, sans-serif;
   font-weight: 700;
