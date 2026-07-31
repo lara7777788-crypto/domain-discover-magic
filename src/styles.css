@@ -838,38 +838,39 @@
   border: 2px solid #1B1410;
 }
 
-/* smash sequence — the frog leaps first (0.6s), then the cake goes */
+/* smash sequence — the frog leaps first (0.6s), then the cake is flattened */
 .is-smashing .jp-frog { animation: jpLeap 900ms cubic-bezier(.25,.8,.3,1) forwards; }
 .is-smashing .jp-pad { animation: jpPadRipple 620ms ease-out 100ms forwards; }
-.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out 600ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 1100ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
-.is-smashing .jp-layer-tag { animation: jpBlast 700ms ease-in 600ms forwards; }
+.is-smashing .jp-cake { animation: jpSmash 760ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 800ms ease-out 600ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 900ms cubic-bezier(.12,.85,.25,1) 610ms forwards; }
+.is-smashing .jp-layer-tag { animation: jpBlast 600ms ease-in 600ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
 .is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) 600ms forwards; }
-.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in 600ms forwards; }
-.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out 700ms forwards; }
+.is-smashing .jp-chip { animation: jpBlast 800ms cubic-bezier(.3,.9,.3,1) 620ms forwards; }
+.is-smashing .jp-sun { animation: jpSunRush 900ms ease-in 620ms forwards; }
+.is-smashing .jp-flash { animation: jpFlash 900ms ease-out 600ms forwards; }
 
 
+/* the cake gets pancaked on impact, then the pulp bursts toward the camera */
 @keyframes jpSmash {
-  0% { transform: perspective(900px) translateZ(0) scale(1) rotate(0deg); }
-  18% { transform: perspective(900px) translateZ(0) scale(1.24) rotate(-4deg); }
-  32% { transform: perspective(900px) translateZ(40px) scaleX(1.5) scaleY(0.55) rotate(2deg); filter: brightness(1.5); }
-  55% { transform: perspective(900px) translateZ(320px) scale(2.6) rotate(-3deg); opacity: 0.75; filter: brightness(1.8) blur(2px); }
-  100% { transform: perspective(900px) translateZ(900px) scale(6.2) rotate(4deg); opacity: 0; filter: brightness(2) blur(10px); }
+  0% { transform: perspective(900px) translateY(0) scale(1); }
+  10% { transform: perspective(900px) translateY(6px) scaleX(1.22) scaleY(0.42); filter: brightness(1.35); }
+  20% { transform: perspective(900px) translateY(10px) scaleX(1.45) scaleY(0.2); filter: brightness(1.5); }
+  34% { transform: perspective(900px) translateZ(120px) scaleX(1.9) scaleY(0.34) rotate(-2deg); opacity: 0.9; filter: brightness(1.7) blur(1px); }
+  100% { transform: perspective(900px) translateZ(820px) scaleX(5.6) scaleY(1.6) rotate(3deg); opacity: 0; filter: brightness(2) blur(12px); }
 }
 @keyframes jpDiscPop {
   0% { transform: scale(1); }
-  38% { transform: scale(1.08); }
-  100% { transform: scale(2.6); opacity: 0; }
+  16% { transform: scale(1.18); }
+  100% { transform: scale(2.8); opacity: 0; }
 }
 @keyframes jpShard {
-  0% { opacity: 0; transform: perspective(800px) translate3d(0, 0, 0) rotate(0deg) scale(0.35); }
-  14% { opacity: 1; }
-  55% { opacity: 1; transform: perspective(800px) translate3d(calc(var(--dx) * 0.6), calc(var(--dy) * 0.6), 260px) rotate(calc(var(--rot) * 0.6)) scale(2.2); }
-  100% { opacity: 0; transform: perspective(800px) translate3d(calc(var(--dx) * 2.2), calc(var(--dy) * 2.2), 760px) rotate(var(--rot)) scale(5); filter: blur(3px); }
+  0% { opacity: 0; transform: perspective(800px) translate3d(0, 0, 0) rotate(0deg) scale(0.3); }
+  8% { opacity: 1; }
+  45% { opacity: 1; transform: perspective(800px) translate3d(calc(var(--dx) * 0.75), calc(var(--dy) * 0.75), 300px) rotate(calc(var(--rot) * 0.6)) scale(2.6); }
+  100% { opacity: 0; transform: perspective(800px) translate3d(calc(var(--dx) * 2.4), calc(var(--dy) * 2.4), 820px) rotate(var(--rot)) scale(5.4); filter: blur(3px); }
 }
 @keyframes jpBlast {
   0% { transform: scale(1); opacity: 1; }
@@ -888,11 +889,14 @@
   opacity: 0;
   background: radial-gradient(closest-side, #FFFFFF 0%, #F6D8EA 40%, #E8368F 70%, #7C6BD9 100%);
 }
+/* quick impact pop — no long white hold before the page turns over */
 @keyframes jpFlash {
   0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
-  45% { opacity: 0.92; transform: scale(1.6); border-radius: 0; }
+  12% { opacity: 0.85; transform: scale(1.4); border-radius: 0; }
+  40% { opacity: 0.28; transform: scale(1.7); }
   100% { opacity: 1; transform: scale(2.4); }
 }
+
 
 .btn-jp {
   position: relative;

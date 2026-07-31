@@ -16,7 +16,7 @@ function quiet() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
-/** Short two-note croak with a wobbling formant — "ribbet". */
+/** Loud two-note croak with a wobbling formant — "RIBBIT!" */
 export function playRibbet() {
   if (quiet()) return;
   const ac = getCtx();
@@ -24,7 +24,22 @@ export function playRibbet() {
   // small pad so notes never get dropped while the context is still resuming
   const t0 = ac.currentTime + 0.03;
 
-  const croak = (start: number, f1: number, f2: number, dur: number, gain: number) => {
+  // shared master so the croak sits loud and forward without clipping
+  const master = ac.createGain();
+  master.gain.value = 1;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -14;
+  comp.ratio.value = 6;
+  master.connect(comp).connect(ac.destination);
+
+  const croak = (
+    start: number,
+    f1: number,
+    f2: number,
+    dur: number,
+    gain: number,
+    opts: { bright?: boolean; open?: boolean } = {},
+  ) => {
     const osc = ac.createOscillator();
     const wob = ac.createOscillator();
     const wobGain = ac.createGain();
@@ -37,34 +52,40 @@ export function playRibbet() {
 
     // throat wobble
     wob.type = "sine";
-    wob.frequency.value = 42;
-    wobGain.gain.value = 28;
+    wob.frequency.value = 46;
+    wobGain.gain.value = 34;
     wob.connect(wobGain).connect(osc.frequency);
 
-    filter.type = "bandpass";
-    filter.frequency.value = 620;
-    filter.Q.value = 5;
+    // `open` layers keep the low body instead of a narrow bandpass, which is
+    // what makes the croak actually read as LOUD on phone speakers
+    filter.type = opts.open ? "lowpass" : "bandpass";
+    filter.frequency.value = opts.open ? 2400 : opts.bright ? 1100 : 620;
+    filter.Q.value = opts.open ? 0.7 : 5;
 
     amp.gain.setValueAtTime(0.0001, start);
-    amp.gain.exponentialRampToValueAtTime(gain, start + 0.02);
+    amp.gain.exponentialRampToValueAtTime(gain, start + 0.015);
     amp.gain.exponentialRampToValueAtTime(0.0001, start + dur);
 
-    osc.connect(filter).connect(amp).connect(ac.destination);
+    osc.connect(filter).connect(amp).connect(master);
     osc.start(start);
     wob.start(start);
     osc.stop(start + dur + 0.02);
     wob.stop(start + dur + 0.02);
   };
 
-  croak(t0, 220, 150, 0.1, 0.09); // "rib"
-  croak(t0 + 0.14, 170, 110, 0.16, 0.075); // "bet"
+  // subtle background croak
+  croak(t0, 220, 150, 0.1, 0.1);
+  croak(t0 + 0.14, 170, 110, 0.16, 0.09);
 
-  // loud front layer: a fatter, lower "RIB-BIT" stacked on top of the subtle croak
-  croak(t0, 150, 96, 0.13, 0.30); // "RIB"
-  croak(t0 + 0.15, 118, 70, 0.2, 0.26); // "BIT"
-  croak(t0 + 0.005, 300, 205, 0.1, 0.12); // bright harmonic for cut-through
-  croak(t0 + 0.155, 236, 150, 0.17, 0.1);
+  // loud front layer: fat, open "RIB-BIT" right up front
+  croak(t0, 150, 96, 0.13, 0.75, { open: true });
+  croak(t0 + 0.15, 118, 70, 0.22, 0.7, { open: true });
+  // bright harmonics so it cuts through small speakers
+  croak(t0 + 0.005, 300, 205, 0.11, 0.34, { bright: true });
+  croak(t0 + 0.155, 236, 150, 0.19, 0.32, { bright: true });
+  croak(t0 + 0.16, 472, 300, 0.14, 0.16, { bright: true });
 }
+
 
 /** Impact: low thud + filtered noise burst — "smash". */
 export function playSmash(lead = 0) {
