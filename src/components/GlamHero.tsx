@@ -70,10 +70,11 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLit(true), 100);
+    const id = window.setTimeout(() => setLit(true), 100);
     return () => {
-      clearTimeout(t);
+      clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
+
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
 
     };
