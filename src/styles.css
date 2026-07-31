@@ -954,10 +954,61 @@
   z-index: 0;
   background-size: cover;
   background-position: center bottom;
-  opacity: 0.32;
+  opacity: 0.42;
   mix-blend-mode: multiply;
   pointer-events: none;
 }
+
+/* lily pads + lotus in front of the pond, behind the spinning rays */
+.jp-lilies {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.jp-lily {
+  position: absolute;
+  width: 300px;
+  height: auto;
+  opacity: 0.85;
+  filter: drop-shadow(0 10px 16px rgba(27, 20, 16, 0.22));
+  animation: jpFloat 9s ease-in-out infinite;
+}
+.jp-lily-1 { left: -70px; bottom: -40px; width: 340px; transform: rotate(-6deg); }
+.jp-lily-2 { right: -80px; bottom: 6%; width: 300px; transform: scaleX(-1) rotate(4deg); animation-delay: 1.6s; }
+.jp-lily-3 { right: 8%; top: -50px; width: 220px; opacity: 0.6; transform: rotate(168deg); animation-delay: 3.2s; }
+@keyframes jpFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -12px; }
+}
+@media (max-width: 640px) {
+  .jp-lily-1 { width: 200px; }
+  .jp-lily-2 { width: 170px; }
+  .jp-lily-3 { display: none; }
+}
+
+/* language toggle */
+.jp-lang {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 0.9rem;
+  border: 2px solid #1B1410;
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 #1B1410;
+  background: #FFF7EC;
+}
+.jp-lang-btn {
+  font-family: "Anton", "Noto Sans JP", system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  padding: 0.3rem 0.85rem;
+  color: #1B1410;
+  transition: background 180ms ease, color 180ms ease;
+}
+.jp-lang-btn.is-on { background: #1B1410; color: #FFF7EC; }
+
 
 .jp-layer-tag {
   position: absolute;
