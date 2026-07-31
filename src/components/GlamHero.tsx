@@ -1,8 +1,12 @@
-// Glam splash hero: velvet stage, spotlight, mirrored cake, chrome type.
-import { useEffect, useState } from "react";
+// Japanese poster hero: sunburst rays, woodblock palette, KURO-NEKO style type,
+// and a dramatic cake smash on "try a slice".
+import { useEffect, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.webp";
 
-const CAKE = 320;
+const RAYS = 28;
+const SHARDS = 26;
+
+const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
 const TICKER = [
   "brand identities",
@@ -16,108 +20,124 @@ const TICKER = [
 
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
+  const [smashing, setSmashing] = useState(false);
+  const timer = useRef<number | null>(null);
+
   useEffect(() => {
-    const t = window.setTimeout(() => setLit(true), 120);
-    return () => clearTimeout(t);
+    const t = window.setTimeout(() => setLit(true), 100);
+    return () => {
+      clearTimeout(t);
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, []);
 
+  const handleSmash = () => {
+    if (smashing) return;
+    setSmashing(true);
+    timer.current = window.setTimeout(onEnter, 1250);
+  };
+
   return (
-    <section className="glam-stage relative z-10 overflow-hidden">
-      {/* velvet backdrop + spotlight */}
-      <div aria-hidden className="glam-velvet" />
-      <div aria-hidden className="glam-spot" style={{ opacity: lit ? 1 : 0 }} />
-      <div aria-hidden className="glam-beam" style={{ opacity: lit ? 1 : 0 }} />
-      <div aria-hidden className="glam-sparkles">
-        {Array.from({ length: 26 }).map((_, i) => (
+    <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
+      {/* sunburst */}
+      <div aria-hidden className="jp-sun" style={{ opacity: lit ? 1 : 0 }}>
+        {Array.from({ length: RAYS }).map((_, i) => (
           <span
             key={i}
+            className="jp-ray"
             style={{
-              left: `${(i * 41) % 100}%`,
-              top: `${(i * 67) % 100}%`,
-              animationDelay: `${(i % 9) * 0.55}s`,
-              width: 2 + (i % 3),
-              height: 2 + (i % 3),
+              transform: `rotate(${(360 / RAYS) * i}deg)`,
+              background:
+                i % 4 === 0
+                  ? "linear-gradient(to top, transparent, #E8368F)"
+                  : i % 4 === 1
+                    ? "linear-gradient(to top, transparent, #7C6BD9)"
+                    : i % 4 === 2
+                      ? "linear-gradient(to top, transparent, #F7B32B)"
+                      : "linear-gradient(to top, transparent, #6E7B3F)",
+              animationDelay: `${i * 0.04}s`,
             }}
           />
         ))}
       </div>
+      <div aria-hidden className="jp-grain" />
 
-      <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pb-16 pt-14 text-center md:pt-20">
-        <span className="glam-chip">Layercake · visual identity studio</span>
+      <div className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pb-14 pt-12 text-center md:pt-16">
+        <span className="jp-chip">日本 · visual identity studio</span>
 
-        <h1 className="glam-title mt-7" style={{ fontSize: "clamp(3rem, 11vw, 8.5rem)" }}>
-          <span className="glam-shine block">Control</span>
-          <span className="glam-serif block">your</span>
-          <span className="glam-shine block">noise.</span>
+        <h1 className="jp-title mt-6">
+          <span className="jp-word jp-word-a">LAYER</span>
+          <span className="jp-word jp-word-b">CAKE</span>
         </h1>
-
-        <p className="mt-6 max-w-[44ch] text-base leading-relaxed text-white/70 md:text-lg">
-          One prompt in. A whole visual world out — logo, palette, type, imagery and the copy
-          to match. Baked layer by layer, in your taste.
+        <p className="jp-jp" lang="ja">
+          レイヤーケーキ — 騒音を、味方に。
         </p>
 
-        {/* cake on a mirrored pedestal */}
-        <div
-          className="relative mt-10 flex flex-col items-center"
-          style={{
-            opacity: lit ? 1 : 0,
-            transform: lit ? "translateY(0) scale(1)" : "translateY(28px) scale(0.94)",
-            transition: "opacity 900ms ease-out, transform 1100ms cubic-bezier(.2,.8,.2,1)",
-          }}
-        >
-          <div className="glam-halo" aria-hidden />
+        <p className="jp-lede">
+          One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to
+          match. Baked layer by layer, in your taste.
+        </p>
+
+        {/* cake on a lavender disc */}
+        <div className="jp-cake-wrap" style={{ opacity: lit ? 1 : 0 }}>
+          <div className="jp-disc" aria-hidden />
           <img
             src={cakeImg}
-            alt="A layered Layercake slice glowing under a studio spotlight"
-            width={CAKE}
-            height={CAKE}
+            alt="A layered Layercake slice on a lavender poster disc"
+            width={300}
+            height={300}
             fetchPriority="high"
             decoding="async"
             draggable={false}
-            className="glam-cake animate-floaty"
-            style={{ width: CAKE, height: CAKE }}
+            className="jp-cake"
           />
-          <div className="glam-reflection-clip" aria-hidden>
-            <img
-              src={cakeImg}
-              alt=""
-              width={CAKE}
-              height={CAKE}
-              draggable={false}
-              className="glam-cake-reflection"
-              style={{ width: CAKE, height: CAKE }}
-            />
-          </div>
-          <div className="glam-floor" aria-hidden />
-
-          <div className="glam-tags">
-            <span className="glam-tag">06 layers</span>
-            <span className="glam-tag">one slice</span>
-            <span className="glam-tag">your world</span>
+          {/* shards, only visible during the smash */}
+          <div className="jp-shards" aria-hidden>
+            {Array.from({ length: SHARDS }).map((_, i) => {
+              const a = (360 / SHARDS) * i + (i % 3) * 5;
+              const dist = 220 + (i % 5) * 70;
+              return (
+                <span
+                  key={i}
+                  className="jp-shard"
+                  style={
+                    {
+                      background: SHARD_COLORS[i % SHARD_COLORS.length],
+                      width: 10 + (i % 4) * 8,
+                      height: 8 + (i % 3) * 10,
+                      borderRadius: i % 2 ? "50%" : "3px",
+                      ["--dx" as string]: `${Math.cos((a * Math.PI) / 180) * dist}px`,
+                      ["--dy" as string]: `${Math.sin((a * Math.PI) / 180) * dist - 60}px`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (180 + i * 22)}deg`,
+                      animationDelay: `${(i % 6) * 0.02}s`,
+                    } as React.CSSProperties
+                  }
+                />
+              );
+            })}
           </div>
         </div>
 
-        <div className="relative z-10 mt-4 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-          <button type="button" onClick={onEnter} className="btn-glam">
-            Bake your first slice — free
+        <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+          <button type="button" onClick={handleSmash} className="btn-jp">
+            Try a slice — free
+            <i lang="ja">一切れ</i>
           </button>
-          <a href="#showcase" className="glam-link">
+          <a href="#showcase" className="jp-link">
             See what comes out ↓
           </a>
         </div>
 
-        <p className="mt-5 text-xs uppercase tracking-[0.28em] text-white/45">
-          First slice on the house · no subscription to try
-        </p>
+        <p className="jp-fine">First slice on the house · no subscription to try</p>
       </div>
 
-      {/* gold ticker */}
-      <div className="glam-ticker" aria-hidden>
-        <div className="glam-ticker-track">
+      {/* ticker */}
+      <div className="jp-ticker" aria-hidden>
+        <div className="jp-ticker-track">
           {[0, 1].map((dup) => (
-            <span key={dup} className="glam-ticker-group">
+            <span key={dup} className="jp-ticker-group">
               {TICKER.map((t) => (
-                <span key={t} className="glam-ticker-item">
+                <span key={t} className="jp-ticker-item">
                   {t}
                   <i>✦</i>
                 </span>
@@ -126,6 +146,9 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
           ))}
         </div>
       </div>
+
+      {/* flash + wipe */}
+      <div aria-hidden className="jp-flash" />
     </section>
   );
 }
