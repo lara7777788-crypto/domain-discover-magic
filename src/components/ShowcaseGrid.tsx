@@ -1,4 +1,6 @@
 import { useReveal } from "@/hooks/useReveal";
+import lotusImg from "../assets/jp-lotus.png";
+
 
 type Tile = {
   label: string;
