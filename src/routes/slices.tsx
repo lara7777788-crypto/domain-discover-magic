@@ -201,7 +201,7 @@ function SlicesPage() {
                 <Link to="/bake" search={{ slice: s.id }} className="block">
                   <div className="aspect-square w-full overflow-hidden bg-foreground/5">
                     {s.preview_url ? (
-                      <img src={s.preview_url} alt={s.name} className="h-full w-full object-cover" />
+                      <img src={s.preview_url} alt={s.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center text-foreground/30">No preview</div>
                     )}
