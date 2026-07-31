@@ -1,10 +1,8 @@
-// Lavender glam hero: Japanese-inspired graphics (seigaiha, sakura), spotlight,
-// the 3D word-cake slam on entry, and the cake on a mirrored pedestal.
+// Glam splash hero: velvet stage, spotlight, mirrored cake, chrome type.
 import { useEffect, useState } from "react";
 import cakeImg from "../assets/cake-bright.webp";
-import { CakeSlam3D } from "@/components/CakeSlam3D";
 
-const CAKE = 300;
+const CAKE = 320;
 
 const TICKER = [
   "brand identities",
@@ -25,36 +23,35 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
   return (
     <section className="glam-stage relative z-10 overflow-hidden">
-      {/* lavender backdrop, seigaiha waves + spotlight */}
+      {/* velvet backdrop + spotlight */}
       <div aria-hidden className="glam-velvet" />
-      <div aria-hidden className="glam-seigaiha" />
-      <div aria-hidden className="glam-asanoha" />
-      <div aria-hidden className="glam-sun" />
       <div aria-hidden className="glam-spot" style={{ opacity: lit ? 1 : 0 }} />
       <div aria-hidden className="glam-beam" style={{ opacity: lit ? 1 : 0 }} />
-      <div aria-hidden className="glam-petals">
-        {Array.from({ length: 16 }).map((_, i) => (
+      <div aria-hidden className="glam-sparkles">
+        {Array.from({ length: 26 }).map((_, i) => (
           <span
             key={i}
             style={{
-              left: `${(i * 61) % 100}%`,
-              animationDelay: `${(i % 8) * 1.6}s`,
-              animationDuration: `${13 + (i % 5) * 3}s`,
-              transform: `scale(${0.7 + (i % 4) * 0.18})`,
+              left: `${(i * 41) % 100}%`,
+              top: `${(i * 67) % 100}%`,
+              animationDelay: `${(i % 9) * 0.55}s`,
+              width: 2 + (i % 3),
+              height: 2 + (i % 3),
             }}
           />
         ))}
       </div>
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 pb-16 pt-14 text-center md:pt-20">
-        <span className="glam-chip">レイヤーケーキ · layercake visual identity studio</span>
+        <span className="glam-chip">Layercake · visual identity studio</span>
 
-        {/* the words slam into a cake on entry */}
-        <div className="mt-9 flex w-full justify-center">
-          <CakeSlam3D />
-        </div>
+        <h1 className="glam-title mt-7" style={{ fontSize: "clamp(3rem, 11vw, 8.5rem)" }}>
+          <span className="glam-shine block">Control</span>
+          <span className="glam-serif block">your</span>
+          <span className="glam-shine block">noise.</span>
+        </h1>
 
-        <p className="mt-8 max-w-[44ch] text-base leading-relaxed text-white/78 md:text-lg">
+        <p className="mt-6 max-w-[44ch] text-base leading-relaxed text-white/70 md:text-lg">
           One prompt in. A whole visual world out — logo, palette, type, imagery and the copy
           to match. Baked layer by layer, in your taste.
         </p>
@@ -94,7 +91,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
           <div className="glam-floor" aria-hidden />
 
           <div className="glam-tags">
-            <span className="glam-tag">06 層 · layers</span>
+            <span className="glam-tag">06 layers</span>
             <span className="glam-tag">one slice</span>
             <span className="glam-tag">your world</span>
           </div>
@@ -109,12 +106,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
           </a>
         </div>
 
-        <p className="mt-5 text-xs uppercase tracking-[0.28em] text-white/55">
+        <p className="mt-5 text-xs uppercase tracking-[0.28em] text-white/45">
           First slice on the house · no subscription to try
         </p>
       </div>
 
-      {/* ticker */}
+      {/* gold ticker */}
       <div className="glam-ticker" aria-hidden>
         <div className="glam-ticker-track">
           {[0, 1].map((dup) => (
