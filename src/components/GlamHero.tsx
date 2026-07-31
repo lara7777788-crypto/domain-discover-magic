@@ -46,8 +46,17 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const handleSmash = () => {
     if (smashing) return;
     setSmashing(true);
+    // frog leaps: croak + light tap
+    playRibbet();
+    buzz(12);
+    // impact lands with the cake explosion (600ms into the leap)
+    sfxTimer.current = window.setTimeout(() => {
+      playSmash();
+      buzz([28, 40, 70]);
+    }, 600);
     timer.current = window.setTimeout(onEnter, 2000);
   };
+
 
   return (
     <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
