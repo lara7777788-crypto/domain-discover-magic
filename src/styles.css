@@ -1118,3 +1118,31 @@
 @media (prefers-reduced-motion: reduce) {
   .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
 }
+
+/* lotus flowers behind the showcase tiles */
+.jp-showcase-lilies {
+  position: absolute;
+  inset: -8% -6%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.jp-showcase-lily {
+  position: absolute;
+  width: 360px;
+  height: auto;
+  opacity: 0.5;
+  filter: drop-shadow(0 12px 20px rgba(27, 20, 16, 0.16));
+  animation: jpFloat 11s ease-in-out infinite;
+}
+.jp-showcase-lily-1 { left: -8%; top: -4%; transform: rotate(-8deg); }
+.jp-showcase-lily-2 { right: -10%; top: 32%; width: 420px; transform: scaleX(-1) rotate(6deg); animation-delay: 2s; }
+.jp-showcase-lily-3 { left: 34%; bottom: -12%; width: 300px; opacity: 0.38; transform: rotate(172deg); animation-delay: 4s; }
+@media (max-width: 768px) {
+  .jp-showcase-lily { width: 220px; opacity: 0.34; }
+  .jp-showcase-lily-2 { width: 240px; }
+  .jp-showcase-lily-3 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-lily, .jp-showcase-lily { animation: none !important; }
+}
