@@ -6,6 +6,8 @@ import cakeImg from "../assets/jp-cake-pink.png";
 import pondImg from "../assets/jp-lotus-pond.jpg";
 import frogImg from "../assets/jp-frog.png";
 import markImg from "../assets/jp-mark.png";
+import lotusImg from "../assets/jp-lotus.png";
+
 import { playRibbet, playSmash, buzz } from "../lib/smash-sfx";
 
 
@@ -32,18 +34,49 @@ const TICKER = [
   "copy that matches",
 ];
 
+// splash copy in both languages — same KURO-style typography either way
+const COPY = {
+  en: {
+    chip: "visual identity studio",
+    sub: "Layercake — make the noise work for you.",
+    lede:
+      "One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to match. Baked layer by layer, in your taste.",
+    cta: "Try a slice — free",
+    ctaTag: "one slice",
+    link: "See what comes out ↓",
+    fine: "First slice on the house · no subscription to try",
+    mark: "Layercake: control your noise",
+  },
+  ja: {
+    chip: "日本 · ビジュアル・アイデンティティ",
+    sub: "レイヤーケーキ — 騒音を、味方に。",
+    lede:
+      "プロンプトはひとつ。出てくるのは世界まるごと — ロゴ、配色、文字、画像、そしてコピーまで。一層ずつ、あなたの好みに焼き上げます。",
+    cta: "一切れどうぞ — 無料",
+    ctaTag: "一切れ",
+    link: "できあがりを見る ↓",
+    fine: "最初の一切れは無料 · 登録不要",
+    mark: "レイヤーケーキ：騒音を、制御する",
+  },
+} as const;
+
+
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
   const [smashing, setSmashing] = useState(false);
+  const [lang, setLang] = useState<"en" | "ja">("en");
+  const t = COPY[lang];
   const timer = useRef<number | null>(null);
   const sfxTimer = useRef<number | null>(null);
 
 
+
   useEffect(() => {
-    const t = window.setTimeout(() => setLit(true), 100);
+    const id = window.setTimeout(() => setLit(true), 100);
     return () => {
-      clearTimeout(t);
+      clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
+
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
 
     };
@@ -68,6 +101,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
       {/* lotus pond backdrop */}
       <div aria-hidden className="jp-pond" style={{ backgroundImage: `url(${pondImg})` }} />
+      {/* lily pads + lotus, sitting in front of the pond but behind the sunburst rays */}
+      <div aria-hidden className="jp-lilies">
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-1" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-2" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-3" loading="lazy" />
+      </div>
+
       {/* sunburst */}
       <div aria-hidden className="jp-sun" style={{ opacity: lit ? 1 : 0 }}>
         {Array.from({ length: RAYS }).map((_, i) => (
@@ -92,20 +132,41 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       <div aria-hidden className="jp-grain" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-14 pt-12 text-center md:pt-16">
-        <span className="jp-chip">日本 · visual identity studio</span>
+        <div className="jp-lang" role="group" aria-label="Splash language">
+          <button
+            type="button"
+            className={`jp-lang-btn ${lang === "en" ? "is-on" : ""}`}
+            aria-pressed={lang === "en"}
+            onClick={() => setLang("en")}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className={`jp-lang-btn ${lang === "ja" ? "is-on" : ""}`}
+            aria-pressed={lang === "ja"}
+            onClick={() => setLang("ja")}
+          >
+            JP
+          </button>
+        </div>
+
+        <span className="jp-chip" lang={lang}>
+          {t.chip}
+        </span>
 
         <h1 className="jp-title mt-6">
           <span className="jp-word jp-word-a">LAYER</span>
           <span className="jp-word jp-word-b">CAKE</span>
         </h1>
-        <p className="jp-jp" lang="ja">
-          レイヤーケーキ — 騒音を、味方に。
+        <p className="jp-jp" lang={lang}>
+          {t.sub}
         </p>
 
-        <p className="jp-lede">
-          One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to
-          match. Baked layer by layer, in your taste.
+        <p className="jp-lede" lang={lang}>
+          {t.lede}
         </p>
+
 
         {/* cake on a lavender disc, with its design layers called out */}
         <div className="jp-cake-wrap" style={{ opacity: lit ? 1 : 0 }}>
@@ -126,12 +187,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
               key={l.label}
               className={`jp-layer-tag jp-layer-${l.side}`}
               style={{ top: l.top, animationDelay: `${0.5 + i * 0.14}s` }}
+              lang={lang}
             >
               <i className="jp-layer-dot" aria-hidden />
-              <b>{l.label}</b>
-              <em lang="ja">{l.jp}</em>
+              <b>{lang === "ja" ? l.jp : l.label}</b>
             </span>
           ))}
+
 
           {/* the frog, waiting on his lily pad */}
           <div className="jp-frog-wrap" aria-hidden>
@@ -167,24 +229,25 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-          <button type="button" onClick={handleSmash} className="btn-jp">
-            Try a slice — free
-            <i lang="ja">一切れ</i>
+          <button type="button" onClick={handleSmash} className="btn-jp" lang={lang}>
+            {t.cta}
+            <i lang={lang}>{t.ctaTag}</i>
           </button>
-          <a href="#showcase" className="jp-link">
-            See what comes out ↓
+          <a href="#showcase" className="jp-link" lang={lang}>
+            {t.link}
           </a>
         </div>
 
-        <p className="jp-fine">First slice on the house · no subscription to try</p>
+        <p className="jp-fine" lang={lang}>
+          {t.fine}
+        </p>
 
         {/* frog-and-cat watermark */}
         <div className="jp-mark">
-          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={64} height={64} loading="lazy" />
-          <span>
-            Layercake<i>:</i> control your noise
-          </span>
+          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={96} height={96} loading="lazy" />
+          <span lang={lang}>{t.mark}</span>
         </div>
+
       </div>
 
       {/* ticker */}

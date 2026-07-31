@@ -954,10 +954,61 @@
   z-index: 0;
   background-size: cover;
   background-position: center bottom;
-  opacity: 0.32;
+  opacity: 0.28;
   mix-blend-mode: multiply;
   pointer-events: none;
 }
+
+/* lily pads + lotus in front of the pond, behind the spinning rays */
+.jp-lilies {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.jp-lily {
+  position: absolute;
+  width: 300px;
+  height: auto;
+  opacity: 0.78;
+  filter: drop-shadow(0 10px 16px rgba(27, 20, 16, 0.22));
+  animation: jpFloat 9s ease-in-out infinite;
+}
+.jp-lily-1 { left: -70px; bottom: -40px; width: 340px; transform: rotate(-6deg); }
+.jp-lily-2 { right: -80px; bottom: 6%; width: 300px; transform: scaleX(-1) rotate(4deg); animation-delay: 1.6s; }
+.jp-lily-3 { right: 8%; top: -50px; width: 220px; opacity: 0.6; transform: rotate(168deg); animation-delay: 3.2s; }
+@keyframes jpFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -12px; }
+}
+@media (max-width: 640px) {
+  .jp-lily-1 { width: 200px; }
+  .jp-lily-2 { width: 170px; }
+  .jp-lily-3 { display: none; }
+}
+
+/* language toggle */
+.jp-lang {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 0.9rem;
+  border: 2px solid #1B1410;
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 #1B1410;
+  background: #FFF7EC;
+}
+.jp-lang-btn {
+  font-family: "Anton", "Noto Sans JP", system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  padding: 0.3rem 0.85rem;
+  color: #1B1410;
+  transition: background 180ms ease, color 180ms ease;
+}
+.jp-lang-btn.is-on { background: #1B1410; color: #FFF7EC; }
+
 
 .jp-layer-tag {
   position: absolute;
@@ -996,10 +1047,10 @@
   position: absolute;
   z-index: 7;
   left: 50%;
-  margin-left: -270px;
-  bottom: -10px;
-  width: 132px;
-  height: 120px;
+  margin-left: -330px;
+  bottom: -18px;
+  width: 210px;
+  height: 190px;
   display: grid;
   place-items: end center;
   pointer-events: none;
@@ -1007,17 +1058,18 @@
 .jp-pad {
   position: absolute;
   bottom: 0;
-  width: 118px;
-  height: 30px;
+  width: 190px;
+  height: 46px;
   border-radius: 50%;
   background: radial-gradient(closest-side, #4E6A4A 0%, #33472F 100%);
   border: 2px solid #1B1410;
 }
 .jp-frog {
   position: relative;
-  width: 108px;
+  width: 182px;
   height: auto;
-  bottom: 10px;
+  bottom: 16px;
+
   filter: drop-shadow(0 8px 10px rgba(27, 20, 16, 0.35));
   animation: jpCroak 3.4s ease-in-out infinite;
   transform-origin: 50% 100%;
@@ -1037,9 +1089,10 @@
   100% { transform: scale(1.7, 0.5); opacity: 0; }
 }
 @media (max-width: 640px) {
-  .jp-frog-wrap { width: 96px; height: 90px; margin-left: -160px; }
-  .jp-frog { width: 78px; }
-  .jp-pad { width: 86px; height: 22px; }
+  .jp-frog-wrap { width: 150px; height: 140px; margin-left: -168px; }
+  .jp-frog { width: 130px; }
+  .jp-pad { width: 132px; height: 32px; }
+
 }
 
 .jp-mark {
@@ -1051,7 +1104,7 @@
   gap: 0.6rem;
   opacity: 0.72;
 }
-.jp-mark img { width: 44px; height: 44px; object-fit: contain; }
+.jp-mark img { width: 108px; height: 108px; object-fit: contain; }
 .jp-mark span {
   font-family: "Noto Sans JP", system-ui, sans-serif;
   font-weight: 700;
@@ -1064,4 +1117,32 @@
 
 @media (prefers-reduced-motion: reduce) {
   .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
+}
+
+/* lotus flowers behind the showcase tiles */
+.jp-showcase-lilies {
+  position: absolute;
+  inset: -8% -6%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.jp-showcase-lily {
+  position: absolute;
+  width: 360px;
+  height: auto;
+  opacity: 0.5;
+  filter: drop-shadow(0 12px 20px rgba(27, 20, 16, 0.16));
+  animation: jpFloat 11s ease-in-out infinite;
+}
+.jp-showcase-lily-1 { left: -8%; top: -4%; transform: rotate(-8deg); }
+.jp-showcase-lily-2 { right: -10%; top: 32%; width: 420px; transform: scaleX(-1) rotate(6deg); animation-delay: 2s; }
+.jp-showcase-lily-3 { left: 34%; bottom: -12%; width: 300px; opacity: 0.38; transform: rotate(172deg); animation-delay: 4s; }
+@media (max-width: 768px) {
+  .jp-showcase-lily { width: 220px; opacity: 0.34; }
+  .jp-showcase-lily-2 { width: 240px; }
+  .jp-showcase-lily-3 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-lily, .jp-showcase-lily { animation: none !important; }
 }

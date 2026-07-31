@@ -1,4 +1,6 @@
 import { useReveal } from "@/hooks/useReveal";
+import lotusImg from "../assets/jp-lotus.png";
+
 
 type Tile = {
   label: string;
@@ -128,7 +130,15 @@ const PROMPTS: Record<string, string> = {
 export function ShowcaseGrid() {
   const { ref, revealed } = useReveal<HTMLDivElement>();
   return (
-    <div ref={ref} className="grid grid-cols-1 gap-4 md:grid-cols-4 md:auto-rows-[180px]">
+    <div className="relative">
+      {/* lotus flowers blooming behind the tiles */}
+      <div aria-hidden className="jp-showcase-lilies">
+        <img src={lotusImg} alt="" className="jp-showcase-lily jp-showcase-lily-1" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-showcase-lily jp-showcase-lily-2" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-showcase-lily jp-showcase-lily-3" loading="lazy" />
+      </div>
+      <div ref={ref} className="relative grid grid-cols-1 gap-4 md:grid-cols-4 md:auto-rows-[180px]">
+
       {TILES.map((t, i) => (
         <article
           key={t.label}
@@ -159,6 +169,8 @@ export function ShowcaseGrid() {
           </div>
         </article>
       ))}
+      </div>
     </div>
+
   );
 }
