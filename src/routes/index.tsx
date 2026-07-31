@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import cakeImg from "../assets/cake-bright.webp";
+import cakeImg from "../assets/jp-cake-pink.webp";
 import { ShowcaseGrid } from "@/components/ShowcaseGrid";
 import { LayerStack } from "@/components/LayerStack";
 import { GlamHero } from "@/components/GlamHero";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://layercake.site/" },
-      { rel: "preload", as: "image", href: cakeImg, fetchpriority: "high" },
+      { rel: "preload", as: "image", href: cakeImg, fetchPriority: "high" },
     ],
   }),
   component: Splash,

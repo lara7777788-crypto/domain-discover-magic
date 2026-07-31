@@ -2,12 +2,12 @@
 // a pink layer cake labelled with its design layers, and a frog who leaps
 // off his lily pad to smash the cake on "try a slice".
 import { useEffect, useRef, useState } from "react";
-import cakeImg from "../assets/jp-cake-pink.png";
-import pondImg from "../assets/jp-lotus-pond.jpg";
-import frogImg from "../assets/jp-frog.png";
-import markImg from "../assets/jp-mark.png";
-import frogCatImg from "../assets/jp-frogcat-big.png";
-import lotusImg from "../assets/jp-lotus.png";
+import cakeImg from "../assets/jp-cake-pink.webp";
+import pondImg from "../assets/jp-lotus-pond.webp";
+import frogImg from "../assets/jp-frog.webp";
+import markImg from "../assets/jp-mark.webp";
+import frogCatImg from "../assets/jp-frogcat-big.webp";
+import lotusImg from "../assets/jp-lotus.webp";
 
 import { playRibbet, playSmash, buzz } from "../lib/smash-sfx";
 
@@ -134,8 +134,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         <img
           src={frogCatImg}
           alt="An ink-brush toad cradling a white cat, the Layercake mascot"
-          width={912}
-          height={1408}
+          width={906}
+          height={1400}
           loading="lazy"
           draggable={false}
         />

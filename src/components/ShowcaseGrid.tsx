@@ -1,5 +1,5 @@
 import { useReveal } from "@/hooks/useReveal";
-import lotusImg from "../assets/jp-lotus.png";
+import lotusImg from "../assets/jp-lotus.webp";
 
 
 type Tile = {
