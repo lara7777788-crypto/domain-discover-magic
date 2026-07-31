@@ -134,8 +134,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         <img
           src={frogCatImg}
           alt="An ink-brush toad cradling a white cat, the Layercake mascot"
-          width={912}
-          height={1408}
+          width={906}
+          height={1400}
           loading="lazy"
           draggable={false}
         />
