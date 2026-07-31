@@ -60,11 +60,13 @@ export function playRibbet() {
 }
 
 /** Impact: low thud + filtered noise burst — "smash". */
-export function playSmash() {
+export function playSmash(lead = 0) {
   if (quiet()) return;
   const ac = getCtx();
   if (!ac) return;
-  const t0 = ac.currentTime;
+  // `lead` (seconds) lets the caller fire slightly early and still have the
+  // transient land exactly on the visual impact frame.
+  const t0 = ac.currentTime + Math.max(0, lead);
 
   // body thud
   const thud = ac.createOscillator();
