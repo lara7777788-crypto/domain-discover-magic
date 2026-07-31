@@ -85,14 +85,27 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const handleSmash = () => {
     if (smashing) return;
     setSmashing(true);
-    // frog leaps: croak + light tap
+
+    // Timing contract (must stay in sync with .is-smashing rules in styles.css):
+    //   0ms    click — frog crouches
+    //   ~135ms push-off, which is where the second "bet" note of the croak lands
+    //   600ms  IMPACT — frog hits the cake, cake explodes, smash sfx + haptic peak
+    const IMPACT = 600;
+    const AUDIO_LEAD = 25; // buffer scheduling + 10ms attack ramp
+    const HAPTIC_LEAD = 45; // vibration motor spin-up
+
+    // croak fires on the crouch so its accent note peaks on the push-off
     playRibbet();
     buzz(12);
-    // impact lands with the cake explosion (600ms into the leap)
-    sfxTimer.current = window.setTimeout(() => {
-      playSmash();
-      buzz([28, 40, 70]);
-    }, 600);
+
+    hapticTimer.current = window.setTimeout(
+      () => buzz([28, 40, 70]),
+      IMPACT - HAPTIC_LEAD,
+    );
+    sfxTimer.current = window.setTimeout(
+      () => playSmash(AUDIO_LEAD / 1000),
+      IMPACT - AUDIO_LEAD,
+    );
     timer.current = window.setTimeout(onEnter, 2000);
   };
 
