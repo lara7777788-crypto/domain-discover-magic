@@ -6,6 +6,7 @@ import cakeImg from "../assets/jp-cake-pink.png";
 import pondImg from "../assets/jp-lotus-pond.jpg";
 import frogImg from "../assets/jp-frog.png";
 import markImg from "../assets/jp-mark.png";
+import frogCatImg from "../assets/jp-frogcat-big.png";
 import lotusImg from "../assets/jp-lotus.png";
 
 import { playRibbet, playSmash, buzz } from "../lib/smash-sfx";
@@ -46,6 +47,7 @@ const COPY = {
     link: "See what comes out ↓",
     fine: "First slice on the house · no subscription to try",
     mark: "Layercake: control your noise",
+    bubble: "Control your noise.",
   },
   ja: {
     chip: "日本 · ビジュアル・アイデンティティ",
@@ -57,6 +59,7 @@ const COPY = {
     link: "できあがりを見る ↓",
     fine: "最初の一切れは無料 · 登録不要",
     mark: "レイヤーケーキ：騒音を、制御する",
+    bubble: "騒音を、制御する。",
   },
 } as const;
 
@@ -121,6 +124,21 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         <img src={lotusImg} alt="" className="jp-lily jp-lily-1" loading="lazy" />
         <img src={lotusImg} alt="" className="jp-lily jp-lily-2" loading="lazy" />
         <img src={lotusImg} alt="" className="jp-lily jp-lily-3" loading="lazy" />
+      </div>
+
+      {/* the big ink toad-with-cat, standing guard up the right side */}
+      <div className="jp-mascot" aria-hidden={false}>
+        <div className="jp-bubble" lang={lang}>
+          {t.bubble}
+        </div>
+        <img
+          src={frogCatImg}
+          alt="An ink-brush toad cradling a white cat, the Layercake mascot"
+          width={912}
+          height={1408}
+          loading="lazy"
+          draggable={false}
+        />
       </div>
 
       {/* sunburst */}
@@ -259,7 +277,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
         {/* frog-and-cat watermark */}
         <div className="jp-mark">
-          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={96} height={96} loading="lazy" />
+          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={384} height={384} loading="lazy" />
           <span lang={lang}>{t.mark}</span>
         </div>
 

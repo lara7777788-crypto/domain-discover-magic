@@ -502,7 +502,7 @@
   padding: 0.4rem 0.95rem;
   border-radius: 9999px;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 1.25rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: #FFE9B0;
@@ -1103,11 +1103,13 @@
   z-index: 6;
   margin-top: 1.6rem;
   display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 0.6rem;
   opacity: 0.72;
 }
-.jp-mark img { width: 108px; height: 108px; object-fit: contain; }
+.jp-mark img { width: 400px; height: 400px; flex: none; object-fit: contain; }
 .jp-mark span {
   font-family: "Noto Sans JP", system-ui, sans-serif;
   font-weight: 700;
@@ -1148,4 +1150,78 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .jp-lily, .jp-showcase-lily { animation: none !important; }
+}
+
+
+/* big ink toad-with-cat mascot, standing up the right edge of the splash */
+.jp-mascot {
+  position: absolute;
+  right: clamp(-2rem, 1vw, 2rem);
+  bottom: 0;
+  z-index: 7;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.jp-mascot img {
+  width: clamp(300px, 31vw, 560px);
+  height: auto;
+  filter: drop-shadow(0 26px 40px rgba(27, 20, 16, 0.28));
+  animation: jpMascotBreathe 6s ease-in-out infinite;
+}
+@keyframes jpMascotBreathe {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-0.6deg); }
+}
+.jp-bubble {
+  position: relative;
+  align-self: flex-end;
+  margin-right: clamp(1rem, 4vw, 3.5rem);
+  background: #FDF7EC;
+  color: #1B1410;
+  border: 3px solid #1B1410;
+  border-radius: 18px;
+  padding: 0.7rem 1rem;
+  max-width: 16ch;
+  text-align: center;
+  font-family: "Anton", "Noto Sans JP", system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.4vw, 1.35rem);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 6px 6px 0 rgba(27, 20, 16, 0.85);
+}
+.jp-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  margin-left: -8px;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top-color: #1B1410;
+}
+.jp-bubble::before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -7px;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-top-color: #FDF7EC;
+}
+@media (max-width: 900px) {
+  .jp-mascot { opacity: 0.9; right: -3rem; }
+  .jp-mascot img { width: 190px; }
+  .jp-bubble { display: none; }
+  .jp-mark img { width: 200px; height: 200px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-mascot img { animation: none; }
 }
