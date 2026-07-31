@@ -820,16 +820,20 @@
   border: 2px solid #1B1410;
 }
 
-/* smash sequence */
-.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out forwards; }
-.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) forwards; }
+/* smash sequence — the frog leaps first (0.6s), then the cake goes */
+.is-smashing .jp-frog { animation: jpLeap 900ms cubic-bezier(.25,.8,.3,1) forwards; }
+.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out forwards; }
+.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out 600ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
+.is-smashing .jp-layer-tag { animation: jpBlast 700ms ease-in 600ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
 .is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) forwards; }
-.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in forwards; }
-.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out forwards; }
+.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) 600ms forwards; }
+.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in 600ms forwards; }
+.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out 700ms forwards; }
+
 
 @keyframes jpSmash {
   0% { transform: scale(1) rotate(0deg); }
