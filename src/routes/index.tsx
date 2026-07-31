@@ -189,12 +189,13 @@ function Splash() {
           className="relative mt-12 mb-8 flex items-center justify-center"
           style={{ width: "min(100%, 460px)" }}
         >
-          {/* Glass dome / pedestal plate */}
+          {/* Glass pedestal plate */}
           <div
             aria-hidden
-            className="glass-panel shimmer absolute rounded-[2.5rem]"
-            style={{ inset: "auto 0 24px 0", height: CAKE_H * 0.62, top: CAKE_H * 0.52 }}
+            className="glass-panel shimmer absolute left-1/2 -translate-x-1/2 rounded-[2rem]"
+            style={{ bottom: 12, width: CAKE_W * 1.15, height: 74 }}
           />
+
 
           {/* Texture tags */}
           <div className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col gap-2 sm:flex">
