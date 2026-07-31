@@ -24,7 +24,7 @@ const TILES: Tile[] = [
   tile(
     "Brand identities",
     "Logo, wordmark, palette, voice — one cohesive system.",
-    "var(--strawberry)",
+    "var(--jp-pink)",
     "var(--cream)",
     <svg viewBox="0 0 200 140" className="h-full w-full">
       <circle cx="60" cy="70" r="34" fill="var(--cream)" opacity="0.95" />
@@ -44,7 +44,7 @@ const TILES: Tile[] = [
   tile(
     "Posters",
     "Editorial print pieces with type as the hero.",
-    "var(--melon)",
+    "var(--jp-mustard)",
     "var(--foreground)",
     <svg viewBox="0 0 140 180" className="h-full w-full">
       <rect x="10" y="10" width="120" height="160" rx="4" fill="var(--cream)" />
@@ -57,8 +57,8 @@ const TILES: Tile[] = [
   tile(
     "Packaging",
     "Tactile, dimensional, retail-ready.",
-    "var(--matcha)",
-    "var(--foreground)",
+    "var(--jp-olive)",
+    "var(--cream)",
     <svg viewBox="0 0 160 140" className="h-full w-full">
       <path d="M 30 40 L 90 30 L 130 50 L 130 110 L 70 120 L 30 100 Z" fill="var(--cream)" stroke="var(--foreground)" strokeWidth="0.8" />
       <path d="M 30 40 L 70 60 L 130 50" fill="none" stroke="var(--foreground)" strokeWidth="0.8" opacity="0.4" />
@@ -70,7 +70,7 @@ const TILES: Tile[] = [
   tile(
     "Editorial graphics",
     "Magazine spreads, covers, long-form art direction.",
-    "var(--ramune)",
+    "var(--jp-lavender)",
     "var(--foreground)",
     <svg viewBox="0 0 200 120" className="h-full w-full">
       <rect x="10" y="14" width="86" height="92" rx="2" fill="var(--cream)" />
@@ -85,7 +85,7 @@ const TILES: Tile[] = [
   tile(
     "Social campaigns",
     "Story-native motion sets, ready to ship.",
-    "var(--ube)",
+    "var(--jp-purple)",
     "var(--cream)",
     <svg viewBox="0 0 200 140" className="h-full w-full">
       {[0, 1, 2].map((i) => (
@@ -101,7 +101,7 @@ const TILES: Tile[] = [
   tile(
     "AI character worlds",
     "Casts, props, environments — your universe.",
-    "var(--taiyaki)",
+    "var(--jp-blush)",
     "var(--foreground)",
     <svg viewBox="0 0 200 140" className="h-full w-full">
       <circle cx="70" cy="80" r="34" fill="var(--cream)" />
