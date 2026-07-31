@@ -674,3 +674,263 @@
 @media (prefers-reduced-motion: reduce) {
   .glam-shine, .glam-ticker-track, .glam-sparkles span, .btn-glam::after, .glam-tag { animation: none !important; }
 }
+
+/* ---------- Japanese poster splash ---------- */
+.jp-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 55% at 50% 8%, #F6D8EA 0%, transparent 62%),
+    linear-gradient(180deg, #F5C64B 0%, #F2A0BC 62%, #C9BCF2 100%);
+  border-bottom-left-radius: 2.5rem;
+  border-bottom-right-radius: 2.5rem;
+}
+.jp-sun {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 190vmax;
+  height: 190vmax;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 1200ms ease-out;
+  animation: jpSpin 90s linear infinite;
+}
+.jp-ray {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 5.2vmax;
+  height: 95vmax;
+  margin-left: -2.6vmax;
+  transform-origin: 50% 100%;
+  opacity: 0.5;
+  clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%);
+  animation: jpRay 6s ease-in-out infinite;
+}
+@keyframes jpSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes jpRay { 0%, 100% { opacity: 0.34; } 50% { opacity: 0.62; } }
+
+.jp-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 50% 100%, rgba(201, 188, 242, 0.55) 0%, transparent 70%),
+    radial-gradient(40% 30% at 8% 12%, rgba(110, 123, 63, 0.22) 0%, transparent 70%);
+  mix-blend-mode: multiply;
+  opacity: 0.75;
+}
+
+.jp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #1B1410;
+  background: #E8E2FA;
+  border: 2px solid #1B1410;
+  box-shadow: 3px 3px 0 #1B1410;
+}
+
+.jp-title {
+  font-family: "Anton", "Fredoka", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: 0.01em;
+  font-size: clamp(3.6rem, 15vw, 10.5rem);
+  color: #1B1410;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+}
+.jp-word { display: block; }
+.jp-word-a { color: #1B1410; text-shadow: 6px 6px 0 #C9BCF2; }
+.jp-word-b { color: #E8368F; text-shadow: 6px 6px 0 #1B1410; }
+
+.jp-jp {
+  margin-top: 0.7rem;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2.4vw, 1.15rem);
+  letter-spacing: 0.32em;
+  color: #1B1410;
+  opacity: 0.85;
+}
+.jp-lede {
+  margin: 1.4rem auto 0;
+  max-width: 44ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #2B1E1A;
+}
+.jp-fine {
+  margin-top: 1.2rem;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(27, 20, 16, 0.6);
+}
+
+.jp-cake-wrap {
+  position: relative;
+  margin-top: 2.2rem;
+  display: grid;
+  place-items: center;
+  transition: opacity 900ms ease-out;
+}
+.jp-disc {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  max-width: 86vw;
+  max-height: 86vw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #E8E2FA 0%, #C9BCF2 72%, #B7A8EE 100%);
+  border: 3px solid #1B1410;
+  box-shadow: 10px 12px 0 rgba(27, 20, 16, 0.85);
+}
+.jp-cake {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  max-width: 76vw;
+  max-height: 76vw;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 26px rgba(27, 20, 16, 0.35));
+  animation: floaty 7s ease-in-out infinite;
+  transform-origin: 50% 70%;
+}
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.jp-shards { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.jp-shard {
+  position: absolute;
+  opacity: 0;
+  border: 2px solid #1B1410;
+}
+
+/* smash sequence */
+.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out forwards; }
+.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) forwards; }
+.is-smashing .jp-title,
+.is-smashing .jp-jp,
+.is-smashing .jp-lede,
+.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) forwards; }
+.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in forwards; }
+.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out forwards; }
+
+@keyframes jpSmash {
+  0% { transform: scale(1) rotate(0deg); }
+  22% { transform: scale(1.22) rotate(-4deg); }
+  38% { transform: scaleX(1.5) scaleY(0.5) rotate(2deg); }
+  55% { transform: scaleX(1.9) scaleY(0.22); opacity: 0.5; filter: brightness(1.6); }
+  100% { transform: scaleX(2.4) scaleY(0.05); opacity: 0; }
+}
+@keyframes jpDiscPop {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.08); }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes jpShard {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.4); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1.1); }
+}
+@keyframes jpBlast {
+  0% { transform: scale(1); opacity: 1; }
+  30% { transform: scale(1.06); }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes jpSunRush {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) scale(1.9) rotate(48deg); opacity: 0; }
+}
+.jp-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(closest-side, #FFFFFF 0%, #F6D8EA 40%, #E8368F 70%, #7C6BD9 100%);
+}
+@keyframes jpFlash {
+  0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
+  45% { opacity: 0.92; transform: scale(1.6); border-radius: 0; }
+  100% { opacity: 1; transform: scale(2.4); }
+}
+
+.btn-jp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  font-family: "Anton", system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 1rem;
+  color: #FFF7EC;
+  background: #E8368F;
+  border: 3px solid #1B1410;
+  box-shadow: 6px 6px 0 #1B1410;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 200ms ease;
+  cursor: pointer;
+}
+.btn-jp i { font-style: normal; font-family: "Noto Sans JP", sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: #FFE0F0; }
+.btn-jp:hover { transform: translate(2px, 2px); box-shadow: 3px 3px 0 #1B1410; background: #D42B80; }
+.btn-jp:active { transform: translate(6px, 6px); box-shadow: 0 0 0 #1B1410; }
+
+.jp-link {
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #1B1410;
+  border-bottom: 2px solid #1B1410;
+  padding-bottom: 2px;
+}
+.jp-link:hover { color: #6E7B3F; border-color: #6E7B3F; }
+
+.jp-ticker {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  border-top: 3px solid #1B1410;
+  border-bottom: 3px solid #1B1410;
+  background: #6E7B3F;
+  padding: 0.55rem 0;
+}
+.jp-ticker-track { display: flex; width: max-content; animation: tickerScroll 34s linear infinite; }
+.jp-ticker-group { display: flex; }
+.jp-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 0 1.1rem;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #FFF7EC;
+  white-space: nowrap;
+}
+.jp-ticker-item i { font-style: normal; color: #F5C64B; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-sun, .jp-ray, .jp-cake, .jp-ticker-track { animation: none !important; }
+}
