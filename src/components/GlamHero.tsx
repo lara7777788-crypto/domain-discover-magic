@@ -99,6 +99,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
       {/* lotus pond backdrop */}
       <div aria-hidden className="jp-pond" style={{ backgroundImage: `url(${pondImg})` }} />
+      {/* lily pads + lotus, sitting in front of the pond but behind the sunburst rays */}
+      <div aria-hidden className="jp-lilies">
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-1" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-2" loading="lazy" />
+        <img src={lotusImg} alt="" className="jp-lily jp-lily-3" loading="lazy" />
+      </div>
+
       {/* sunburst */}
       <div aria-hidden className="jp-sun" style={{ opacity: lit ? 1 : 0 }}>
         {Array.from({ length: RAYS }).map((_, i) => (
