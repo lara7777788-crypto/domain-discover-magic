@@ -337,7 +337,7 @@
 .animate-ambient { animation: ambient 18s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-floaty, .animate-ambient, .animate-wobble, .animate-float, .animate-sprinkle { animation: none !important; }
+  .animate-floaty, .animate-ambient, .animate-wobble, .animate-float, .animate-sprinkle, .shimmer::after { animation: none !important; }
 }
 .animate-wobble { animation: wobble 5s ease-in-out infinite; transform-origin: bottom center; }
 .animate-sprinkle { animation: sprinkle 3s ease-in-out infinite; }
