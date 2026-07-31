@@ -830,7 +830,7 @@
 
 /* smash sequence — the frog leaps first (0.6s), then the cake goes */
 .is-smashing .jp-frog { animation: jpLeap 900ms cubic-bezier(.25,.8,.3,1) forwards; }
-.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out forwards; }
+.is-smashing .jp-pad { animation: jpPadRipple 620ms ease-out 100ms forwards; }
 .is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
 .is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out 600ms forwards; }
 .is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
@@ -1075,12 +1075,15 @@
   transform-origin: 50% 100%;
 }
 @keyframes jpCroak { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.96); } }
+/* 900ms leap; contact with the cake is pinned to 66.7% = 600ms, the exact
+   frame the cake smash, the "smash" sfx and the impact haptic fire on. */
 @keyframes jpLeap {
   0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
   15% { transform: translate(-6px, 8px) scale(1.15, 0.82); }
-  55% { transform: translate(90px, -190px) scale(0.9, 1.16) rotate(-14deg); }
-  75% { transform: translate(150px, -60px) scale(1.1, 0.9) rotate(6deg); }
-  85% { transform: translate(152px, -30px) scale(1.35, 0.68) rotate(6deg); }
+  44% { transform: translate(90px, -190px) scale(0.9, 1.16) rotate(-14deg); }
+  60% { transform: translate(138px, -84px) scale(1.06, 0.94) rotate(4deg); }
+  66.7% { transform: translate(152px, -30px) scale(1.38, 0.66) rotate(6deg); }
+  78% { transform: translate(156px, -6px) scale(1.2, 0.82) rotate(8deg); }
   100% { transform: translate(160px, 40px) scale(1.5, 0.4) rotate(10deg); opacity: 0; }
 }
 @keyframes jpPadRipple {
