@@ -184,7 +184,66 @@
                       radial-gradient(55% 50% at 70% 90%, color-mix(in oklab, var(--matcha) 25%, transparent) 0%, transparent 70%),
                       radial-gradient(50% 45% at 10% 80%, color-mix(in oklab, var(--ramune) 28%, transparent) 0%, transparent 70%);
   --gradient-icing: radial-gradient(closest-side, color-mix(in oklab, var(--cream) 90%, transparent) 0%, transparent 75%);
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+  --glass-bg: color-mix(in oklab, white 42%, transparent);
+  --glass-border: color-mix(in oklab, white 70%, transparent);
+  --glass-shadow: 0 8px 32px -8px color-mix(in oklab, var(--foreground) 22%, transparent);
 }
+
+/* Neo-pastry glass */
+.glass-panel {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 65%, transparent);
+  background: color-mix(in oklab, white 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in oklab, white 75%, transparent);
+  box-shadow: 0 4px 16px -8px color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* Slow specular sweep across a glass surface */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(115deg, transparent 40%, color-mix(in oklab, white 75%, transparent) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: sweep 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes sweep {
+  0%, 70% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
 
 /* Grain overlay */
 .grain-overlay {
@@ -278,7 +337,7 @@
 .animate-ambient { animation: ambient 18s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-floaty, .animate-ambient, .animate-wobble, .animate-float, .animate-sprinkle { animation: none !important; }
+  .animate-floaty, .animate-ambient, .animate-wobble, .animate-float, .animate-sprinkle, .shimmer::after { animation: none !important; }
 }
 .animate-wobble { animation: wobble 5s ease-in-out infinite; transform-origin: bottom center; }
 .animate-sprinkle { animation: sprinkle 3s ease-in-out infinite; }

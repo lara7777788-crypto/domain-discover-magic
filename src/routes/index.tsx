@@ -166,15 +166,13 @@ function Splash() {
         <div className="font-display text-xl font-semibold tracking-tight text-foreground/80">
           layercake<span style={{ color: "var(--strawberry)" }}>.</span>
         </div>
-        <div className="hidden text-[11px] uppercase tracking-[0.3em] text-foreground/50 md:block">
+        <div className="hidden mono-label text-[10px] text-foreground/50 md:block">
           visual identity studio · est. 2026
         </div>
       </header>
 
       <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-20 text-center">
-        <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/55">
-          AI-native visual identity studio
-        </p>
+        <span className="glass-chip mb-6">AI-native visual identity studio</span>
 
         <h1 className="font-display font-semibold leading-[0.98] text-foreground" style={{ fontSize: "clamp(2.6rem, 7vw, 5.5rem)" }}>
           Make <span className="font-editorial font-normal text-foreground/85" style={{ fontSize: "1.18em" }}>beautiful</span> things,
@@ -186,14 +184,44 @@ function Splash() {
           AI-native visual identity systems for the next generation of creators, brands and worlds.
         </p>
 
-        {/* Cake stage */}
+        {/* Cake stage — glass pedestal */}
         <div
-          className="relative mt-10 mb-8 animate-floaty"
-          style={{
-            width: CAKE_W,
-            height: CAKE_H + 36,
-          }}
+          className="relative mt-12 mb-8 flex items-center justify-center"
+          style={{ width: "min(100%, 460px)" }}
         >
+          {/* Glass pedestal plate */}
+          <div
+            aria-hidden
+            className="glass-panel rounded-[2rem]"
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              top: CAKE_H - 22,
+              width: CAKE_W * 1.25,
+              height: 62,
+            }}
+          />
+
+          {/* Texture tags */}
+          <div
+            className="pointer-events-none hidden flex-col gap-2 sm:flex"
+            style={{ position: "absolute", right: 0, top: "42%" }}
+          >
+            <span className="glass-chip">Surface v.02</span>
+            <span className="glass-chip">Layers 06</span>
+            <span className="glass-chip">Realism 98%</span>
+          </div>
+
+
+          <div
+            className="relative animate-floaty"
+            style={{
+              width: CAKE_W,
+              height: CAKE_H + 36,
+            }}
+          >
+
 
           {/* Soft ground shadow */}
           <div
@@ -447,10 +475,11 @@ function Splash() {
               style={{ animation: "breathe 4s ease-in-out infinite" }}
             />
           )}
+          </div>
         </div>
 
         {/* Premium CTA */}
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6" style={{ opacity: fullyBuilt ? 1 : 0, transition: "opacity 500ms" }}>
+        <div className="glass-panel flex flex-col items-center gap-4 rounded-[2rem] px-6 py-5 sm:flex-row sm:gap-6" style={{ opacity: fullyBuilt ? 1 : 0, transition: "opacity 500ms" }}>
           <button
             type="button"
             onClick={handleEnter}
@@ -470,6 +499,12 @@ function Splash() {
         <p className="mt-6 max-w-md text-sm text-foreground/55">
           One free slice on the house — then just a few sweet cents per render.
         </p>
+        <div className="mt-6 flex items-center gap-4 mono-label text-[10px] text-foreground/40">
+          <span>Ref. Slice-08</span>
+          <span className="h-1 w-1 rounded-full bg-foreground/20" />
+          <span>Model-L3</span>
+        </div>
+
       </section>
 
       {/* World, not logo */}
