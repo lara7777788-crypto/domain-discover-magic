@@ -820,16 +820,20 @@
   border: 2px solid #1B1410;
 }
 
-/* smash sequence */
-.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out forwards; }
-.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) forwards; }
+/* smash sequence — the frog leaps first (0.6s), then the cake goes */
+.is-smashing .jp-frog { animation: jpLeap 900ms cubic-bezier(.25,.8,.3,1) forwards; }
+.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out forwards; }
+.is-smashing .jp-cake { animation: jpSmash 900ms cubic-bezier(.2,.9,.2,1) 600ms forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 900ms ease-out 600ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 1000ms cubic-bezier(.15,.8,.25,1) 620ms forwards; }
+.is-smashing .jp-layer-tag { animation: jpBlast 700ms ease-in 600ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
 .is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) forwards; }
-.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in forwards; }
-.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out forwards; }
+.is-smashing .jp-chip { animation: jpBlast 900ms cubic-bezier(.3,.9,.3,1) 600ms forwards; }
+.is-smashing .jp-sun { animation: jpSunRush 1000ms ease-in 600ms forwards; }
+.is-smashing .jp-flash { animation: jpFlash 1200ms ease-out 700ms forwards; }
+
 
 @keyframes jpSmash {
   0% { transform: scale(1) rotate(0deg); }
@@ -933,4 +937,123 @@
 
 @media (prefers-reduced-motion: reduce) {
   .jp-sun, .jp-ray, .jp-cake, .jp-ticker-track { animation: none !important; }
+}
+
+/* ---------- lotus pond, layer tags, frog, watermark ---------- */
+.jp-pond {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center bottom;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.jp-layer-tag {
+  position: absolute;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 9999px;
+  background: #FFF7EC;
+  border: 2px solid #1B1410;
+  box-shadow: 3px 3px 0 #1B1410;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1B1410;
+  white-space: nowrap;
+  opacity: 0;
+  animation: jpTagIn 500ms ease-out forwards;
+}
+.jp-layer-tag b { font-weight: 800; }
+.jp-layer-tag em { font-style: normal; color: #E8368F; letter-spacing: 0.1em; }
+.jp-layer-dot { width: 7px; height: 7px; border-radius: 50%; background: #7C6BD9; border: 1.5px solid #1B1410; }
+.jp-layer-left { left: 0; transform: translateX(-42%); }
+.jp-layer-right { right: 0; transform: translateX(42%); }
+@keyframes jpTagIn { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 640px) {
+  .jp-layer-tag { font-size: 0.5rem; padding: 0.2rem 0.5rem; }
+  .jp-layer-left { transform: translateX(-2%); }
+  .jp-layer-right { transform: translateX(2%); }
+  .jp-layer-tag em { display: none; }
+}
+
+.jp-frog-wrap {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  margin-left: -270px;
+  bottom: -10px;
+  width: 132px;
+  height: 120px;
+  display: grid;
+  place-items: end center;
+  pointer-events: none;
+}
+.jp-pad {
+  position: absolute;
+  bottom: 0;
+  width: 118px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #4E6A4A 0%, #33472F 100%);
+  border: 2px solid #1B1410;
+}
+.jp-frog {
+  position: relative;
+  width: 108px;
+  height: auto;
+  bottom: 10px;
+  filter: drop-shadow(0 8px 10px rgba(27, 20, 16, 0.35));
+  animation: jpCroak 3.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes jpCroak { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.96); } }
+@keyframes jpLeap {
+  0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
+  15% { transform: translate(-6px, 8px) scale(1.15, 0.82); }
+  55% { transform: translate(90px, -190px) scale(0.9, 1.16) rotate(-14deg); }
+  75% { transform: translate(150px, -60px) scale(1.1, 0.9) rotate(6deg); }
+  85% { transform: translate(152px, -30px) scale(1.35, 0.68) rotate(6deg); }
+  100% { transform: translate(160px, 40px) scale(1.5, 0.4) rotate(10deg); opacity: 0; }
+}
+@keyframes jpPadRipple {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.25, 0.7); }
+  100% { transform: scale(1.7, 0.5); opacity: 0; }
+}
+@media (max-width: 640px) {
+  .jp-frog-wrap { width: 96px; height: 90px; margin-left: -160px; }
+  .jp-frog { width: 78px; }
+  .jp-pad { width: 86px; height: 22px; }
+}
+
+.jp-mark {
+  position: relative;
+  z-index: 6;
+  margin-top: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0.72;
+}
+.jp-mark img { width: 44px; height: 44px; object-fit: contain; }
+.jp-mark span {
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #1B1410;
+}
+.jp-mark i { font-style: normal; color: #E8368F; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
 }
