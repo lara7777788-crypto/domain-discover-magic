@@ -698,9 +698,10 @@
   position: relative;
   margin-top: 1.5rem;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 220, 170, 0.18);
-  border-bottom: 1px solid rgba(255, 220, 170, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+
   padding: 0.7rem 0;
 }
 .glam-ticker-track { display: flex; width: max-content; animation: tickerScroll 34s linear infinite; }
