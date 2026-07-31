@@ -79,24 +79,36 @@ function SlicesPage() {
         const rows = (data ?? []) as SliceMeta[];
         setSlices(rows.map((row) => ({ ...row, preview_url: null })));
 
-        for (const row of rows) {
+        // fetch previews in small parallel batches: fast, but never a single
+        // giant base64 query that trips the statement timeout
+        const BATCH = 4;
+        for (let i = 0; i < rows.length; i += BATCH) {
           if (cancelled) return;
-          const { data: preview } = await supabase
-            .from("designs")
-            .select("id, preview_url")
-            .eq("id", row.id)
-            .eq("user_id", user.id)
-            .maybeSingle();
-
+          const batch = rows.slice(i, i + BATCH);
+          const results = await Promise.all(
+            batch.map((row) =>
+              supabase
+                .from("designs")
+                .select("id, preview_url")
+                .eq("id", row.id)
+                .eq("user_id", user.id)
+                .maybeSingle(),
+            ),
+          );
           if (cancelled) return;
-          if (preview?.preview_url) {
+          const found = results
+            .map((r) => r.data)
+            .filter((d): d is { id: string; preview_url: string | null } => !!d?.preview_url);
+          if (found.length) {
             setSlices((current) =>
-              current?.map((slice) =>
-                slice.id === row.id ? { ...slice, preview_url: preview.preview_url as string } : slice,
-              ) ?? current,
+              current?.map((slice) => {
+                const hit = found.find((f) => f.id === slice.id);
+                return hit ? { ...slice, preview_url: hit.preview_url as string } : slice;
+              }) ?? current,
             );
           }
         }
+
       }
     })();
     return () => {
