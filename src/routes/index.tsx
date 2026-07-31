@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import cakeImg from "../assets/cake-bright.webp";
 import { ShowcaseGrid } from "@/components/ShowcaseGrid";
 import { LayerStack } from "@/components/LayerStack";
+import { CakeSlam3D } from "@/components/CakeSlam3D";
+
 import { useReveal } from "@/hooks/useReveal";
 
 
@@ -184,34 +186,24 @@ function Splash() {
           AI-native visual identity systems for the next generation of creators, brands and worlds.
         </p>
 
-        {/* Cake stage — glass pedestal */}
-        <div
-          className="relative mt-12 mb-8 flex items-center justify-center"
-          style={{ width: "min(100%, 460px)" }}
-        >
-          {/* Glass pedestal plate */}
-          <div
-            aria-hidden
-            className="glass-panel rounded-[2rem]"
-            style={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-              top: CAKE_H - 22,
-              width: CAKE_W * 1.25,
-              height: 62,
-            }}
-          />
+        {/* 3D word cake — control / your / noise */}
+        <div className="relative mt-12 mb-10 flex w-full items-center justify-center">
+          <CakeSlam3D />
 
           {/* Texture tags */}
           <div
             className="pointer-events-none hidden flex-col gap-2 sm:flex"
-            style={{ position: "absolute", right: 0, top: "42%" }}
+            style={{ position: "absolute", right: 0, top: "38%" }}
           >
             <span className="glass-chip">Surface v.02</span>
             <span className="glass-chip">Layers 06</span>
             <span className="glass-chip">Realism 98%</span>
           </div>
+        </div>
+
+        {/* legacy cake stage (kept hidden) */}
+        <div className="hidden">
+
 
 
           <div
