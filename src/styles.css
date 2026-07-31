@@ -550,8 +550,13 @@
   filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 40px rgba(255, 160, 205, 0.35));
   user-select: none;
 }
+.glam-reflection-clip {
+  height: 110px;
+  overflow: hidden;
+  margin-top: -46px;
+  pointer-events: none;
+}
 .glam-cake-reflection {
-  margin-top: -18px;
   transform: scaleY(-1);
   opacity: 0.22;
   filter: blur(3px);
@@ -561,7 +566,7 @@
 }
 .glam-floor {
   position: absolute;
-  bottom: 34%;
+  bottom: 24%;
   left: 50%;
   width: 420px;
   max-width: 92vw;
@@ -591,9 +596,10 @@
   backdrop-filter: blur(10px);
   animation: floaty 8s ease-in-out infinite;
 }
-.glam-tag:nth-child(1) { left: -4%; top: 18%; }
-.glam-tag:nth-child(2) { right: -4%; top: 34%; animation-delay: 1.4s; }
-.glam-tag:nth-child(3) { left: 2%; top: 56%; animation-delay: 2.6s; }
+.glam-tags { width: min(760px, 92vw); left: 50%; transform: translateX(-50%); inset: 0 auto auto 50%; height: 100%; }
+.glam-tag:nth-child(1) { left: 0; top: 14%; }
+.glam-tag:nth-child(2) { right: 0; top: 30%; animation-delay: 1.4s; }
+.glam-tag:nth-child(3) { left: 4%; top: 54%; animation-delay: 2.6s; }
 @media (max-width: 640px) { .glam-tags { display: none; } }
 
 .btn-glam {

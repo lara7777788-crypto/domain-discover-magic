@@ -77,16 +77,17 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             className="glam-cake animate-floaty"
             style={{ width: CAKE, height: CAKE }}
           />
-          <img
-            src={cakeImg}
-            alt=""
-            aria-hidden
-            width={CAKE}
-            height={CAKE}
-            draggable={false}
-            className="glam-cake-reflection"
-            style={{ width: CAKE, height: CAKE }}
-          />
+          <div className="glam-reflection-clip" aria-hidden>
+            <img
+              src={cakeImg}
+              alt=""
+              width={CAKE}
+              height={CAKE}
+              draggable={false}
+              className="glam-cake-reflection"
+              style={{ width: CAKE, height: CAKE }}
+            />
+          </div>
           <div className="glam-floor" aria-hidden />
 
           <div className="glam-tags">
