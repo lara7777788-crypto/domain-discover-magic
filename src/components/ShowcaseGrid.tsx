@@ -116,6 +116,15 @@ const TILES: Tile[] = [
   ),
 ];
 
+const PROMPTS: Record<string, string> = {
+  "Brand identities": "a quiet Parisian patisserie brand — soft pink, ivory, italic serif wordmark, embossed paper",
+  Posters: "editorial poster, huge italic serif type 'soft noise', cream stock, one strawberry accent",
+  Packaging: "matte pastel carton, dimensional mock-up, minimal sans mark, studio light",
+  "Editorial graphics": "magazine spread, issue 04, thin rules, one oversized circle of colour",
+  "Social campaigns": "3-story motion set, portrait crops, sprinkle confetti, brand pink",
+  "AI character worlds": "a cast of soft-clay characters, big eyes, pastel wardrobe, cohesive world",
+};
+
 export function ShowcaseGrid() {
   const { ref, revealed } = useReveal<HTMLDivElement>();
   return (
@@ -141,6 +150,12 @@ export function ShowcaseGrid() {
           <div className="relative z-10 flex h-full flex-col justify-end">
             <h3 className="font-display text-lg font-semibold tracking-tight">{t.label}</h3>
             <p className="mt-1 max-w-[22ch] text-xs opacity-80">{t.caption}</p>
+            {PROMPTS[t.label] ? (
+              <p className="mt-3 max-h-0 overflow-hidden text-[10px] leading-relaxed opacity-0 transition-all duration-500 group-hover:max-h-24 group-hover:opacity-90" style={{ fontFamily: "var(--font-mono)" }}>
+                <span className="opacity-60">recipe · </span>
+                {PROMPTS[t.label]}
+              </p>
+            ) : null}
           </div>
         </article>
       ))}
