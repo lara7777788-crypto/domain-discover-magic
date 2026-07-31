@@ -192,9 +192,10 @@ function Splash() {
           {/* Glass pedestal plate */}
           <div
             aria-hidden
-            className="glass-panel shimmer absolute left-1/2 -translate-x-1/2 rounded-[2rem]"
-            style={{ bottom: 12, width: CAKE_W * 1.15, height: 74 }}
+            className="glass-panel absolute left-1/2 -translate-x-1/2 rounded-[2rem]"
+            style={{ top: CAKE_H - 26, width: CAKE_W * 1.2, height: 66 }}
           />
+
 
 
           {/* Texture tags */}
