@@ -44,6 +44,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     return () => {
       clearTimeout(t);
       if (timer.current) clearTimeout(timer.current);
+      if (sfxTimer.current) clearTimeout(sfxTimer.current);
+
     };
   }, []);
 
