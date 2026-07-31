@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://layercake.site/" },
-      { rel: "preload", as: "image", href: cakeImg, fetchpriority: "high" },
+      { rel: "preload", as: "image", href: cakeImg, fetchPriority: "high" },
     ],
   }),
   component: Splash,
