@@ -464,10 +464,11 @@ function Splash() {
               style={{ animation: "breathe 4s ease-in-out infinite" }}
             />
           )}
+          </div>
         </div>
 
         {/* Premium CTA */}
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6" style={{ opacity: fullyBuilt ? 1 : 0, transition: "opacity 500ms" }}>
+        <div className="glass-panel flex flex-col items-center gap-4 rounded-[2rem] px-6 py-5 sm:flex-row sm:gap-6" style={{ opacity: fullyBuilt ? 1 : 0, transition: "opacity 500ms" }}>
           <button
             type="button"
             onClick={handleEnter}
@@ -487,6 +488,12 @@ function Splash() {
         <p className="mt-6 max-w-md text-sm text-foreground/55">
           One free slice on the house — then just a few sweet cents per render.
         </p>
+        <div className="mt-6 flex items-center gap-4 mono-label text-[10px] text-foreground/40">
+          <span>Ref. Slice-08</span>
+          <span className="h-1 w-1 rounded-full bg-foreground/20" />
+          <span>Model-L3</span>
+        </div>
+
       </section>
 
       {/* World, not logo */}
