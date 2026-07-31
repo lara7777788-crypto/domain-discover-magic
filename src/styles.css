@@ -987,7 +987,8 @@
 .jp-frog-wrap {
   position: absolute;
   z-index: 7;
-  left: -26%;
+  left: 50%;
+  margin-left: -270px;
   bottom: -10px;
   width: 132px;
   height: 120px;
@@ -1028,7 +1029,7 @@
   100% { transform: scale(1.7, 0.5); opacity: 0; }
 }
 @media (max-width: 640px) {
-  .jp-frog-wrap { width: 96px; height: 90px; left: -2%; }
+  .jp-frog-wrap { width: 96px; height: 90px; margin-left: -160px; }
   .jp-frog { width: 78px; }
   .jp-pad { width: 86px; height: 22px; }
 }

@@ -17,7 +17,7 @@ const LAYERS = [
   { label: "logo", jp: "ロゴ", top: "16%", side: "right" as const },
   { label: "palette", jp: "配色", top: "38%", side: "left" as const },
   { label: "type", jp: "文字", top: "60%", side: "right" as const },
-  { label: "imagery", jp: "画像", top: "84%", side: "left" as const },
+  { label: "imagery", jp: "画像", top: "84%", side: "right" as const },
 ];
 
 const TICKER = [
