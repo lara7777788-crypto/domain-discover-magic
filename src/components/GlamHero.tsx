@@ -32,6 +32,33 @@ const TICKER = [
   "copy that matches",
 ];
 
+// splash copy in both languages — same KURO-style typography either way
+const COPY = {
+  en: {
+    chip: "visual identity studio",
+    sub: "Layercake — make the noise work for you.",
+    lede:
+      "One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to match. Baked layer by layer, in your taste.",
+    cta: "Try a slice — free",
+    ctaTag: "one slice",
+    link: "See what comes out ↓",
+    fine: "First slice on the house · no subscription to try",
+    mark: "Layercake: control your noise",
+  },
+  ja: {
+    chip: "日本 · ビジュアル・アイデンティティ",
+    sub: "レイヤーケーキ — 騒音を、味方に。",
+    lede:
+      "プロンプトはひとつ。出てくるのは世界まるごと — ロゴ、配色、文字、画像、そしてコピーまで。一層ずつ、あなたの好みに焼き上げます。",
+    cta: "一切れどうぞ — 無料",
+    ctaTag: "一切れ",
+    link: "できあがりを見る ↓",
+    fine: "最初の一切れは無料 · 登録不要",
+    mark: "レイヤーケーキ：騒音を、制御する",
+  },
+} as const;
+
+
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
   const [smashing, setSmashing] = useState(false);
