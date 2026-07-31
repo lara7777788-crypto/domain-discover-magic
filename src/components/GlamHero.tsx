@@ -123,20 +123,41 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       <div aria-hidden className="jp-grain" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pb-14 pt-12 text-center md:pt-16">
-        <span className="jp-chip">日本 · visual identity studio</span>
+        <div className="jp-lang" role="group" aria-label="Splash language">
+          <button
+            type="button"
+            className={`jp-lang-btn ${lang === "en" ? "is-on" : ""}`}
+            aria-pressed={lang === "en"}
+            onClick={() => setLang("en")}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className={`jp-lang-btn ${lang === "ja" ? "is-on" : ""}`}
+            aria-pressed={lang === "ja"}
+            onClick={() => setLang("ja")}
+          >
+            JP
+          </button>
+        </div>
+
+        <span className="jp-chip" lang={lang}>
+          {t.chip}
+        </span>
 
         <h1 className="jp-title mt-6">
           <span className="jp-word jp-word-a">LAYER</span>
           <span className="jp-word jp-word-b">CAKE</span>
         </h1>
-        <p className="jp-jp" lang="ja">
-          レイヤーケーキ — 騒音を、味方に。
+        <p className="jp-jp" lang={lang}>
+          {t.sub}
         </p>
 
-        <p className="jp-lede">
-          One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to
-          match. Baked layer by layer, in your taste.
+        <p className="jp-lede" lang={lang}>
+          {t.lede}
         </p>
+
 
         {/* cake on a lavender disc, with its design layers called out */}
         <div className="jp-cake-wrap" style={{ opacity: lit ? 1 : 0 }}>
