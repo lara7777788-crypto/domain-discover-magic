@@ -1104,7 +1104,7 @@
   gap: 0.6rem;
   opacity: 0.72;
 }
-.jp-mark img { width: 44px; height: 44px; object-fit: contain; }
+.jp-mark img { width: 76px; height: 76px; object-fit: contain; }
 .jp-mark span {
   font-family: "Noto Sans JP", system-ui, sans-serif;
   font-weight: 700;
