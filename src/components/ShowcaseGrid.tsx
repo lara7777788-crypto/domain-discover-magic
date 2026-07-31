@@ -167,6 +167,8 @@ export function ShowcaseGrid() {
           </div>
         </article>
       ))}
+      </div>
     </div>
+
   );
 }
