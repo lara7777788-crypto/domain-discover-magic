@@ -1160,11 +1160,11 @@
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
+  align-items: flex-end;
+  gap: 0.5rem;
 }
 .jp-mascot img {
-  width: clamp(260px, 26vw, 460px);
+  width: clamp(300px, 31vw, 560px);
   height: auto;
   filter: drop-shadow(0 26px 40px rgba(27, 20, 16, 0.28));
   animation: jpMascotBreathe 6s ease-in-out infinite;
@@ -1175,7 +1175,8 @@
 }
 .jp-bubble {
   position: relative;
-  align-self: center;
+  align-self: flex-end;
+  margin-right: clamp(1rem, 4vw, 3.5rem);
   background: #FDF7EC;
   color: #1B1410;
   border: 3px solid #1B1410;
