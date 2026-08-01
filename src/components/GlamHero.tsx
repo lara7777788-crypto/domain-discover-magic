@@ -20,7 +20,7 @@ import {
 
 
 const RAYS = 28;
-const SHARDS = 46;
+const SHARDS = 72;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
@@ -79,6 +79,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const timer = useRef<number | null>(null);
   const sfxTimer = useRef<number | null>(null);
   const hapticTimer = useRef<number | null>(null);
+  const extraTimers = useRef<number[]>([]);
 
 
 
@@ -99,6 +100,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
       if (hapticTimer.current) clearTimeout(hapticTimer.current);
+      extraTimers.current.forEach(clearTimeout);
       window.removeEventListener("pointerdown", wake);
       window.removeEventListener("keydown", wake);
       window.removeEventListener("pointermove", wake);
@@ -111,31 +113,47 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     setSmashing(true);
     stopKittenAmbience();
 
-
     // Timing contract (must stay in sync with .is-smashing rules in styles.css):
-    //   0ms    click — frog crouches
-    //   ~135ms push-off, which is where the second "bet" note of the croak lands
-    //   600ms  IMPACT — frog hits the cake, cake explodes, smash sfx + haptic peak
-    const IMPACT = 600;
-    const AUDIO_LEAD = 25; // buffer scheduling + 10ms attack ramp
+    //   0ms      click — croak #1, frog crouches
+    //   350ms    push-off
+    //   1100ms   IMPACT — croak #2 (loudest) + smash, cake pancakes, debris erupts
+    //   1.1-3.9s debris arcs and falls, more croaks over the wreckage
+    //   3.9-5.2s the wipe blooms and carries the page turn
+    const IMPACT = 1100;
+    const AUDIO_LEAD = 25; // buffer scheduling + attack ramp
     const HAPTIC_LEAD = 45; // vibration motor spin-up
+    const END = 5200;
 
-    // croak fires on the crouch so its accent note peaks on the push-off
-    playRibbet(1.15);
-    buzz(12);
+    // croak #1 on the crouch — the ribbit is the headline of the whole moment
+    playRibbet(1.3);
+    buzz(14);
 
-    hapticTimer.current = window.setTimeout(
-      () => buzz([28, 40, 70]),
-      IMPACT - HAPTIC_LEAD,
-    );
+    const at = (ms: number, fn: () => void) => {
+      const id = window.setTimeout(fn, ms);
+      extraTimers.current.push(id);
+    };
+
+    hapticTimer.current = window.setTimeout(() => buzz([30, 40, 80]), IMPACT - HAPTIC_LEAD);
     sfxTimer.current = window.setTimeout(() => {
+      // impact: the big "RIBBIT!!!" with the smash tucked underneath it
+      playRibbet(1.4);
       playSmash(AUDIO_LEAD / 1000);
-      // second "RIBBIT!" right on the impact frame
-      playRibbet(1.1);
     }, IMPACT - AUDIO_LEAD);
 
-    timer.current = window.setTimeout(onEnter, 1500);
+    // croaks keep rolling over the flying debris so nothing ever goes quiet
+    at(1950, () => {
+      playRibbet(1.15);
+      buzz(18);
+    });
+    at(2950, () => playRibbet(0.95));
+    at(3900, () => {
+      playRibbet(1.25);
+      buzz([20, 30, 60]);
+    });
+
+    timer.current = window.setTimeout(onEnter, END);
   };
+
 
 
   return (
@@ -257,31 +275,53 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             <img src={frogImg} alt="" width={150} height={150} className="jp-frog" draggable={false} />
           </div>
 
-          {/* shards, only visible during the smash */}
+          {/* cake debris — irregular chunks of sponge with frosting on top,
+              plus small crumbs; only visible during the smash */}
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
-              const a = (360 / SHARDS) * i + (i % 3) * 7;
-              const dist = 260 + (i % 6) * 90;
+              // deterministic pseudo-random so SSR and client agree
+              const r = (n: number) => {
+                const s = Math.sin((i + 1) * n) * 10000;
+                return s - Math.floor(s);
+              };
+              const a = (360 / SHARDS) * i + r(12.9898) * 26 - 13;
+              const dist = 190 + r(78.233) * 320;
+              const crumb = i % 4 === 3;
+              const size = crumb ? 5 + r(4.31) * 7 : 16 + r(9.71) * 34;
+              const sponge = SHARD_COLORS[i % SHARD_COLORS.length];
+              const icing = SHARD_COLORS[(i + 3) % SHARD_COLORS.length];
+              // lumpy, hand-torn silhouette rather than a circle or a square
+              const rad = [r(3.1), r(5.7), r(8.3), r(11.9), r(14.2), r(17.4), r(20.8), r(23.6)]
+                .map((v) => `${Math.round(28 + v * 52)}%`);
               return (
                 <span
                   key={i}
                   className="jp-shard"
                   style={
                     {
-                      background: SHARD_COLORS[i % SHARD_COLORS.length],
-                      width: 12 + (i % 5) * 11,
-                      height: 10 + (i % 4) * 13,
-                      borderRadius: i % 2 ? "50%" : "3px",
+                      background: crumb
+                        ? sponge
+                        : `linear-gradient(${Math.round(r(31.7) * 360)}deg, ${icing} 0 ${Math.round(
+                            22 + r(6.6) * 20,
+                          )}%, ${sponge} ${Math.round(30 + r(6.6) * 20)}% 100%)`,
+                      width: size * (crumb ? 1 : 0.7 + r(27.1) * 0.9),
+                      height: size,
+                      borderRadius: `${rad[0]} ${rad[1]} ${rad[2]} ${rad[3]} / ${rad[4]} ${rad[5]} ${rad[6]} ${rad[7]}`,
+                      opacity: 0,
                       ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
-                      ["--dy" as string]: `${Math.round(Math.sin((a * Math.PI) / 180) * dist - 70)}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (200 + i * 26)}deg`,
-                      animationDelay: `${(i % 6) * 0.015}s`,
+                      ["--dy" as string]: `${Math.round(
+                        Math.sin((a * Math.PI) / 180) * dist - 90 - r(41.3) * 120,
+                      )}px`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (240 + r(55.5) * 620)}deg`,
+                      animationDelay: `${(r(63.7) * 0.22).toFixed(3)}s`,
+                      animationDuration: `${(2.5 + r(71.9) * 1.1).toFixed(2)}s`,
                     } as React.CSSProperties
                   }
                 />
               );
             })}
           </div>
+
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
