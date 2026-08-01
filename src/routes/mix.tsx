@@ -27,8 +27,9 @@ type Item = {
   id: string;
   name: string;
   mode: string | null;
-  copy: string | null;
+  copy_text: string | null;
 };
+
 
 const MAX = 3;
 
@@ -55,10 +56,11 @@ function MixPage() {
     (async () => {
       const { data, error } = await supabase
         .from("designs")
-        .select("id, name, mode:data->>mode, copy:data->result->>copy")
+        .select("id, name, mode, copy_text")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(36);
+
       if (cancelled) return;
       if (error) {
         console.error("[mix] load failed", error);
@@ -102,8 +104,9 @@ function MixPage() {
       }
 
       const copyBits = chosen
-        .filter((c) => c.mode === "copy" && c.copy)
-        .map((c) => `"${(c.copy as string).slice(0, 400)}"`);
+        .filter((c) => c.mode === "copy" && c.copy_text)
+        .map((c) => `"${(c.copy_text as string).slice(0, 400)}"`);
+
 
       const wish = [
         `Mix ${chosen.length} saved Layercake elements into ONE new coherent visual.`,
