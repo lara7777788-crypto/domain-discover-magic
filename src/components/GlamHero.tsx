@@ -20,7 +20,7 @@ import {
 
 
 const RAYS = 28;
-const SHARDS = 46;
+const SHARDS = 72;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
