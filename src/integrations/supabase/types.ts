@@ -85,6 +85,39 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_events: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          source?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       credit_rollovers: {
         Row: {
           amount: number
@@ -125,6 +158,7 @@ export type Database = {
           mode: string | null
           name: string
           preview_url: string | null
+          prompt_text: string | null
           thumb_url: string | null
           updated_at: string
           user_id: string
@@ -138,6 +172,7 @@ export type Database = {
           mode?: string | null
           name?: string
           preview_url?: string | null
+          prompt_text?: string | null
           thumb_url?: string | null
           updated_at?: string
           user_id: string
@@ -151,6 +186,7 @@ export type Database = {
           mode?: string | null
           name?: string
           preview_url?: string | null
+          prompt_text?: string | null
           thumb_url?: string | null
           updated_at?: string
           user_id?: string
@@ -352,7 +388,7 @@ export type Database = {
         }[]
       }
       spend_credits: {
-        Args: { p_amount: number; p_user_id: string }
+        Args: { p_amount: number; p_source?: string; p_user_id: string }
         Returns: {
           balance: number
           monthly_remaining: number
