@@ -11,6 +11,10 @@ export type Wallet = {
 
 const EMPTY: Wallet = { balance: 0, monthlyLeft: 0, monthlyAllowance: 0, isAdmin: false };
 
+/** Code typed on the sign-in page before a session existed — redeemed on first authed load. */
+export const PENDING_CODE_KEY = "lc_pending_code";
+
+
 /** Reads the signed-in user's remaining slices (monthly allowance + purchased packs). */
 export function useCredits() {
   const { user } = useAuth();
