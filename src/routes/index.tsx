@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
 });
 
 
-const SPLASH_KEY = "lc_splash_seen_at";
+const SPLASH_KEY = "lc_splash_seen_at_v2";
 const SPLASH_TTL = 60 * 60 * 1000; // 1 hour
 
 function Splash() {
