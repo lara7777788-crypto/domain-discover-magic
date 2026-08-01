@@ -43,8 +43,13 @@ const COPY = {
     sub: "Layercake — make the noise work for you.",
     lede:
       "One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to match. Baked layer by layer, in your taste.",
-    cta: "Try a slice — free",
+    hopIn: "HOP IN",
+    hopInTag: "enter the studio",
+    promo: "Try a free slice",
+    promoTag: "on the house",
+    cta: "Try a free slice",
     ctaTag: "one slice",
+
     link: "See what comes out ↓",
     fine: "First slice on the house · no subscription to try",
     mark: "Layercake: control your noise",
