@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { SavePayload } from "@/components/SaveSheet";
-import { buildIcingFilter, renderIcedStageToPayload } from "@/lib/icing-render";
+import { buildIcingFilter } from "@/lib/icing-render";
 
 type Sticker = { id: string; emoji: string; x: number; y: number; size: number };
 
@@ -91,17 +91,9 @@ export function IcingPanel({
   const removeSticker = (id: string) =>
     setIcing({ ...icing, stickers: icing.stickers.filter((s) => s.id !== id) });
 
-  const handleDownloadClick = () => {
-    try {
-      const payload = renderIcedStageToPayload(stageRef.current, icing);
-      // Always open the Save screen — works in preview iframe, desktop, and mobile.
-      // The Save screen has a real <img> (drag/right-click/long-press save)
-      // and a Download button that works on the published site.
-      onDownload(payload);
-    } catch (e) {
-      onDownloadError?.(e instanceof Error ? e.message : "Download failed");
-    }
-  };
+  void onDownload;
+  void onDownloadError;
+
 
   return (
     <div className="rounded-3xl border border-white bg-white/80 p-4 shadow-[0_30px_60px_-30px_rgba(62,31,112,0.4)] backdrop-blur">
@@ -220,12 +212,9 @@ export function IcingPanel({
           <div className="text-xs text-foreground/50">
             Icing menu (soon): animated MP4 · sound stings · effect packs · sticker bundles · ~$0.50 each
           </div>
-          <button
-            onClick={handleDownloadClick}
-            className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-          >
-            Download ↓
-          </button>
+          <p className="text-xs font-medium text-foreground/60">
+            Save to your gallery to download ↓
+          </p>
         </div>
       </div>
     </div>
