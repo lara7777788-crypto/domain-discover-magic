@@ -444,9 +444,6 @@ function BakePage() {
       <h1 className="sr-only">{isCopy ? "Whip a copy ingredient" : "Bake a new slice"}</h1>
       {/* Top bar */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-5 md:px-10">
-        <Link to="/" className="pointer-events-auto shrink-0 font-display text-base font-semibold text-foreground/70 transition hover:text-foreground max-[480px]:w-7 max-[480px]:overflow-hidden max-[480px]:whitespace-nowrap">
-          ← layercake
-        </Link>
         <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-end gap-2 overflow-x-auto pr-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3">
           {/* Mode toggle */}
           <div className="flex shrink-0 items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
