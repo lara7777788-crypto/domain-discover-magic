@@ -17,6 +17,8 @@ const InputSchema = z.object({
   logo: z.string().max(200).optional().default(""),
   extra: z.string().max(500).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
+  // What this generation is for — drives how many slices it costs.
+  intent: z.enum(["image", "mix", "effects"]).optional().default("image"),
   // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
   referenceImage: DataUrl.optional(),
   // Up to 3 reference images.
@@ -25,10 +27,19 @@ const InputSchema = z.object({
 
 export type GenerateInput = z.infer<typeof InputSchema>;
 
+export const GENERATE_COST: Record<GenerateInput["intent"], number> = {
+  image: 1,
+  mix: 2,
+  effects: 1,
+};
+
 export type GenerateResult = {
   prompt: string;
   imageDataUrl: string;
+  creditsLeft: number;
+  monthlyLeft: number;
 };
+
 
 const FORMAT_HINTS: Record<GenerateInput["format"], string> = {
   social: "1:1 square Instagram post, optimized for mobile feeds, eye-catching focal point",
