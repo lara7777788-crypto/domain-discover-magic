@@ -172,7 +172,7 @@ export function SaveSheet({
         </h2>
 
         <p className="mt-3 text-sm text-foreground/65">
-          Press and hold the image, then tap Save to Photos.
+          Tap Download to save it straight to your device — no extra tabs.
         </p>
 
         <div className="mt-5 overflow-hidden rounded-2xl bg-foreground/5">
