@@ -249,9 +249,9 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                 return s - Math.floor(s);
               };
               const a = (360 / SHARDS) * i + r(12.9898) * 26 - 13;
-              const dist = 190 + r(78.233) * 320;
-              const crumb = i % 4 === 3;
-              const size = crumb ? 5 + r(4.31) * 7 : 16 + r(9.71) * 34;
+              const dist = 70 + r(78.233) * 90;
+              const crumb = i % 3 === 2;
+              const size = crumb ? 5 + r(4.31) * 5 : 10 + r(9.71) * 14;
               const sponge = SHARD_COLORS[i % SHARD_COLORS.length];
               const icing = SHARD_COLORS[(i + 3) % SHARD_COLORS.length];
               // lumpy, hand-torn silhouette rather than a circle or a square
@@ -337,7 +337,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* flash + wipe */}
-      <div aria-hidden className="jp-flash" />
+      
     </section>
   );
 }
