@@ -9,6 +9,9 @@ import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPan
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { renderIcedImageToDataUrl } from "@/lib/icing-render";
 import { makeThumb } from "@/lib/thumb";
+import { useCredits } from "@/hooks/useCredits";
+import { CreditMeter } from "@/components/CreditMeter";
+
 
 type Mode = "image" | "copy";
 
