@@ -100,17 +100,19 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     const HAPTIC_LEAD = 45; // vibration motor spin-up
 
     // croak fires on the crouch so its accent note peaks on the push-off
-    playRibbet();
+    playRibbet(1.15);
     buzz(12);
 
     hapticTimer.current = window.setTimeout(
       () => buzz([28, 40, 70]),
       IMPACT - HAPTIC_LEAD,
     );
-    sfxTimer.current = window.setTimeout(
-      () => playSmash(AUDIO_LEAD / 1000),
-      IMPACT - AUDIO_LEAD,
-    );
+    sfxTimer.current = window.setTimeout(() => {
+      playSmash(AUDIO_LEAD / 1000);
+      // second "RIBBIT!" right on the impact frame
+      playRibbet(1.1);
+    }, IMPACT - AUDIO_LEAD);
+
     timer.current = window.setTimeout(onEnter, 1500);
   };
 
