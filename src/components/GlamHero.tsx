@@ -13,7 +13,7 @@ import { playRibbet, playSmash, buzz, primeAudio } from "../lib/smash-sfx";
 
 
 const RAYS = 28;
-const SHARDS = 26;
+const SHARDS = 46;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
@@ -241,8 +241,8 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
           {/* shards, only visible during the smash */}
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
-              const a = (360 / SHARDS) * i + (i % 3) * 5;
-              const dist = 220 + (i % 5) * 70;
+              const a = (360 / SHARDS) * i + (i % 3) * 7;
+              const dist = 260 + (i % 6) * 90;
               return (
                 <span
                   key={i}
@@ -250,16 +250,19 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                   style={
                     {
                       background: SHARD_COLORS[i % SHARD_COLORS.length],
-                      width: 10 + (i % 4) * 8,
-                      height: 8 + (i % 3) * 10,
+                      width: 12 + (i % 5) * 11,
+                      height: 10 + (i % 4) * 13,
                       borderRadius: i % 2 ? "50%" : "3px",
                       ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
-                      ["--dy" as string]: `${Math.round(Math.sin((a * Math.PI) / 180) * dist - 60)}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (180 + i * 22)}deg`,
-                      animationDelay: `${(i % 6) * 0.02}s`,
+                      ["--dy" as string]: `${Math.round(Math.sin((a * Math.PI) / 180) * dist - 70)}px`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (200 + i * 26)}deg`,
+                      animationDelay: `${(i % 6) * 0.015}s`,
                     } as React.CSSProperties
                   }
                 />
+              );
+            })}
+
               );
             })}
           </div>
