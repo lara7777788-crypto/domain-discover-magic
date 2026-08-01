@@ -50,6 +50,7 @@ function SlicesPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [discovering, setDiscovering] = useState(false);
 
   const isCopyTab = tab === "copy";
 
@@ -83,6 +84,7 @@ function SlicesPage() {
     setError(null);
     setSlices(null);
     setFailedPreviews({});
+    setDiscovering(true);
 
     (async () => {
       // 1) Metadata first — retried, because the DB can time out under load.
@@ -90,13 +92,16 @@ function SlicesPage() {
       for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
         const { data, error } = await supabase
           .from("designs")
-          .select("id, name, is_unlocked, updated_at, mode:data->>mode, copy:data->result->>copy")
+          // Never touch `data` here: older image rows also contain a second
+          // multi-megabyte image inside that JSON, which made this lightweight
+          // gallery request time out before any card could load.
+          .select("id, name, is_unlocked, updated_at")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
           .limit(36);
         if (cancelled) return;
         if (!error) {
-          rows = (data ?? []) as unknown as SliceMeta[];
+          rows = (data ?? []).map((row) => ({ ...row, mode: null, copy: null })) as SliceMeta[];
           break;
         }
         console.error("[slices] metadata attempt failed", attempt, error);
@@ -106,6 +111,7 @@ function SlicesPage() {
       if (!rows) {
         setError("Failed to load your slices. Please refresh and try again.");
         setSlices([]);
+        setDiscovering(false);
         return;
       }
 
@@ -114,8 +120,10 @@ function SlicesPage() {
       // 2) Previews are heavy base64 blobs. Fetch them ONE row at a time with a
       // retry — batching several blobs in a single query causes statement
       // timeouts, which is why tiles used to stay empty forever.
-      const imageRows = rows.filter((r) => r.mode !== "copy");
-      const CONCURRENCY = 2;
+       const imageRows = rows;
+       // A single worker is intentional. Two simultaneous 2–3 MB base64 rows
+       // can exceed the database statement budget on mobile connections.
+       const CONCURRENCY = 1;
       let cursor = 0;
 
       const worker = async () => {
@@ -139,17 +147,42 @@ function SlicesPage() {
             await sleep(500 * (attempt + 1));
           }
           if (cancelled) return;
-          if (url) {
+           if (url) {
             setSlices((current) =>
-              current?.map((s) => (s.id === row.id ? { ...s, preview_url: url } : s)) ?? current,
+               current?.map((s) => (s.id === row.id ? { ...s, mode: "image", preview_url: url } : s)) ?? current,
             );
           } else {
-            setFailedPreviews((f) => ({ ...f, [row.id]: true }));
+             // Saved copy has no preview image. Only inspect its JSON after we
+             // know it is copy, so image records never deserialize the second
+             // embedded base64 payload stored in older rows.
+             const { data: copyRow, error: copyError } = await supabase
+               .from("designs")
+               .select("data")
+               .eq("id", row.id)
+               .eq("user_id", user.id)
+               .maybeSingle();
+             if (cancelled) return;
+             const payload = copyRow?.data as { mode?: string; result?: { copy?: string } } | null;
+             if (!copyError && payload?.mode === "copy") {
+               setSlices((current) =>
+                 current?.map((s) =>
+                   s.id === row.id
+                     ? { ...s, mode: "copy", copy: payload.result?.copy ?? null }
+                     : s,
+                 ) ?? current,
+               );
+             } else {
+               setSlices((current) =>
+                 current?.map((s) => (s.id === row.id ? { ...s, mode: "image" } : s)) ?? current,
+               );
+               setFailedPreviews((f) => ({ ...f, [row.id]: true }));
+             }
           }
         }
       };
 
       await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+       if (!cancelled) setDiscovering(false);
     })();
 
     return () => {
@@ -264,6 +297,10 @@ function SlicesPage() {
               </div>
             ))}
           </div>
+        ) : visible.length === 0 && discovering ? (
+          <div className="mt-12 rounded-3xl border border-white bg-white/70 p-12 text-center backdrop-blur">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-foreground/45">Loading…</p>
+          </div>
         ) : visible.length === 0 ? (
           <div className="mt-12 rounded-3xl border border-white bg-white/70 p-12 text-center backdrop-blur">
             <p className="text-foreground/60">{isCopyTab ? "No icing yet." : "No slices yet."}</p>
@@ -299,6 +336,14 @@ function SlicesPage() {
                           alt={s.name}
                           loading="lazy"
                           decoding="async"
+                           onError={() => {
+                             setSlices((current) =>
+                               current?.map((item) =>
+                                 item.id === s.id ? { ...item, preview_url: null } : item,
+                               ) ?? current,
+                             );
+                             setFailedPreviews((failed) => ({ ...failed, [s.id]: true }));
+                           }}
                           className="h-full w-full object-cover"
                         />
                       ) : failedPreviews[s.id] ? (
