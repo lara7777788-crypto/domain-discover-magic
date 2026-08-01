@@ -9,7 +9,14 @@ import markImg from "../assets/jp-mark.webp";
 import frogCatImg from "../assets/jp-frogcat-big.webp";
 import lotusImg from "../assets/jp-lotus.webp";
 
-import { playRibbet, playSmash, buzz, primeAudio } from "../lib/smash-sfx";
+import {
+  playRibbet,
+  playSmash,
+  buzz,
+  primeAudio,
+  startKittenAmbience,
+  stopKittenAmbience,
+} from "../lib/smash-sfx";
 
 
 const RAYS = 28;
@@ -79,19 +86,31 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     primeAudio();
     const id = window.setTimeout(() => setLit(true), 100);
 
+    // the kitten purrs (with the odd tiny meow) once audio is unlocked by a
+    // gesture, and goes quiet the moment the toad leaps
+    const wake = () => startKittenAmbience();
+    window.addEventListener("pointerdown", wake, { passive: true });
+    window.addEventListener("keydown", wake);
+    window.addEventListener("pointermove", wake, { passive: true, once: true });
+
     return () => {
       clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
 
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
       if (hapticTimer.current) clearTimeout(hapticTimer.current);
-
+      window.removeEventListener("pointerdown", wake);
+      window.removeEventListener("keydown", wake);
+      window.removeEventListener("pointermove", wake);
+      stopKittenAmbience();
     };
   }, []);
 
   const handleSmash = () => {
     if (smashing) return;
     setSmashing(true);
+    stopKittenAmbience();
+
 
     // Timing contract (must stay in sync with .is-smashing rules in styles.css):
     //   0ms    click — frog crouches
