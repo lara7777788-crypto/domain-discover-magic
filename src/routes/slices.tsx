@@ -36,6 +36,7 @@ type Slice = {
   updated_at: string;
   mode: string | null;
   copy: string | null;
+  prompt: string | null;
 };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
