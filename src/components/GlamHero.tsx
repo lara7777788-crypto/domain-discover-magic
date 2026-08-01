@@ -14,7 +14,7 @@ import lotusImg from "../assets/jp-lotus.webp";
 
 
 const RAYS = 28;
-const SHARDS = 72;
+const SHARDS = 14;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
@@ -108,7 +108,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
 
   return (
-    <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
+    <section className={`jp-stage relative z-10 overflow-hidden ${hopping ? "is-hopping" : ""}`}>
       {/* lotus pond backdrop */}
       <div aria-hidden className="jp-pond" style={{ backgroundImage: `url(${pondImg})` }} />
       {/* lily pads + lotus, sitting in front of the pond but behind the sunburst rays */}
@@ -119,7 +119,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* small promotional badge, upper-left — subordinate to HOP IN */}
-      <button type="button" onClick={handleSmash} className="jp-promo" lang={lang}>
+      <button type="button" onClick={onEnter} className="jp-promo" lang={lang}>
         <span className="jp-promo-star" aria-hidden>✦</span>
         <span className="jp-promo-main">{t.promo}</span>
         <span className="jp-promo-tag">{t.promoTag}</span>
@@ -289,12 +289,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4">
-          <button type="button" onClick={handleSmash} className="btn-jp btn-hopin" lang={lang}>
+          <button type="button" onClick={onEnter} className="btn-jp btn-hopin" lang={lang}>
             {t.hopIn}
             <i lang={lang}>{t.hopInTag}</i>
           </button>
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6">
-            <button type="button" onClick={handleSmash} className="jp-secondary" lang={lang}>
+            <button type="button" onClick={onEnter} className="jp-secondary" lang={lang}>
               {t.cta}
             </button>
             <a href="#showcase" className="jp-link" lang={lang}>
