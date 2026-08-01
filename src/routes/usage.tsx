@@ -164,6 +164,10 @@ function UsagePage() {
           <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
 
+        <LowSliceSettings />
+
+
+
         {events === null ? (
           <div className="mt-10 rounded-3xl border border-white bg-white/70 p-12 text-center backdrop-blur">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-foreground/45">
