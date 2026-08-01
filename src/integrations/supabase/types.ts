@@ -87,32 +87,41 @@ export type Database = {
       }
       designs: {
         Row: {
+          copy_text: string | null
           created_at: string
           data: Json
           id: string
           is_unlocked: boolean
+          mode: string | null
           name: string
           preview_url: string | null
+          thumb_url: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          copy_text?: string | null
           created_at?: string
           data?: Json
           id?: string
           is_unlocked?: boolean
+          mode?: string | null
           name?: string
           preview_url?: string | null
+          thumb_url?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          copy_text?: string | null
           created_at?: string
           data?: Json
           id?: string
           is_unlocked?: boolean
+          mode?: string | null
           name?: string
           preview_url?: string | null
+          thumb_url?: string | null
           updated_at?: string
           user_id?: string
         }

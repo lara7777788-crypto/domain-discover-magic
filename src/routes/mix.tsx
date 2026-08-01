@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
 import { generate } from "@/lib/generate.functions";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
+import { makeThumb } from "@/lib/thumb";
 
 export const Route = createFileRoute("/mix")({
   head: () => ({
@@ -145,6 +146,8 @@ function MixPage() {
           user_id: user.id,
           name,
           preview_url: result.imageDataUrl,
+          mode: "image",
+          thumb_url: await makeThumb(result.imageDataUrl),
           data: { mode: "image", source: "mix", direction, result },
         })
         .select("id")

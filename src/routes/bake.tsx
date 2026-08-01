@@ -8,6 +8,7 @@ import { ChipRow } from "@/components/ChipRow";
 import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { renderIcedImageToDataUrl } from "@/lib/icing-render";
+import { makeThumb } from "@/lib/thumb";
 
 type Mode = "image" | "copy";
 
@@ -318,11 +319,16 @@ function BakePage() {
     setSaving(true);
     setSaveNotice(null);
     try {
+      const previewUrl = payload.previewUrl ?? payload.result?.imageDataUrl ?? null;
       const row = {
         data: payload,
         name,
-        preview_url: payload.previewUrl ?? payload.result?.imageDataUrl ?? null,
+        preview_url: previewUrl,
+        mode: payload.mode,
+        copy_text: payload.mode === "copy" ? (payload.result?.copy ?? null) : null,
+        thumb_url: previewUrl ? await makeThumb(previewUrl) : null,
       };
+
 
       if (savedId) {
         const { data, error } = await supabase

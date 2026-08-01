@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
 import { generate } from "@/lib/generate.functions";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
+import { makeThumb } from "@/lib/thumb";
 
 export const Route = createFileRoute("/effects")({
   head: () => ({
@@ -151,6 +152,8 @@ function EffectsPage() {
           user_id: user.id,
           name: `${word.trim() || "Logo"} · ${chosen.label}`,
           preview_url: result.imageDataUrl,
+          mode: "image",
+          thumb_url: await makeThumb(result.imageDataUrl),
           data: { mode: "image", source: "effects", effect: chosen.key, word, palette, result },
         })
         .select("id")
