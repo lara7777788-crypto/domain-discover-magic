@@ -166,5 +166,5 @@ export const generateCopy = createServerFn({ method: "POST" })
       );
     }
 
-    return { prompt: brief, copy };
+    return { prompt: brief, copy, creditsLeft, monthlyLeft };
   });
