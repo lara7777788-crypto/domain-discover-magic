@@ -179,6 +179,9 @@ export type Database = {
           email: string | null
           id: string
           is_pro: boolean
+          monthly_allowance: number
+          period_start: string
+          period_used: number
           pro_until: string | null
           slice_credits: number
           updated_at: string
@@ -189,6 +192,9 @@ export type Database = {
           email?: string | null
           id: string
           is_pro?: boolean
+          monthly_allowance?: number
+          period_start?: string
+          period_used?: number
           pro_until?: string | null
           slice_credits?: number
           updated_at?: string
@@ -199,6 +205,9 @@ export type Database = {
           email?: string | null
           id?: string
           is_pro?: boolean
+          monthly_allowance?: number
+          period_start?: string
+          period_used?: number
           pro_until?: string | null
           slice_credits?: number
           updated_at?: string
@@ -279,6 +288,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      credit_status: {
+        Args: { p_user_id: string }
+        Returns: {
+          balance: number
+          is_admin: boolean
+          monthly_allowance: number
+          monthly_remaining: number
+        }[]
+      }
       current_user_is_pro: { Args: { check_env?: string }; Returns: boolean }
       grant_slice_credits: {
         Args: { p_amount: number; p_user_id: string }
@@ -302,11 +320,19 @@ export type Database = {
           granted: number
         }[]
       }
+      spend_credits: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: {
+          balance: number
+          monthly_remaining: number
+        }[]
+      }
       spend_generation_credit: { Args: { p_user_id: string }; Returns: number }
       spend_slice_credit: {
         Args: { p_slice_id: string; p_user_id: string }
         Returns: number
       }
+      sync_credit_period: { Args: { p_user_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin"
