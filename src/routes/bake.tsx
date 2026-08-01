@@ -326,7 +326,7 @@ function BakePage() {
     try {
       const res = isCopy
         ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat } })
-        : await generate({ data: { ...currentValues, format: format as ImageFormat } });
+        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImage ? { referenceImage } : {}) } });
       setResult(res);
       goTo(LAYERS.length);
       // No auto-save — user saves manually via the Save button on the result.
