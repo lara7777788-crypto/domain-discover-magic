@@ -133,8 +133,6 @@ export const generate = createServerFn({ method: "POST" })
           "You're out of slices. Subscribe or buy a pack to keep generating.",
         );
       }
-        );
-      }
       console.error("[generate] spend credit failed", spendErr);
       throw new Error("An unexpected error occurred. Please try again.");
     }
