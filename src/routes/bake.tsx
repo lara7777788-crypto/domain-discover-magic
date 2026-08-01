@@ -456,7 +456,7 @@ function BakePage() {
               search={{ slice: sliceId, remix: remixId, mode: "copy" as Mode }}
               className={`rounded-full px-3 py-1 transition ${isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
-              Copy
+              Icing
             </Link>
           </div>
           {result && (
