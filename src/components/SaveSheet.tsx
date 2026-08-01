@@ -184,71 +184,24 @@ export function SaveSheet({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-          {gated ? (
-            <>
-              <a
-                href="/pricing"
-                className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
-              >
-                Go Pro — $20/mo
-              </a>
-              {credits > 0 ? (
-                <button
-                  disabled={spending}
-                  onClick={async () => {
-                    if (!payload.sliceId) return;
-                    setSpending(true);
-                    try {
-                      const res = await spendSliceCredit({ data: { sliceId: payload.sliceId } });
-                      setCredits(res.remaining);
-                      window.location.reload();
-                    } finally {
-                      setSpending(false);
-                    }
-                  }}
-                  className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-50"
-                >
-                  {spending ? "Unlocking…" : `Use 1 credit (${credits} left)`}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (!user) return;
-                    openCheckout({
-                      priceId: "slice_pack_10",
-                      
-                      customerEmail: user.email ?? undefined,
-                      returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
-                    });
-                  }}
-                  className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-                >
-                  Get 10 unlocks — $3
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              {canShare && (
-                <button
-                  onClick={onShare}
-                  className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
-                >
-                  Share / Save…
-                </button>
-              )}
-              <a
-                href={payload.url}
-                download={payload.filename}
-                onClick={onSaveImage}
-                className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-              >
-                Download ↓
-              </a>
-
-            </>
+          {canShare && (
+            <button
+              onClick={onShare}
+              className="rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-foreground/10"
+            >
+              Share / Save…
+            </button>
           )}
+          <a
+            href={payload.url}
+            download={payload.filename}
+            onClick={onSaveImage}
+            className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
+          >
+            Download ↓
+          </a>
         </div>
+
 
         {saveNote && (
           <p className="mt-3 text-xs font-medium text-foreground/70">{saveNote}</p>
