@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 export function TopNav() {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const linkClass =
     "shrink-0 whitespace-nowrap rounded-full bg-white/60 px-4 py-2.5 text-foreground/70 transition hover:bg-white hover:text-foreground sm:px-5";
   const activeClass =
