@@ -6,7 +6,21 @@ import { useAuth } from "@/lib/auth-context";
 import { formatSlices, useCredits } from "@/hooks/useCredits";
 
 const DISMISS_KEY = "lc_low_slice_dismissed_at";
-const TOAST_KEY = "lc_low_slice_toasted";
+const NOTIFIED_KEY = "lc_low_slice_notified_at";
+const COOLDOWN_KEY = "lc_low_slice_cooldown_hours";
+const DEFAULT_COOLDOWN_HOURS = 24;
+
+/** How long to stay quiet after a low-slice alert (hours, persisted locally). */
+export function getLowSliceCooldownHours() {
+  if (typeof window === "undefined") return DEFAULT_COOLDOWN_HOURS;
+  const raw = Number(window.localStorage.getItem(COOLDOWN_KEY));
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_COOLDOWN_HOURS;
+}
+
+export function setLowSliceCooldownHours(hours: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(COOLDOWN_KEY, String(hours));
+}
 
 /** Reads the signed-in user's low-slice threshold (default 10). */
 export function useLowSliceThreshold() {
@@ -77,10 +91,13 @@ export function LowSliceAlert() {
       setDismissed(true);
       return;
     }
+    const cooldownMs = getLowSliceCooldownHours() * 60 * 60 * 1000;
+    const notifiedAt = Number(window.localStorage.getItem(NOTIFIED_KEY) ?? 0);
+    const inCooldown = Date.now() - notifiedAt < cooldownMs;
     const dismissedAt = Number(window.sessionStorage.getItem(DISMISS_KEY) ?? 0);
-    setDismissed(Date.now() - dismissedAt < 1000 * 60 * 60);
-    if (!window.sessionStorage.getItem(TOAST_KEY)) {
-      window.sessionStorage.setItem(TOAST_KEY, "1");
+    setDismissed(inCooldown || Date.now() - dismissedAt < 1000 * 60 * 60);
+    if (!inCooldown) {
+      window.localStorage.setItem(NOTIFIED_KEY, String(Date.now()));
       toast(
         total <= 0
           ? "You're out of slices 🍰"
@@ -140,6 +157,10 @@ export function LowSliceAlert() {
 export function LowSliceSettings() {
   const { threshold, emailOptIn, save } = useLowSliceThreshold();
   const [value, setValue] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(DEFAULT_COOLDOWN_HOURS);
+  useEffect(() => {
+    setCooldown(getLowSliceCooldownHours());
+  }, []);
   const shown = value ?? String(threshold);
 
   return (
@@ -177,6 +198,31 @@ export function LowSliceSettings() {
           />
           Email me too
         </label>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="text-sm text-foreground/70" htmlFor="lowSliceCooldown">
+          Remind me at most once every
+        </label>
+        <select
+          id="lowSliceCooldown"
+          value={String(cooldown)}
+          onChange={(e) => {
+            const h = Number(e.target.value);
+            setCooldown(h);
+            setLowSliceCooldownHours(h);
+          }}
+          className="rounded-full border border-foreground/10 bg-white px-4 py-2 text-sm text-foreground"
+        >
+          <option value="1">hour</option>
+          <option value="6">6 hours</option>
+          <option value="12">12 hours</option>
+          <option value="24">day</option>
+          <option value="72">3 days</option>
+          <option value="168">week</option>
+        </select>
+        <span className="text-sm text-foreground/50">
+          Keeps batch generations from spamming you.
+        </span>
       </div>
     </div>
   );
