@@ -841,67 +841,61 @@
     0 4px 10px rgba(27, 20, 16, 0.22);
 }
 
-/* ── hero hop-and-smash sequence ────────────────────────────────────────────
-   One cause, one effect: the frog hops, the frog lands, the cake smashes.
-   0ms      calm beat, anticipatory crouch
-   450ms    push-off, graceful arc
-   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
-   1.2–2.8s frog flails on the wreck, cake bulges then settles
-   2.9–4.2s the wipe carries the page turn
-   Keep these numbers in sync with handleSmash() in GlamHero.tsx.          */
-.is-smashing .jp-frog {
+/* ── hero hop-and-squash sequence ───────────────────────────────────────────
+   One cause, one effect: the frog hops, the frog lands, the cake squashes.
+   The class lands 500ms after mount, so the composition reads calm first.
+   0ms     anticipation crouch
+   180ms   push-off, one readable arc (light up, faster down)
+   680ms   LANDING — cake compresses, a few crumbs lift, "RIBBIT!!" pops
+   0.68–1.4s  one small rebound, then everything settles
+   Keep these numbers in sync with the effect in GlamHero.tsx.             */
+.is-hopping .jp-frog {
   animation:
-    jpLeap 700ms cubic-bezier(.34,.06,.42,1) 450ms both,
-    jpFlail 1750ms cubic-bezier(.2,.8,.3,1) 1150ms forwards;
+    jpLeap 680ms cubic-bezier(.45,.02,.55,1) both,
+    jpFrogSettle 460ms cubic-bezier(.22,.9,.3,1) 680ms forwards;
 }
-.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out 470ms forwards; }
-.is-smashing .jp-cake { animation: jpSmash 2500ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 900ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 1500ms cubic-bezier(.15,.75,.4,1) 1160ms forwards; }
-.is-smashing .jp-ribbit { animation: jpRibbit 1500ms cubic-bezier(.2,1.2,.3,1) 1150ms forwards; }
-.is-smashing .jp-layer-tag { animation: jpJolt 1100ms ease-out 1160ms forwards; }
-.is-smashing .jp-title,
-.is-smashing .jp-jp,
-.is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpJolt 900ms ease-out 1160ms forwards; }
-.is-smashing .jp-flash { animation: jpFlash 3050ms linear 1150ms forwards; }
+.is-hopping .jp-pad { animation: jpPadRipple 520ms ease-out 200ms forwards; }
+.is-hopping .jp-cake { animation: jpSmash 760ms cubic-bezier(.24,.9,.32,1) 680ms forwards; }
+.is-hopping .jp-disc { animation: jpDiscPop 520ms cubic-bezier(.2,.9,.3,1) 680ms forwards; }
+.is-hopping .jp-shard { animation: jpShard 760ms cubic-bezier(.15,.75,.4,1) 690ms forwards; }
+.is-hopping .jp-ribbit { animation: jpRibbit 1000ms cubic-bezier(.2,1.2,.3,1) 680ms forwards; }
+/* the labels hold still — the composition must not jump around */
 
 
 
-/* the cake compresses under the landing, bulges sideways, rebounds a little
+/* the cake compresses under the landing, bulges sideways, rebounds once
    and settles — squashed but still recognisably a layer cake */
 @keyframes jpSmash {
-  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
-  6% { transform: translateY(16px) scale(1.28, 0.62) rotate(0deg); filter: brightness(1.12); }
-  12% { transform: translateY(22px) scale(1.4, 0.5) rotate(-1deg); filter: brightness(1.18); }
-  26% { transform: translateY(10px) scale(1.08, 0.78) rotate(1.5deg); filter: brightness(1.06); }
-  40% { transform: translateY(18px) scale(1.2, 0.62) rotate(-1deg); }
-  58% { transform: translateY(15px) scale(1.15, 0.66) rotate(0.6deg); }
-  100% { transform: translateY(16px) scale(1.16, 0.65) rotate(0.4deg); }
+  0% { transform: translateY(0) scale(1, 1); }
+  12% { transform: translateY(20px) scale(1.22, 0.66); }
+  40% { transform: translateY(6px) scale(0.98, 1.05); }
+  70% { transform: translateY(15px) scale(1.12, 0.8); }
+  100% { transform: translateY(13px) scale(1.1, 0.82); }
 }
 
 /* a single soft impact ring under the cake */
 @keyframes jpDiscPop {
   0% { transform: scale(1); opacity: 1; }
-  18% { transform: scale(1.16); opacity: 0.95; }
+  25% { transform: scale(1.14); opacity: 0.95; }
   100% { transform: scale(1.06); opacity: 1; }
 }
 
-/* icing and crumbs jump up off the cake, arc out and fall back down */
+/* a few crumbs lift off the cake and drop straight back down */
 @keyframes jpShard {
-  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5); }
-  6% { opacity: 1; }
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.6); }
+  10% { opacity: 1; }
   45% {
     opacity: 1;
-    transform: translate3d(calc(var(--dx) * 0.55), calc(var(--dy) * 0.6), 0)
-      rotate(calc(var(--rot) * 0.4)) scale(1);
+    transform: translate3d(calc(var(--dx) * 0.6), var(--dy), 0)
+      rotate(calc(var(--rot) * 0.5)) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate3d(calc(var(--dx) * 0.9), calc(var(--dy) * 0.35 + 240px), 0)
-      rotate(calc(var(--rot) * 0.8)) scale(0.9);
+    transform: translate3d(var(--dx), calc(var(--dy) * 0.2 + 60px), 0)
+      rotate(var(--rot)) scale(0.9);
   }
 }
+
 
 /* the frog's line, popping in on the landing frame */
 .jp-ribbit {
@@ -938,33 +932,8 @@
   26% { transform: translateY(-2px) scale(1.004); }
   100% { transform: translateY(0) scale(1); }
 }
-@keyframes jpBlast {
-  0% { transform: scale(1); opacity: 1; }
-  20% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
 
-@keyframes jpSunRush {
-  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) scale(2.4) rotate(150deg); opacity: 0; }
-}
-.jp-flash {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(closest-side, #FFFFFF 0%, #F6D8EA 40%, #E8368F 70%, #7C6BD9 100%);
-}
-/* a soft puff of light on the landing frame, then it stays out of the way
-   while the cake settles, and only at the end blooms into the page-turn wipe */
-@keyframes jpFlash {
-  0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
-  4% { opacity: 0.45; transform: scale(1.6); border-radius: 0; }
-  14% { opacity: 0.06; transform: scale(1.8); }
-  55% { opacity: 0.05; transform: scale(1.9); }
-  100% { opacity: 1; transform: scale(2.8); }
-}
+
 
 /* upper-left promotional badge — deliberately small next to HOP IN */
 .jp-promo {
@@ -1219,28 +1188,23 @@
   transform-origin: 50% 100%;
 }
 @keyframes jpCroak { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.96); } }
-/* 700ms hop: light anticipatory crouch, graceful arc up, faster fall, and a
-   hard squash on the landing frame — which is the exact frame the cake reacts. */
+/* 680ms hop: a quick anticipatory crouch, one readable arc — light going up,
+   faster coming down — and a squash on the landing frame, the exact frame the
+   cake reacts on. */
 @keyframes jpLeap {
   0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
-  8% { transform: translate(-4px, 6px) scale(1.1, 0.86) rotate(0deg); }
-  20% { transform: translate(-8px, 10px) scale(1.18, 0.8) rotate(-2deg); }
-  38% { transform: translate(70px, -170px) scale(0.88, 1.18) rotate(-12deg); }
-  58% { transform: translate(150px, -230px) scale(0.94, 1.1) rotate(-6deg); }
-  82% { transform: translate(196px, -150px) scale(1.02, 1.02) rotate(4deg); }
-  100% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
+  16% { transform: translate(-5px, 9px) scale(1.16, 0.82) rotate(0deg); animation-timing-function: ease-in; }
+  26% { transform: translate(6px, -20px) scale(0.9, 1.14) rotate(-6deg); animation-timing-function: cubic-bezier(.15,.7,.4,1); }
+  55% { transform: translate(130px, -216px) scale(0.96, 1.06) rotate(-4deg); animation-timing-function: cubic-bezier(.5,0,.9,.6); }
+  100% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
 }
-/* he lands heavy, flails on the wreckage, then settles proudly on top */
-@keyframes jpFlail {
-  0% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
-  12% { transform: translate(208px, -122px) scale(0.94, 1.12) rotate(-9deg); }
-  24% { transform: translate(216px, -100px) scale(1.16, 0.9) rotate(11deg); }
-  36% { transform: translate(206px, -116px) scale(0.98, 1.06) rotate(-7deg); }
-  48% { transform: translate(214px, -102px) scale(1.08, 0.95) rotate(6deg); }
-  62% { transform: translate(209px, -110px) scale(1, 1) rotate(-3deg); }
-  78% { transform: translate(211px, -106px) scale(1.02, 0.99) rotate(2deg); }
+/* he lands heavy, then settles upright and unbothered on top */
+@keyframes jpFrogSettle {
+  0% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
+  40% { transform: translate(210px, -114px) scale(0.96, 1.07) rotate(-2deg); }
   100% { transform: translate(210px, -108px) scale(1, 1) rotate(0deg); }
 }
+
 @keyframes jpPadRipple {
   0% { transform: scale(1); opacity: 1; }
   40% { transform: scale(1.25, 0.7); }
@@ -1251,8 +1215,31 @@
   .jp-frog-wrap { width: 150px; height: 140px; margin-left: -168px; }
   .jp-frog { width: 130px; }
   .jp-pad { width: 132px; height: 32px; }
-
+  /* shorter arc, gentler squash, no crumbs */
+  .is-hopping .jp-shard { display: none; }
+  .is-hopping .jp-cake { animation-name: jpSmashSm; }
+  .is-hopping .jp-frog { animation-name: jpLeapSm, jpFrogSettleSm; }
 }
+@keyframes jpLeapSm {
+  0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
+  16% { transform: translate(-4px, 7px) scale(1.14, 0.84) rotate(0deg); animation-timing-function: ease-in; }
+  26% { transform: translate(4px, -14px) scale(0.92, 1.12) rotate(-5deg); animation-timing-function: cubic-bezier(.15,.7,.4,1); }
+  55% { transform: translate(72px, -132px) scale(0.97, 1.05) rotate(-3deg); animation-timing-function: cubic-bezier(.5,0,.9,.6); }
+  100% { transform: translate(118px, -62px) scale(1.26, 0.76) rotate(3deg); }
+}
+@keyframes jpFrogSettleSm {
+  0% { transform: translate(118px, -62px) scale(1.26, 0.76) rotate(3deg); }
+  40% { transform: translate(118px, -74px) scale(0.97, 1.05) rotate(-2deg); }
+  100% { transform: translate(118px, -68px) scale(1, 1) rotate(0deg); }
+}
+@keyframes jpSmashSm {
+  0% { transform: translateY(0) scale(1, 1); }
+  12% { transform: translateY(14px) scale(1.14, 0.76); }
+  40% { transform: translateY(4px) scale(0.99, 1.03); }
+  70% { transform: translateY(10px) scale(1.08, 0.86); }
+  100% { transform: translateY(9px) scale(1.07, 0.88); }
+}
+
 
 .jp-mark {
   position: relative;
@@ -1302,25 +1289,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
-  /* no hopping or smashing: the frog is simply already sat on a slightly
-     compressed cake, RIBBIT!! shows statically, and HOP IN stays usable */
-  .is-smashing .jp-frog,
-  .is-smashing .jp-cake,
-  .is-smashing .jp-disc,
-  .is-smashing .jp-shard,
-  .is-smashing .jp-pad,
-  .is-smashing .jp-ribbit,
-  .is-smashing .jp-layer-tag,
-  .is-smashing .jp-title,
-  .is-smashing .jp-jp,
-  .is-smashing .jp-lede,
-  .is-smashing .jp-chip,
-  .is-smashing .jp-flash { animation: none !important; }
-  .is-smashing .jp-frog { transform: translate(210px, -108px) !important; }
-  .is-smashing .jp-cake { transform: translateY(16px) scale(1.16, 0.65) !important; }
-  .is-smashing .jp-ribbit { opacity: 1 !important; }
-  .is-smashing .jp-flash { opacity: 0.9 !important; transition: opacity 300ms linear; }
+  /* no hop: the frog is simply already sat on a slightly compressed cake,
+     RIBBIT!! shows statically, and HOP IN is usable immediately */
+  .is-hopping .jp-frog,
+  .is-hopping .jp-cake,
+  .is-hopping .jp-disc,
+  .is-hopping .jp-shard,
+  .is-hopping .jp-pad,
+  .is-hopping .jp-ribbit,
+  .is-hopping .jp-layer-tag { animation: none !important; }
+  .is-hopping .jp-frog { transform: translate(210px, -108px) !important; }
+  .is-hopping .jp-cake { transform: translateY(13px) scale(1.1, 0.82) !important; }
+  .is-hopping .jp-ribbit { opacity: 1 !important; }
 }
+
 
 
 /* lotus flowers behind the showcase tiles */
