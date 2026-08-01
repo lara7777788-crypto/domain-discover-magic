@@ -44,8 +44,27 @@ export function useCredits() {
   }, [user]);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    let cancelled = false;
+    const run = async () => {
+      // A code entered on the sign-in page before the session existed.
+      const pending = typeof window !== "undefined" ? window.localStorage.getItem(PENDING_CODE_KEY) : null;
+      if (user && pending) {
+        window.localStorage.removeItem(PENDING_CODE_KEY);
+        try {
+          const { redeemCoupon } = await import("@/lib/coupons.functions");
+          await redeemCoupon({ data: { code: pending } });
+        } catch (e) {
+          console.error("[useCredits] pending code redeem failed", e);
+        }
+      }
+      if (!cancelled) await refresh();
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [refresh, user]);
+
 
   /** Optimistically apply the wallet returned by a generation call. */
   const applyWallet = useCallback((next: { creditsLeft?: number; monthlyLeft?: number }) => {
