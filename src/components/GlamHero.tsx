@@ -9,7 +9,14 @@ import markImg from "../assets/jp-mark.webp";
 import frogCatImg from "../assets/jp-frogcat-big.webp";
 import lotusImg from "../assets/jp-lotus.webp";
 
-import { playRibbet, playSmash, buzz, primeAudio } from "../lib/smash-sfx";
+import {
+  playRibbet,
+  playSmash,
+  buzz,
+  primeAudio,
+  startKittenAmbience,
+  stopKittenAmbience,
+} from "../lib/smash-sfx";
 
 
 const RAYS = 28;
