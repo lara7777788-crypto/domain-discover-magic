@@ -553,40 +553,86 @@ function BakePage() {
                 />
 
                 {!isCopy && i === 0 && (
-                  <div className="sm:w-40 sm:shrink-0">
-                    <label
-                      className="group relative flex h-full min-h-[104px] cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border border-dashed border-white/80 bg-white/50 p-3 text-center text-xs backdrop-blur-sm transition hover:bg-white/70"
-                      style={{ color: l.ink }}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className="sr-only"
-                        onChange={(e) => { onPickReference(e.target.files?.[0]); e.target.value = ""; }}
-                      />
-                      {referenceImage ? (
-                        <img src={referenceImage} alt="Reference" className="absolute inset-0 h-full w-full object-cover" />
-                      ) : (
-                        <>
-                          <span className="text-lg">🖼️</span>
-                          <span className="font-medium">Reference image</span>
-                          <span className="opacity-60">Optional · PNG/JPG/WebP</span>
-                        </>
+                  <div className="sm:w-44 sm:shrink-0">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-1">
+                      {referenceImages.map((src, idx) => (
+                        <div key={idx} className="relative overflow-hidden rounded-xl border border-white/70">
+                          <img src={src} alt={`Reference ${idx + 1}`} className="h-20 w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setReferenceImages((prev) => prev.filter((_, n) => n !== idx))}
+                            aria-label="Remove reference image"
+                            className="absolute right-1 top-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      {referenceImages.length < 3 && (
+                        <label
+                          className="flex min-h-[80px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-white/80 bg-white/50 p-2 text-center text-[11px] backdrop-blur-sm transition hover:bg-white/70"
+                          style={{ color: l.ink }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            multiple
+                            className="sr-only"
+                            onChange={(e) => { void onPickReference(e.target.files); e.target.value = ""; }}
+                          />
+                          <span className="text-base">🖼️</span>
+                          <span className="font-medium">Add reference</span>
+                          <span className="opacity-60">{referenceImages.length}/3 · PNG/JPG/WebP</span>
+                        </label>
                       )}
-                    </label>
-                    {referenceImage && (
-                      <button
-                        type="button"
-                        onClick={() => setReferenceImage(null)}
-                        className="mt-2 w-full text-[11px] font-medium uppercase tracking-[0.18em] opacity-60 transition hover:opacity-100"
-                        style={{ color: l.ink }}
-                      >
-                        Remove
-                      </button>
-                    )}
+                    </div>
                     {refError && <p className="mt-2 text-[11px] text-red-600">{refError}</p>}
                   </div>
                 )}
+
+                {isCopy && i === 0 && (
+                  <div className="mt-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {copyFiles.map((f, idx) => (
+                        <span
+                          key={idx}
+                          className="flex max-w-[220px] items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-[11px]"
+                          style={{ color: l.ink }}
+                        >
+                          <span className="truncate">{f.mime.startsWith("image/") ? "🖼️" : "📄"} {f.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setCopyFiles((prev) => prev.filter((_, n) => n !== idx))}
+                            aria-label="Remove file"
+                            className="opacity-60 transition hover:opacity-100"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                      {copyFiles.length < 2 && (
+                        <label
+                          className="cursor-pointer rounded-full border border-dashed border-white/80 bg-white/50 px-4 py-1.5 text-[11px] font-medium transition hover:bg-white/70"
+                          style={{ color: l.ink }}
+                        >
+                          <input
+                            type="file"
+                            accept={COPY_FILE_TYPES}
+                            multiple
+                            className="sr-only"
+                            onChange={(e) => { void onPickCopyFiles(e.target.files); e.target.value = ""; }}
+                          />
+                          📎 Attach document or screenshot · {copyFiles.length}/2
+                        </label>
+                      )}
+                    </div>
+                    <p className="mt-2 text-[11px] opacity-60" style={{ color: l.ink }}>
+                      Optional · PDF, text, or screenshot (max 5MB each) — the copy layer reads them for reference.
+                    </p>
+                    {copyFileError && <p className="mt-2 text-[11px] text-red-600">{copyFileError}</p>}
+                  </div>
+                )}
+
               </div>
 
 
