@@ -331,6 +331,7 @@ function BakePage() {
         preview_url: previewUrl,
         mode: payload.mode,
         copy_text: payload.mode === "copy" ? (payload.result?.copy ?? null) : null,
+        prompt_text: payload.result?.prompt ?? null,
         thumb_url: previewUrl ? await makeThumb(previewUrl) : null,
       };
 
