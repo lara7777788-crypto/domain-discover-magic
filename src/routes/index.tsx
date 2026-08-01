@@ -29,35 +29,21 @@ export const Route = createFileRoute("/")({
 });
 
 
-const SPLASH_KEY = "lc_splash_seen_at_v2";
-const SPLASH_TTL = 60 * 60 * 1000; // 1 hour
-
 function Splash() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
 
-  // Skip the splash only for signed-in visitors who came through it recently.
+  // The splash is always the entry point — never auto-forward into the app.
   useEffect(() => {
-    if (loading || !user) return;
     try {
-      const seen = Number(localStorage.getItem(SPLASH_KEY) ?? 0);
-      if (seen && Date.now() - seen < SPLASH_TTL) navigate({ to: "/bake" });
-    } catch {
-      /* storage blocked — just show the splash */
-    }
-  }, [navigate, user, loading]);
-
-  const goBake = () => {
-    try {
-      localStorage.setItem(SPLASH_KEY, String(Date.now()));
+      localStorage.removeItem("lc_splash_seen_at_v2");
     } catch {
       /* ignore */
     }
-    if (!user) {
-      navigate({ to: "/login", search: { next: "/bake" } });
-      return;
-    }
-    navigate({ to: "/bake" });
+  }, []);
+
+  // Entering always goes through the sign-in page.
+  const goBake = () => {
+    navigate({ to: "/login", search: { next: "/bake" } });
   };
 
 
