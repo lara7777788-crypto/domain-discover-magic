@@ -1188,28 +1188,23 @@
   transform-origin: 50% 100%;
 }
 @keyframes jpCroak { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.96); } }
-/* 700ms hop: light anticipatory crouch, graceful arc up, faster fall, and a
-   hard squash on the landing frame — which is the exact frame the cake reacts. */
+/* 680ms hop: a quick anticipatory crouch, one readable arc — light going up,
+   faster coming down — and a squash on the landing frame, the exact frame the
+   cake reacts on. */
 @keyframes jpLeap {
   0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
-  8% { transform: translate(-4px, 6px) scale(1.1, 0.86) rotate(0deg); }
-  20% { transform: translate(-8px, 10px) scale(1.18, 0.8) rotate(-2deg); }
-  38% { transform: translate(70px, -170px) scale(0.88, 1.18) rotate(-12deg); }
-  58% { transform: translate(150px, -230px) scale(0.94, 1.1) rotate(-6deg); }
-  82% { transform: translate(196px, -150px) scale(1.02, 1.02) rotate(4deg); }
-  100% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
+  16% { transform: translate(-5px, 9px) scale(1.16, 0.82) rotate(0deg); animation-timing-function: ease-in; }
+  26% { transform: translate(6px, -20px) scale(0.9, 1.14) rotate(-6deg); animation-timing-function: cubic-bezier(.15,.7,.4,1); }
+  55% { transform: translate(130px, -216px) scale(0.96, 1.06) rotate(-4deg); animation-timing-function: cubic-bezier(.5,0,.9,.6); }
+  100% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
 }
-/* he lands heavy, flails on the wreckage, then settles proudly on top */
-@keyframes jpFlail {
-  0% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
-  12% { transform: translate(208px, -122px) scale(0.94, 1.12) rotate(-9deg); }
-  24% { transform: translate(216px, -100px) scale(1.16, 0.9) rotate(11deg); }
-  36% { transform: translate(206px, -116px) scale(0.98, 1.06) rotate(-7deg); }
-  48% { transform: translate(214px, -102px) scale(1.08, 0.95) rotate(6deg); }
-  62% { transform: translate(209px, -110px) scale(1, 1) rotate(-3deg); }
-  78% { transform: translate(211px, -106px) scale(1.02, 0.99) rotate(2deg); }
+/* he lands heavy, then settles upright and unbothered on top */
+@keyframes jpFrogSettle {
+  0% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
+  40% { transform: translate(210px, -114px) scale(0.96, 1.07) rotate(-2deg); }
   100% { transform: translate(210px, -108px) scale(1, 1) rotate(0deg); }
 }
+
 @keyframes jpPadRipple {
   0% { transform: scale(1); opacity: 1; }
   40% { transform: scale(1.25, 0.7); }
