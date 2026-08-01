@@ -109,7 +109,7 @@ function SlicesPage() {
       for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
         const { data, error } = await supabase
           .from("designs")
-          .select("id, name, is_unlocked, updated_at, mode, copy_text, thumb_url")
+          .select("id, name, is_unlocked, updated_at, mode, copy_text, thumb_url, prompt_text")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
           .limit(36);
@@ -122,6 +122,7 @@ function SlicesPage() {
             updated_at: row.updated_at as string,
             mode: ((row as { mode?: string | null }).mode ?? "image") as string,
             copy: ((row as { copy_text?: string | null }).copy_text ?? null) as string | null,
+            prompt: ((row as { prompt_text?: string | null }).prompt_text ?? null) as string | null,
             thumb_url: ((row as { thumb_url?: string | null }).thumb_url ?? null) as string | null,
             preview_url: null,
           }));
