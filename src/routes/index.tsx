@@ -1,4 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+
 import cakeImg from "../assets/jp-cake-pink.webp";
 import { ShowcaseGrid } from "@/components/ShowcaseGrid";
 import { LayerStack } from "@/components/LayerStack";
