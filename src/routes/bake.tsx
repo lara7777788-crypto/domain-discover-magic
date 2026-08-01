@@ -456,10 +456,10 @@ function BakePage() {
               search={{ slice: sliceId, remix: remixId, mode: "copy" as Mode }}
               className={`rounded-full px-3 py-1 transition ${isCopy ? "bg-foreground text-white" : "text-foreground/60 hover:text-foreground"}`}
             >
-              Copy
+              Icing
             </Link>
           </div>
-          {result ? (
+          {result && (
             <button
               onClick={onSave}
               disabled={saving}
@@ -475,23 +475,24 @@ function BakePage() {
                     ? `Save remix`
                     : `Save ${TERMS.noun}`}
             </button>
-          ) : (
-            <div className="rounded-full bg-white/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-foreground/60 backdrop-blur">
-              {active < LAYERS.length
-                ? `Layer ${active + 1} / ${LAYERS.length} · ${LAYERS[active].name}`
-                : TERMS.finalLabel}
-            </div>
           )}
           <Link
             to="/slices"
-            search={{ tab: (isCopy ? "copy" : "slices") as "copy" | "slices" }}
-            className="shrink-0 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:tracking-[0.14em]"
+            search={{ tab: "slices" as "copy" | "slices" }}
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
           >
-            <span className="hidden sm:inline">My {TERMS.nounPlural}</span>
-            <span className="sm:hidden">My</span>
+            My slices
+          </Link>
+          <Link
+            to="/slices"
+            search={{ tab: "copy" as "copy" | "slices" }}
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+          >
+            My icing
           </Link>
         </div>
       </header>
+
 
       {/* Right rail */}
       <nav aria-label="Layers" className="fixed right-5 top-1/2 z-30 flex -translate-y-1/2 flex-col items-end gap-1.5">

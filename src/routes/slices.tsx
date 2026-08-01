@@ -14,7 +14,7 @@ export const Route = createFileRoute("/slices")({
   head: () => ({
     meta: [
       { title: "My Slices — Layercake" },
-      { name: "description", content: "Your saved cake slices and copy, ready to edit, download, or remix." },
+      { name: "description", content: "Your saved cake slices and icing copy, ready to edit, download, or remix." },
       { property: "og:title", content: "My Slices — Layercake" },
       { property: "og:description", content: "Open, edit, and download the slices you've baked." },
       { property: "og:url", content: "https://layercake.site/slices" },
@@ -38,11 +38,14 @@ type Slice = {
 
 type SliceMeta = Omit<Slice, "preview_url">;
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 function SlicesPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { tab } = Route.useSearch();
   const [slices, setSlices] = useState<Slice[] | null>(null);
+  const [failedPreviews, setFailedPreviews] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
@@ -57,7 +60,7 @@ function SlicesPage() {
 
   const openSave = (s: Slice) => {
     if (!s.preview_url) {
-      setError("This slice has no preview yet — open it in Bake to render one.");
+      setError("This slice is still loading its preview — give it a moment.");
       return;
     }
     setSavePayload({
@@ -79,48 +82,76 @@ function SlicesPage() {
     let cancelled = false;
     setError(null);
     setSlices(null);
+    setFailedPreviews({});
+
     (async () => {
-      const { data, error } = await supabase
-        .from("designs")
-        .select("id, name, is_unlocked, updated_at, mode:data->>mode, copy:data->result->>copy")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false })
-        .limit(36);
+      // 1) Metadata first — retried, because the DB can time out under load.
+      let rows: SliceMeta[] | null = null;
+      for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+        const { data, error } = await supabase
+          .from("designs")
+          .select("id, name, is_unlocked, updated_at, mode:data->>mode, copy:data->result->>copy")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false })
+          .limit(36);
+        if (cancelled) return;
+        if (!error) {
+          rows = (data ?? []) as unknown as SliceMeta[];
+          break;
+        }
+        console.error("[slices] metadata attempt failed", attempt, error);
+        await sleep(600 * (attempt + 1));
+      }
       if (cancelled) return;
-      if (error) {
-        console.error("[slices] failed to load designs", error);
+      if (!rows) {
         setError("Failed to load your slices. Please refresh and try again.");
         setSlices([]);
         return;
       }
 
-      const rows = (data ?? []) as unknown as SliceMeta[];
       setSlices(rows.map((row) => ({ ...row, preview_url: null })));
 
-      // Previews are heavy base64 blobs — fetch them in small parallel batches,
-      // all batches in flight at once so the grid fills fast.
+      // 2) Previews are heavy base64 blobs. Fetch them ONE row at a time with a
+      // retry — batching several blobs in a single query causes statement
+      // timeouts, which is why tiles used to stay empty forever.
       const imageRows = rows.filter((r) => r.mode !== "copy");
-      const BATCH = 3;
-      const batches: SliceMeta[][] = [];
-      for (let i = 0; i < imageRows.length; i += BATCH) batches.push(imageRows.slice(i, i + BATCH));
+      const CONCURRENCY = 2;
+      let cursor = 0;
 
-      await Promise.all(
-        batches.map(async (batch) => {
-          const { data: found } = await supabase
-            .from("designs")
-            .select("id, preview_url")
-            .eq("user_id", user.id)
-            .in("id", batch.map((b) => b.id));
-          if (cancelled || !found?.length) return;
-          setSlices((current) =>
-            current?.map((slice) => {
-              const hit = found.find((f) => f.id === slice.id && f.preview_url);
-              return hit ? { ...slice, preview_url: hit.preview_url as string } : slice;
-            }) ?? current,
-          );
-        }),
-      );
+      const worker = async () => {
+        while (!cancelled) {
+          const row = imageRows[cursor++];
+          if (!row) return;
+          let url: string | null = null;
+          for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+            const { data, error } = await supabase
+              .from("designs")
+              .select("preview_url")
+              .eq("id", row.id)
+              .eq("user_id", user.id)
+              .maybeSingle();
+            if (cancelled) return;
+            if (!error) {
+              url = (data?.preview_url as string | null) ?? null;
+              break;
+            }
+            console.error("[slices] preview attempt failed", row.id, attempt, error);
+            await sleep(500 * (attempt + 1));
+          }
+          if (cancelled) return;
+          if (url) {
+            setSlices((current) =>
+              current?.map((s) => (s.id === row.id ? { ...s, preview_url: url } : s)) ?? current,
+            );
+          } else {
+            setFailedPreviews((f) => ({ ...f, [row.id]: true }));
+          }
+        }
+      };
+
+      await Promise.all(Array.from({ length: CONCURRENCY }, worker));
     })();
+
     return () => {
       cancelled = true;
     };
@@ -149,8 +180,6 @@ function SlicesPage() {
 
   const remix = (id: string) => {
     if (!user) return;
-    // Don't create a DB row here — open the editor with the source pre-filled
-    // as an UNSAVED draft. It only persists when the user clicks Bake.
     navigate({ to: "/bake", search: { remix: id, mode: isCopyTab ? "copy" : "image" } });
   };
 
@@ -183,7 +212,7 @@ function SlicesPage() {
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-foreground/50">Your gallery</p>
           <h1 className="mt-2 font-display text-4xl font-semibold text-foreground sm:text-5xl md:text-6xl">
-            {isCopyTab ? "My copy." : "My slices."}
+            {isCopyTab ? "My icing." : "My slices."}
           </h1>
         </div>
 
@@ -192,14 +221,21 @@ function SlicesPage() {
             My slices
           </Link>
           <Link to="/slices" search={{ tab: "copy" as Tab }} className={tabClass(isCopyTab)}>
-            My copy
+            My icing
           </Link>
           <Link
             to="/bake"
-            search={{ mode: (isCopyTab ? "copy" : "image") as "copy" | "image" }}
+            search={{ mode: "image" as "copy" | "image" }}
             className="ml-auto shrink-0 whitespace-nowrap rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
           >
-            + New {isCopyTab ? "copy" : "slice"}
+            + New slice
+          </Link>
+          <Link
+            to="/bake"
+            search={{ mode: "copy" as "copy" | "image" }}
+            className="shrink-0 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-foreground shadow-[0_10px_25px_-14px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
+          >
+            + New icing
           </Link>
         </div>
 
@@ -230,13 +266,13 @@ function SlicesPage() {
           </div>
         ) : visible.length === 0 ? (
           <div className="mt-12 rounded-3xl border border-white bg-white/70 p-12 text-center backdrop-blur">
-            <p className="text-foreground/60">{isCopyTab ? "No saved copy yet." : "No slices yet."}</p>
+            <p className="text-foreground/60">{isCopyTab ? "No icing yet." : "No slices yet."}</p>
             <Link
               to="/bake"
               search={{ mode: (isCopyTab ? "copy" : "image") as "copy" | "image" }}
               className="mt-5 inline-block rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white"
             >
-              {isCopyTab ? "Whip your first copy" : "Bake your first slice"}
+              {isCopyTab ? "Whip your first icing" : "Bake your first slice"}
             </Link>
           </div>
         ) : (
@@ -265,6 +301,22 @@ function SlicesPage() {
                           decoding="async"
                           className="h-full w-full object-cover"
                         />
+                      ) : failedPreviews[s.id] ? (
+                        <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-foreground/5 px-4 text-center">
+                          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-foreground/45">
+                            Preview didn't load
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setReloadKey((k) => k + 1);
+                            }}
+                            className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-white"
+                          >
+                            Retry
+                          </button>
+                        </div>
                       ) : (
                         <div className="flex h-full w-full animate-pulse items-center justify-center bg-foreground/5">
                           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-foreground/45">
@@ -279,7 +331,7 @@ function SlicesPage() {
                   <div className="min-w-0">
                     <div className="truncate font-display text-sm font-semibold text-foreground">{s.name}</div>
                     <div className="text-[11px] uppercase tracking-[0.2em] text-foreground/40">
-                      {isCopyTab ? "Copy" : s.is_unlocked ? "Unlocked" : "Preview"}
+                      {isCopyTab ? "Icing" : s.is_unlocked ? "Unlocked" : "Preview"}
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2">

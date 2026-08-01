@@ -16,9 +16,11 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MixRouteImport } from './routes/mix'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IngredientsRouteImport } from './routes/ingredients'
+import { Route as EffectsRouteImport } from './routes/effects'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -66,6 +68,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MixRoute = MixRouteImport.update({
+  id: '/mix',
+  path: '/mix',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -79,6 +86,11 @@ const LoginRoute = LoginRouteImport.update({
 const IngredientsRoute = IngredientsRouteImport.update({
   id: '/ingredients',
   path: '/ingredients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EffectsRoute = EffectsRouteImport.update({
+  id: '/effects',
+  path: '/effects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BakeRoute = BakeRouteImport.update({
@@ -146,9 +158,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/effects': typeof EffectsRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mix': typeof MixRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -169,9 +183,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/effects': typeof EffectsRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mix': typeof MixRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -193,9 +209,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
+  '/effects': typeof EffectsRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mix': typeof MixRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -218,9 +236,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/effects'
     | '/ingredients'
     | '/login'
     | '/mcp'
+    | '/mix'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -241,9 +261,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/effects'
     | '/ingredients'
     | '/login'
     | '/mcp'
+    | '/mix'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -264,9 +286,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/bake'
+    | '/effects'
     | '/ingredients'
     | '/login'
     | '/mcp'
+    | '/mix'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -288,9 +312,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BakeRoute: typeof BakeRoute
+  EffectsRoute: typeof EffectsRoute
   IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  MixRoute: typeof MixRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
@@ -359,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mix': {
+      id: '/mix'
+      path: '/mix'
+      fullPath: '/mix'
+      preLoaderRoute: typeof MixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
@@ -378,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/ingredients'
       fullPath: '/ingredients'
       preLoaderRoute: typeof IngredientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/effects': {
+      id: '/effects'
+      path: '/effects'
+      fullPath: '/effects'
+      preLoaderRoute: typeof EffectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bake': {
@@ -464,9 +504,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BakeRoute: BakeRoute,
+  EffectsRoute: EffectsRoute,
   IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  MixRoute: MixRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
