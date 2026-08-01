@@ -58,6 +58,21 @@ export function TopNav() {
               Effects
             </Link>
             <Link
+              to="/homemade"
+              search={{ from: undefined }}
+              activeProps={{ className: activeClass }}
+              inactiveProps={{ className: linkClass }}
+            >
+              Home made
+            </Link>
+            <Link
+              to="/usage"
+              activeProps={{ className: activeClass }}
+              inactiveProps={{ className: linkClass }}
+            >
+              Receipts
+            </Link>
+            <Link
               to="/bake"
               search={{ slice: undefined, remix: undefined, mode: "image" as const }}
               activeProps={{ className: activeClass }}
