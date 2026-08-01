@@ -859,7 +859,7 @@
 .is-hopping .jp-disc { animation: jpDiscPop 520ms cubic-bezier(.2,.9,.3,1) 680ms forwards; }
 .is-hopping .jp-shard { animation: jpShard 760ms cubic-bezier(.15,.75,.4,1) 690ms forwards; }
 .is-hopping .jp-ribbit { animation: jpRibbit 1000ms cubic-bezier(.2,1.2,.3,1) 680ms forwards; }
-.is-hopping .jp-layer-tag { animation: jpJolt 520ms ease-out 690ms forwards; }
+/* the labels hold still — the composition must not jump around */
 
 
 
