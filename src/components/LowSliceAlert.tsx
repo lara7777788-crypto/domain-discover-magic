@@ -135,3 +135,49 @@ export function LowSliceAlert() {
     </div>
   );
 }
+
+/** Threshold + email preference card shown on the Receipts page. */
+export function LowSliceSettings() {
+  const { threshold, emailOptIn, save } = useLowSliceThreshold();
+  const [value, setValue] = useState<string | null>(null);
+  const shown = value ?? String(threshold);
+
+  return (
+    <div className="mt-8 rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+      <div className="font-display text-lg font-semibold text-foreground">Low-slice alerts</div>
+      <p className="mt-1 text-sm text-foreground/60">
+        We'll warn you in the app (and by email once your sender domain is live) when your remaining
+        slices drop below this number.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <label className="text-sm text-foreground/70" htmlFor="lowSliceThreshold">
+          Warn me below
+        </label>
+        <input
+          id="lowSliceThreshold"
+          type="number"
+          min={0}
+          max={10000}
+          value={shown}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => {
+            const n = Math.max(0, Math.min(10000, Number(shown) || 0));
+            setValue(String(n));
+            void save({ threshold: n });
+          }}
+          className="w-24 rounded-full border border-foreground/10 bg-white px-4 py-2 text-sm text-foreground"
+        />
+        <span className="text-sm text-foreground/60">slices</span>
+        <label className="ml-auto flex items-center gap-2 text-sm text-foreground/70">
+          <input
+            type="checkbox"
+            checked={emailOptIn}
+            onChange={(e) => void save({ emailOptIn: e.target.checked })}
+            className="h-4 w-4 accent-[#E85C9A]"
+          />
+          Email me too
+        </label>
+      </div>
+    </div>
+  );
+}

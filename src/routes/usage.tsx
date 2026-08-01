@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
+import { LowSliceSettings } from "@/components/LowSliceAlert";
 
 export const Route = createFileRoute("/usage")({
   head: () => ({
