@@ -1,6 +1,7 @@
 // Tiny Web Audio SFX for the hero cake smash. Synthesized (no asset downloads),
-// low-gain and short so the drama reads premium rather than annoying.
+// short so the drama reads premium rather than annoying.
 let ctx: AudioContext | null = null;
+let primed = false;
 
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -11,16 +12,56 @@ function getCtx(): AudioContext | null {
   return ctx;
 }
 
+/**
+ * Unlock/warm the audio context on the first user gesture so the croak can
+ * never be swallowed by a still-suspended context on iOS/Safari.
+ */
+export function primeAudio() {
+  if (primed || typeof window === "undefined") return;
+  const unlock = () => {
+    const ac = getCtx();
+    if (!ac) return;
+    void ac.resume();
+    // one inaudible tick keeps the graph awake
+    const g = ac.createGain();
+    g.gain.value = 0.0001;
+    const o = ac.createOscillator();
+    o.connect(g).connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime + 0.02);
+    primed = true;
+    window.removeEventListener("pointerdown", unlock);
+    window.removeEventListener("touchstart", unlock);
+    window.removeEventListener("keydown", unlock);
+  };
+  window.addEventListener("pointerdown", unlock, { passive: true });
+  window.addEventListener("touchstart", unlock, { passive: true });
+  window.addEventListener("keydown", unlock);
+}
+
 function quiet() {
   if (typeof window === "undefined") return true;
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
 /** Loud two-note croak with a wobbling formant — "RIBBIT!" */
-export function playRibbet() {
-  if (quiet()) return;
+export function playRibbet(gainScale = 1) {
   const ac = getCtx();
   if (!ac) return;
+  // If the context is still waking up, retry once it is actually running so the
+  // croak is never silently dropped.
+  if (ac.state !== "running") {
+    void ac.resume().then(() => scheduleRibbet(ac, gainScale));
+    // also schedule now in case resume() already resolved synchronously-ish
+    window.setTimeout(() => {
+      if (ac.state === "running") return; // the resume path handled it
+    }, 0);
+    return;
+  }
+  scheduleRibbet(ac, gainScale);
+}
+
+function scheduleRibbet(ac: AudioContext, gainScale: number) {
   // small pad so notes never get dropped while the context is still resuming
   const t0 = ac.currentTime + 0.03;
 
@@ -28,9 +69,10 @@ export function playRibbet() {
   const master = ac.createGain();
   master.gain.value = 1;
   const comp = ac.createDynamicsCompressor();
-  comp.threshold.value = -14;
-  comp.ratio.value = 6;
+  comp.threshold.value = -18;
+  comp.ratio.value = 8;
   master.connect(comp).connect(ac.destination);
+
 
   const croak = (
     start: number,
