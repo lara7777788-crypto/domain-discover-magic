@@ -101,6 +101,27 @@ function BakePage() {
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copied, setCopied] = useState(false);
+  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [refError, setRefError] = useState<string | null>(null);
+
+  const onPickReference = (file: File | null | undefined) => {
+    if (!file) return;
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      setRefError("Use a PNG, JPG, or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setRefError("Keep the reference under 5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRefError(null);
+      setReferenceImage(typeof reader.result === "string" ? reader.result : null);
+    };
+    reader.onerror = () => setRefError("Couldn't read that file.");
+    reader.readAsDataURL(file);
+  };
 
   // Per-mode terminology
   const TERMS = isCopy
