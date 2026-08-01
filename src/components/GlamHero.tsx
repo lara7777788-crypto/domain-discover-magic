@@ -14,7 +14,7 @@ import lotusImg from "../assets/jp-lotus.webp";
 
 
 const RAYS = 28;
-const SHARDS = 14;
+const SHARDS = 72;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
@@ -77,38 +77,45 @@ const COPY = {
 
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
-  // the hop plays once, on entry — it never gates the CTA
-  const [hopping, setHopping] = useState(false);
+  const [smashing, setSmashing] = useState(false);
   const [lang, setLang] = useState<"en" | "ja">("en");
   const t = COPY[lang];
   const timer = useRef<number | null>(null);
 
-  // One cause, one effect: the frog hops, the frog lands, the cake squashes.
-  // Timing contract (keep in sync with .is-hopping rules in styles.css):
-  //   0ms     calm beat — nothing moves, the composition can be read
-  //   500ms   anticipation: a quick crouch, then push-off
-  //   500-1180ms  one readable arc: light on the way up, faster coming down
-  //   1180ms  LANDING — cake compresses, a few crumbs lift, "RIBBIT!!" pops
-  //   1.18-1.6s  one small rebound, then everything settles
   useEffect(() => {
     const id = window.setTimeout(() => setLit(true), 100);
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    // reduced motion: the frog is simply already sitting on the squashed cake
-    timer.current = window.setTimeout(() => setHopping(true), reduced ? 0 : 500);
     return () => {
       clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
 
+  // One cause, one effect: the frog hops, the frog lands, the cake smashes.
+  // Timing contract (keep in sync with .is-smashing rules in styles.css):
+  //   0ms      calm beat + anticipatory crouch
+  //   450ms    push-off, graceful arc up
+  //   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
+  //   1.2-2.8s frog flails on the wreck, cake rebounds and settles
+  //   2.9-4.2s the wipe blooms and carries the page turn
+  const handleSmash = () => {
+    if (smashing) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setSmashing(true);
+      timer.current = window.setTimeout(onEnter, 700);
+      return;
+    }
+    setSmashing(true);
+    timer.current = window.setTimeout(onEnter, 4200);
+  };
 
 
 
 
   return (
-    <section className={`jp-stage relative z-10 overflow-hidden ${hopping ? "is-hopping" : ""}`}>
+    <section className={`jp-stage relative z-10 overflow-hidden ${smashing ? "is-smashing" : ""}`}>
       {/* lotus pond backdrop */}
       <div aria-hidden className="jp-pond" style={{ backgroundImage: `url(${pondImg})` }} />
       {/* lily pads + lotus, sitting in front of the pond but behind the sunburst rays */}
@@ -119,7 +126,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* small promotional badge, upper-left — subordinate to HOP IN */}
-      <button type="button" onClick={onEnter} className="jp-promo" lang={lang}>
+      <button type="button" onClick={handleSmash} className="jp-promo" lang={lang}>
         <span className="jp-promo-star" aria-hidden>✦</span>
         <span className="jp-promo-main">{t.promo}</span>
         <span className="jp-promo-tag">{t.promoTag}</span>
@@ -249,9 +256,9 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                 return s - Math.floor(s);
               };
               const a = (360 / SHARDS) * i + r(12.9898) * 26 - 13;
-              const dist = 70 + r(78.233) * 90;
-              const crumb = i % 3 === 2;
-              const size = crumb ? 5 + r(4.31) * 5 : 10 + r(9.71) * 14;
+              const dist = 190 + r(78.233) * 320;
+              const crumb = i % 4 === 3;
+              const size = crumb ? 5 + r(4.31) * 7 : 16 + r(9.71) * 34;
               const sponge = SHARD_COLORS[i % SHARD_COLORS.length];
               const icing = SHARD_COLORS[(i + 3) % SHARD_COLORS.length];
               // lumpy, hand-torn silhouette rather than a circle or a square
@@ -274,11 +281,11 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                       opacity: 0,
                       ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
                       ["--dy" as string]: `${Math.round(
-                        Math.sin((a * Math.PI) / 180) * dist * 0.4 - 60 - r(41.3) * 50,
+                        Math.sin((a * Math.PI) / 180) * dist - 90 - r(41.3) * 120,
                       )}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (90 + r(55.5) * 180)}deg`,
-                      animationDelay: `${(r(63.7) * 0.06).toFixed(3)}s`,
-                      animationDuration: `${(0.7 + r(71.9) * 0.2).toFixed(2)}s`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (240 + r(55.5) * 620)}deg`,
+                      animationDelay: `${(r(63.7) * 0.22).toFixed(3)}s`,
+                      animationDuration: `${(2.5 + r(71.9) * 1.1).toFixed(2)}s`,
                     } as React.CSSProperties
                   }
                 />
@@ -289,12 +296,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4">
-          <button type="button" onClick={onEnter} className="btn-jp btn-hopin" lang={lang}>
+          <button type="button" onClick={handleSmash} className="btn-jp btn-hopin" lang={lang}>
             {t.hopIn}
             <i lang={lang}>{t.hopInTag}</i>
           </button>
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6">
-            <button type="button" onClick={onEnter} className="jp-secondary" lang={lang}>
+            <button type="button" onClick={handleSmash} className="jp-secondary" lang={lang}>
               {t.cta}
             </button>
             <a href="#showcase" className="jp-link" lang={lang}>
@@ -337,7 +344,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* flash + wipe */}
-      
+      <div aria-hidden className="jp-flash" />
     </section>
   );
 }
