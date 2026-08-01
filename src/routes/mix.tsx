@@ -55,10 +55,11 @@ function MixPage() {
     (async () => {
       const { data, error } = await supabase
         .from("designs")
-        .select("id, name, mode:data->>mode, copy:data->result->>copy")
+        .select("id, name, mode, copy_text")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(36);
+
       if (cancelled) return;
       if (error) {
         console.error("[mix] load failed", error);
