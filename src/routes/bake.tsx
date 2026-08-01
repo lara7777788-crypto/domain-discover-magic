@@ -96,7 +96,9 @@ function BakePage() {
   const LAYERS = useMemo(() => (isCopy ? COPY_LAYERS : IMAGE_LAYERS), [isCopy]);
   const FORMATS = useMemo(() => (isCopy ? COPY_FORMATS : IMAGE_FORMATS), [isCopy]);
 
+  const credits = useCredits();
   const [active, setActive] = useState(0);
+
   const [values, setValues] = useState<Record<LayerKey, string>>(() => emptyValues(LAYERS));
   const [format, setFormat] = useState<AnyFormat>(isCopy ? "caption" : "social");
   const [loading, setLoading] = useState(false);
