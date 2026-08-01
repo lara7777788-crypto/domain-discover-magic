@@ -1298,7 +1298,7 @@
   .is-hopping .jp-pad,
   .is-hopping .jp-ribbit,
   .is-hopping .jp-layer-tag { animation: none !important; }
-  .is-hopping .jp-frog { transform: translate(210px, -108px) !important; }
+  .is-hopping .jp-frog { transform: translate(150px, -108px) !important; }
   .is-hopping .jp-cake { transform: translateY(13px) scale(1.1, 0.82) !important; }
   .is-hopping .jp-ribbit { opacity: 1 !important; }
 }
