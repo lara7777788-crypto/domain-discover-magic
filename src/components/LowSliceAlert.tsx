@@ -91,10 +91,13 @@ export function LowSliceAlert() {
       setDismissed(true);
       return;
     }
+    const cooldownMs = getLowSliceCooldownHours() * 60 * 60 * 1000;
+    const notifiedAt = Number(window.localStorage.getItem(NOTIFIED_KEY) ?? 0);
+    const inCooldown = Date.now() - notifiedAt < cooldownMs;
     const dismissedAt = Number(window.sessionStorage.getItem(DISMISS_KEY) ?? 0);
-    setDismissed(Date.now() - dismissedAt < 1000 * 60 * 60);
-    if (!window.sessionStorage.getItem(TOAST_KEY)) {
-      window.sessionStorage.setItem(TOAST_KEY, "1");
+    setDismissed(inCooldown || Date.now() - dismissedAt < 1000 * 60 * 60);
+    if (!inCooldown) {
+      window.localStorage.setItem(NOTIFIED_KEY, String(Date.now()));
       toast(
         total <= 0
           ? "You're out of slices 🍰"
