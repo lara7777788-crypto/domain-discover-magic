@@ -863,16 +863,17 @@
 }
 
 @keyframes jpDiscPop {
-  0% { transform: scale(1); }
-  16% { transform: scale(1.18); }
-  100% { transform: scale(2.8); opacity: 0; }
+  0% { transform: scale(1); opacity: 1; }
+  10% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(3.6); opacity: 0; }
 }
 @keyframes jpShard {
-  0% { opacity: 0; transform: perspective(800px) translate3d(0, 0, 0) rotate(0deg) scale(0.3); }
-  8% { opacity: 1; }
-  45% { opacity: 1; transform: perspective(800px) translate3d(calc(var(--dx) * 0.75), calc(var(--dy) * 0.75), 300px) rotate(calc(var(--rot) * 0.6)) scale(2.6); }
-  100% { opacity: 0; transform: perspective(800px) translate3d(calc(var(--dx) * 2.4), calc(var(--dy) * 2.4), 820px) rotate(var(--rot)) scale(5.4); filter: blur(3px); }
+  0% { opacity: 0; transform: perspective(700px) translate3d(0, 0, 0) rotate(0deg) scale(0.3); }
+  5% { opacity: 1; }
+  35% { opacity: 1; transform: perspective(700px) translate3d(calc(var(--dx) * 0.8), calc(var(--dy) * 0.8), 420px) rotate(calc(var(--rot) * 0.6)) scale(3.4); }
+  100% { opacity: 0; transform: perspective(700px) translate3d(calc(var(--dx) * 3), calc(var(--dy) * 3), 1100px) rotate(var(--rot)) scale(7.6); filter: blur(4px); }
 }
+
 @keyframes jpBlast {
   0% { transform: scale(1); opacity: 1; }
   30% { transform: scale(1.06); }
@@ -893,12 +894,13 @@
 /* a single hard strobe on the impact frame, then it clears out of the way so
    the burst is fully visible; the white-out only arrives at the page turn */
 @keyframes jpFlash {
-  0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
-  4% { opacity: 0.9; transform: scale(1.4); border-radius: 0; }
-  14% { opacity: 0.1; transform: scale(1.6); }
-  55% { opacity: 0.06; transform: scale(1.8); }
-  100% { opacity: 1; transform: scale(2.4); }
+  0% { opacity: 0; transform: scale(0.15); border-radius: 50%; }
+  3% { opacity: 1; transform: scale(1.7); border-radius: 0; }
+  12% { opacity: 0.12; transform: scale(1.9); }
+  55% { opacity: 0.06; transform: scale(2); }
+  100% { opacity: 1; transform: scale(2.6); }
 }
+
 
 
 
