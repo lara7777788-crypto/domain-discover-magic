@@ -26,6 +26,7 @@ export function SaveSheet({
 
   const [credits, setCredits] = useState<number>(0);
   const [spending, setSpending] = useState(false);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!payload) return;
