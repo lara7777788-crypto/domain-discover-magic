@@ -120,6 +120,8 @@ export const generate = createServerFn({ method: "POST" })
       throw new Error("An unexpected error occurred. Please try again.");
     }
 
+    const refs = refImagesOf(data);
+
     // 1. Prompt layer — rewrite the wish into a real image prompt
     const briefRes = await fetch(GATEWAY, {
       method: "POST",
@@ -130,13 +132,13 @@ export const generate = createServerFn({ method: "POST" })
           { role: "system", content: PROMPT_LAYER_SYSTEM },
           {
             role: "user",
-            content: data.referenceImage
+            content: refs.length
               ? [
                   {
                     type: "text",
-                    text: `${composeBriefPrompt(data)}\n\nA reference image is attached. Describe and carry over its key visual traits (subject, palette, style, composition) into the prompt.`,
+                    text: `${composeBriefPrompt(data)}\n\n${refs.length} reference image(s) are attached. Describe and carry over their key visual traits (subject, palette, style, composition) into the prompt.`,
                   },
-                  { type: "image_url", image_url: { url: data.referenceImage } },
+                  ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
                 ]
               : composeBriefPrompt(data),
           },
