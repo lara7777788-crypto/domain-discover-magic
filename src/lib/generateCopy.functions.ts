@@ -79,7 +79,7 @@ const BANNED_PATTERNS: RegExp[] = [
 ];
 
 const isBlockedInput = (i: GenerateCopyInput): boolean => {
-  const blob = [i.wish, i.visual, i.text, i.layout, i.logo].filter(Boolean).join(" ");
+  const blob = [i.wish, i.visual, i.text, i.layout, i.logo, i.extra].filter(Boolean).join(" ");
   return BANNED_PATTERNS.some((re) => re.test(blob));
 };
 
