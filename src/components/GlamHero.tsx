@@ -77,39 +77,32 @@ const COPY = {
 
 export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lit, setLit] = useState(false);
-  const [smashing, setSmashing] = useState(false);
+  // the hop plays once, on entry — it never gates the CTA
+  const [hopping, setHopping] = useState(false);
   const [lang, setLang] = useState<"en" | "ja">("en");
   const t = COPY[lang];
   const timer = useRef<number | null>(null);
 
+  // One cause, one effect: the frog hops, the frog lands, the cake squashes.
+  // Timing contract (keep in sync with .is-hopping rules in styles.css):
+  //   0ms     calm beat — nothing moves, the composition can be read
+  //   500ms   anticipation: a quick crouch, then push-off
+  //   500-1180ms  one readable arc: light on the way up, faster coming down
+  //   1180ms  LANDING — cake compresses, a few crumbs lift, "RIBBIT!!" pops
+  //   1.18-1.6s  one small rebound, then everything settles
   useEffect(() => {
     const id = window.setTimeout(() => setLit(true), 100);
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    // reduced motion: the frog is simply already sitting on the squashed cake
+    timer.current = window.setTimeout(() => setHopping(true), reduced ? 0 : 500);
     return () => {
       clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
 
-  // One cause, one effect: the frog hops, the frog lands, the cake smashes.
-  // Timing contract (keep in sync with .is-smashing rules in styles.css):
-  //   0ms      calm beat + anticipatory crouch
-  //   450ms    push-off, graceful arc up
-  //   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
-  //   1.2-2.8s frog flails on the wreck, cake rebounds and settles
-  //   2.9-4.2s the wipe blooms and carries the page turn
-  const handleSmash = () => {
-    if (smashing) return;
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setSmashing(true);
-      timer.current = window.setTimeout(onEnter, 700);
-      return;
-    }
-    setSmashing(true);
-    timer.current = window.setTimeout(onEnter, 4200);
-  };
 
 
 
