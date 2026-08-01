@@ -9,14 +9,8 @@ import markImg from "../assets/jp-mark.webp";
 import frogCatImg from "../assets/jp-frogcat-big.webp";
 import lotusImg from "../assets/jp-lotus.webp";
 
-import {
-  playRibbet,
-  playSmash,
-  buzz,
-  primeAudio,
-  startKittenAmbience,
-  stopKittenAmbience,
-} from "../lib/smash-sfx";
+
+
 
 
 const RAYS = 28;
@@ -49,8 +43,13 @@ const COPY = {
     sub: "Layercake — make the noise work for you.",
     lede:
       "One prompt in. A whole visual world out — logo, palette, type, imagery and the copy to match. Baked layer by layer, in your taste.",
-    cta: "Try a slice — free",
+    hopIn: "HOP IN",
+    hopInTag: "enter the studio",
+    promo: "Try a free slice",
+    promoTag: "on the house",
+    cta: "Try a free slice",
     ctaTag: "one slice",
+
     link: "See what comes out ↓",
     fine: "First slice on the house · no subscription to try",
     mark: "Layercake: control your noise",
@@ -61,8 +60,13 @@ const COPY = {
     sub: "レイヤーケーキ — 騒音を、味方に。",
     lede:
       "プロンプトはひとつ。出てくるのは世界まるごと — ロゴ、配色、文字、画像、そしてコピーまで。一層ずつ、あなたの好みに焼き上げます。",
+    hopIn: "HOP IN",
+    hopInTag: "スタジオへ",
+    promo: "一切れ無料",
+    promoTag: "サービス",
     cta: "一切れどうぞ — 無料",
     ctaTag: "一切れ",
+
     link: "できあがりを見る ↓",
     fine: "最初の一切れは無料 · 登録不要",
     mark: "レイヤーケーキ：騒音を、制御する",
@@ -77,82 +81,36 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lang, setLang] = useState<"en" | "ja">("en");
   const t = COPY[lang];
   const timer = useRef<number | null>(null);
-  const sfxTimer = useRef<number | null>(null);
-  const hapticTimer = useRef<number | null>(null);
-  const extraTimers = useRef<number[]>([]);
-
-
 
   useEffect(() => {
-    primeAudio();
     const id = window.setTimeout(() => setLit(true), 100);
-
-    // the kitten purrs (with the odd tiny meow) once audio is unlocked by a
-    // gesture, and goes quiet the moment the toad leaps
-    const wake = () => startKittenAmbience();
-    window.addEventListener("pointerdown", wake, { passive: true });
-    window.addEventListener("keydown", wake);
-    window.addEventListener("pointermove", wake, { passive: true, once: true });
-
     return () => {
       clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
-
-      if (sfxTimer.current) clearTimeout(sfxTimer.current);
-      if (hapticTimer.current) clearTimeout(hapticTimer.current);
-      extraTimers.current.forEach(clearTimeout);
-      window.removeEventListener("pointerdown", wake);
-      window.removeEventListener("keydown", wake);
-      window.removeEventListener("pointermove", wake);
-      stopKittenAmbience();
     };
   }, []);
 
+  // One cause, one effect: the frog hops, the frog lands, the cake smashes.
+  // Timing contract (keep in sync with .is-smashing rules in styles.css):
+  //   0ms      calm beat + anticipatory crouch
+  //   450ms    push-off, graceful arc up
+  //   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
+  //   1.2-2.8s frog flails on the wreck, cake rebounds and settles
+  //   2.9-4.2s the wipe blooms and carries the page turn
   const handleSmash = () => {
     if (smashing) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setSmashing(true);
+      timer.current = window.setTimeout(onEnter, 700);
+      return;
+    }
     setSmashing(true);
-    stopKittenAmbience();
-
-    // Timing contract (must stay in sync with .is-smashing rules in styles.css):
-    //   0ms      click — croak #1, frog crouches
-    //   350ms    push-off
-    //   1100ms   IMPACT — croak #2 (loudest) + smash, cake pancakes, debris erupts
-    //   1.1-3.9s debris arcs and falls, more croaks over the wreckage
-    //   3.9-5.2s the wipe blooms and carries the page turn
-    const IMPACT = 1100;
-    const AUDIO_LEAD = 25; // buffer scheduling + attack ramp
-    const HAPTIC_LEAD = 45; // vibration motor spin-up
-    const END = 5200;
-
-    // croak #1 on the crouch — the ribbit is the headline of the whole moment
-    playRibbet(1.3);
-    buzz(14);
-
-    const at = (ms: number, fn: () => void) => {
-      const id = window.setTimeout(fn, ms);
-      extraTimers.current.push(id);
-    };
-
-    hapticTimer.current = window.setTimeout(() => buzz([30, 40, 80]), IMPACT - HAPTIC_LEAD);
-    sfxTimer.current = window.setTimeout(() => {
-      // impact: the big "RIBBIT!!!" with the smash tucked underneath it
-      playRibbet(1.4);
-      playSmash(AUDIO_LEAD / 1000);
-    }, IMPACT - AUDIO_LEAD);
-
-    // croaks keep rolling over the flying debris so nothing ever goes quiet
-    at(1950, () => {
-      playRibbet(1.15);
-      buzz(18);
-    });
-    at(2950, () => playRibbet(0.95));
-    at(3900, () => {
-      playRibbet(1.25);
-      buzz([20, 30, 60]);
-    });
-
-    timer.current = window.setTimeout(onEnter, END);
+    timer.current = window.setTimeout(onEnter, 4200);
   };
+
 
 
 
@@ -166,6 +124,15 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         <img src={lotusImg} alt="" className="jp-lily jp-lily-2" loading="lazy" />
         <img src={lotusImg} alt="" className="jp-lily jp-lily-3" loading="lazy" />
       </div>
+
+      {/* small promotional badge, upper-left — subordinate to HOP IN */}
+      <button type="button" onClick={handleSmash} className="jp-promo" lang={lang}>
+        <span className="jp-promo-star" aria-hidden>✦</span>
+        <span className="jp-promo-main">{t.promo}</span>
+        <span className="jp-promo-tag">{t.promoTag}</span>
+      </button>
+
+
 
       {/* the big ink toad-with-cat, standing guard up the right side */}
       <div className="jp-mascot" aria-hidden={false}>
@@ -275,8 +242,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             <img src={frogImg} alt="" width={150} height={150} className="jp-frog" draggable={false} />
           </div>
 
+          {/* the frog's line, landing on the exact impact frame */}
+          <span className="jp-ribbit" aria-hidden>RIBBIT!!</span>
+
           {/* cake debris — irregular chunks of sponge with frosting on top,
               plus small crumbs; only visible during the smash */}
+
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
               // deterministic pseudo-random so SSR and client agree
@@ -324,15 +295,21 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
         </div>
 
-        <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-          <button type="button" onClick={handleSmash} className="btn-jp" lang={lang}>
-            {t.cta}
-            <i lang={lang}>{t.ctaTag}</i>
+        <div className="relative z-10 mt-8 flex flex-col items-center gap-4">
+          <button type="button" onClick={handleSmash} className="btn-jp btn-hopin" lang={lang}>
+            {t.hopIn}
+            <i lang={lang}>{t.hopInTag}</i>
           </button>
-          <a href="#showcase" className="jp-link" lang={lang}>
-            {t.link}
-          </a>
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6">
+            <button type="button" onClick={handleSmash} className="jp-secondary" lang={lang}>
+              {t.cta}
+            </button>
+            <a href="#showcase" className="jp-link" lang={lang}>
+              {t.link}
+            </a>
+          </div>
         </div>
+
 
         <p className="jp-fine" lang={lang}>
           {t.fine}

@@ -841,74 +841,109 @@
     0 4px 10px rgba(27, 20, 16, 0.22);
 }
 
-/* ── hero smash sequence ────────────────────────────────────────────────────
-   0ms     click — croak #1, frog crouches
-   350ms   push-off
-   1100ms  IMPACT — croak #2 + smash, cake is pancaked, debris erupts
-   1.1–3.9s debris arcs out, falls under gravity, frog rides the wreck
-   3.9–5.2s the pink-to-white wipe carries you into the app
+/* ── hero hop-and-smash sequence ────────────────────────────────────────────
+   One cause, one effect: the frog hops, the frog lands, the cake smashes.
+   0ms      calm beat, anticipatory crouch
+   450ms    push-off, graceful arc
+   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
+   1.2–2.8s frog flails on the wreck, cake bulges then settles
+   2.9–4.2s the wipe carries the page turn
    Keep these numbers in sync with handleSmash() in GlamHero.tsx.          */
-.is-smashing .jp-frog { animation: jpLeap 1150ms cubic-bezier(.25,.8,.3,1) 350ms forwards; }
-.is-smashing .jp-pad { animation: jpPadRipple 900ms ease-out 380ms forwards; }
-.is-smashing .jp-cake { animation: jpSmash 2600ms cubic-bezier(.16,.85,.3,1) 1100ms forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 1700ms ease-out 1100ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 2900ms cubic-bezier(.16,.7,.35,1) 1120ms forwards; }
-.is-smashing .jp-layer-tag { animation: jpBlast 1400ms ease-out 1120ms forwards; }
+.is-smashing .jp-frog {
+  animation:
+    jpLeap 700ms cubic-bezier(.34,.06,.42,1) 450ms both,
+    jpFlail 1750ms cubic-bezier(.2,.8,.3,1) 1150ms forwards;
+}
+.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out 470ms forwards; }
+.is-smashing .jp-cake { animation: jpSmash 2500ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 900ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 1500ms cubic-bezier(.15,.75,.4,1) 1160ms forwards; }
+.is-smashing .jp-ribbit { animation: jpRibbit 1500ms cubic-bezier(.2,1.2,.3,1) 1150ms forwards; }
+.is-smashing .jp-layer-tag { animation: jpJolt 1100ms ease-out 1160ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
 .is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpBlast 1600ms cubic-bezier(.3,.9,.3,1) 1160ms forwards; }
-.is-smashing .jp-sun { animation: jpSunRush 3400ms ease-in 1120ms forwards; }
-.is-smashing .jp-flash { animation: jpFlash 4100ms linear 1100ms forwards; }
+.is-smashing .jp-chip { animation: jpJolt 900ms ease-out 1160ms forwards; }
+.is-smashing .jp-flash { animation: jpFlash 3050ms linear 1150ms forwards; }
 
 
-/* the cake gets pancaked on impact, then the wreck tumbles toward the camera */
+
+/* the cake compresses under the landing, bulges sideways, rebounds a little
+   and settles — squashed but still recognisably a layer cake */
 @keyframes jpSmash {
-  0% { transform: perspective(900px) translateY(0) scale(1); }
-  3% { transform: perspective(900px) translateY(10px) scaleX(1.34) scaleY(0.3); filter: brightness(1.4); }
-  7% { transform: perspective(900px) translateY(14px) scaleX(1.6) scaleY(0.14); filter: brightness(1.55); }
-  16% { transform: perspective(900px) translateY(4px) translateZ(180px) scaleX(2.1) scaleY(0.5) rotate(-2deg); opacity: 0.9; filter: brightness(1.7) blur(1px); }
-  45% { transform: perspective(900px) translateY(60px) translateZ(520px) scaleX(3.6) scaleY(1.1) rotate(4deg); opacity: 0.45; filter: brightness(1.85) blur(5px); }
-  100% { transform: perspective(900px) translateY(180px) translateZ(1000px) scaleX(6.4) scaleY(2) rotate(8deg); opacity: 0; filter: brightness(2) blur(14px); }
+  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  6% { transform: translateY(16px) scale(1.28, 0.62) rotate(0deg); filter: brightness(1.12); }
+  12% { transform: translateY(22px) scale(1.4, 0.5) rotate(-1deg); filter: brightness(1.18); }
+  26% { transform: translateY(10px) scale(1.08, 0.78) rotate(1.5deg); filter: brightness(1.06); }
+  40% { transform: translateY(18px) scale(1.2, 0.62) rotate(-1deg); }
+  58% { transform: translateY(15px) scale(1.15, 0.66) rotate(0.6deg); }
+  100% { transform: translateY(16px) scale(1.16, 0.65) rotate(0.4deg); }
 }
 
+/* a single soft impact ring under the cake */
 @keyframes jpDiscPop {
   0% { transform: scale(1); opacity: 1; }
-  8% { transform: scale(1.4); opacity: 1; }
-  100% { transform: scale(4.2); opacity: 0; }
+  18% { transform: scale(1.16); opacity: 0.95; }
+  100% { transform: scale(1.06); opacity: 1; }
 }
 
-/* debris: erupts outward and toward the lens, then gravity pulls it down and
-   past the bottom of the frame while it tumbles */
+/* icing and crumbs jump up off the cake, arc out and fall back down */
 @keyframes jpShard {
-  0% { opacity: 0; transform: perspective(700px) translate3d(0, 0, 0) rotate3d(1, 1, .3, 0deg) scale(0.35); }
-  4% { opacity: 1; }
-  30% {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5); }
+  6% { opacity: 1; }
+  45% {
     opacity: 1;
-    transform: perspective(700px)
-      translate3d(calc(var(--dx) * 0.85), calc(var(--dy) * 0.85), 340px)
-      rotate3d(1, 1, .3, calc(var(--rot) * 0.5)) scale(2.6);
-  }
-  62% {
-    opacity: 1;
-    transform: perspective(700px)
-      translate3d(calc(var(--dx) * 1.7), calc(var(--dy) * 1.4 + 180px), 620px)
-      rotate3d(1, 1, .3, calc(var(--rot) * 0.8)) scale(4.2);
+    transform: translate3d(calc(var(--dx) * 0.55), calc(var(--dy) * 0.6), 0)
+      rotate(calc(var(--rot) * 0.4)) scale(1);
   }
   100% {
     opacity: 0;
-    transform: perspective(700px)
-      translate3d(calc(var(--dx) * 2.6), calc(var(--dy) * 1.9 + 720px), 1060px)
-      rotate3d(1, 1, .3, var(--rot)) scale(6.6);
-    filter: blur(4px);
+    transform: translate3d(calc(var(--dx) * 0.9), calc(var(--dy) * 0.35 + 240px), 0)
+      rotate(calc(var(--rot) * 0.8)) scale(0.9);
   }
 }
 
+/* the frog's line, popping in on the landing frame */
+.jp-ribbit {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  top: 6%;
+  margin-left: -230px;
+  opacity: 0;
+  pointer-events: none;
+  font-family: var(--font-display, inherit);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5vw, 2.9rem);
+  letter-spacing: 0.06em;
+  color: #E8368F;
+  -webkit-text-stroke: 2px #1B1410;
+  text-shadow: 5px 6px 0 rgba(27, 20, 16, 0.9);
+  transform-origin: 50% 100%;
+  white-space: nowrap;
+}
+@keyframes jpRibbit {
+  0% { opacity: 0; transform: scale(0.5) rotate(-8deg); }
+  12% { opacity: 1; transform: scale(1.14) rotate(-6deg); }
+  22% { transform: scale(0.98) rotate(-4deg); }
+  34% { transform: scale(1.03) rotate(-5deg); }
+  70% { opacity: 1; transform: translateY(-8px) scale(1) rotate(-5deg); }
+  100% { opacity: 0; transform: translateY(-26px) scale(0.98) rotate(-5deg); }
+}
+
+/* everything else just takes the hit, it does not fly apart */
+@keyframes jpJolt {
+  0% { transform: translateY(0) scale(1); }
+  10% { transform: translateY(5px) scale(0.99); }
+  26% { transform: translateY(-2px) scale(1.004); }
+  100% { transform: translateY(0) scale(1); }
+}
 @keyframes jpBlast {
   0% { transform: scale(1); opacity: 1; }
   20% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1.6); opacity: 0; }
 }
+
 @keyframes jpSunRush {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
   100% { transform: translate(-50%, -50%) scale(2.4) rotate(150deg); opacity: 0; }
@@ -921,17 +956,72 @@
   opacity: 0;
   background: radial-gradient(closest-side, #FFFFFF 0%, #F6D8EA 40%, #E8368F 70%, #7C6BD9 100%);
 }
-/* one hard strobe on the impact frame, then it gets out of the way so the
-   debris is fully visible, and only at the very end does it bloom into the
-   wipe that carries the page turn — never a dead hold */
+/* a soft puff of light on the landing frame, then it stays out of the way
+   while the cake settles, and only at the end blooms into the page-turn wipe */
 @keyframes jpFlash {
-  0% { opacity: 0; transform: scale(0.15); border-radius: 50%; }
-  1.5% { opacity: 1; transform: scale(1.8); border-radius: 0; }
-  6% { opacity: 0.1; transform: scale(1.9); }
-  60% { opacity: 0.05; transform: scale(2); }
-  78% { opacity: 0.22; transform: scale(2.2); }
-  100% { opacity: 1; transform: scale(2.9); }
+  0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
+  4% { opacity: 0.45; transform: scale(1.6); border-radius: 0; }
+  14% { opacity: 0.06; transform: scale(1.8); }
+  55% { opacity: 0.05; transform: scale(1.9); }
+  100% { opacity: 1; transform: scale(2.8); }
 }
+
+/* upper-left promotional badge — deliberately small next to HOP IN */
+.jp-promo {
+  position: absolute;
+  z-index: 30;
+  top: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.42rem 0.8rem;
+  background: #F7B32B;
+  color: #1B1410;
+  border: 2px solid #1B1410;
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 rgba(27, 20, 16, 0.85);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.jp-promo:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 rgba(27, 20, 16, 0.85); }
+.jp-promo-star { color: #E8368F; }
+.jp-promo-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  opacity: 0.7;
+}
+@media (max-width: 640px) {
+  .jp-promo { top: 0.6rem; left: 0.6rem; font-size: 0.62rem; padding: 0.32rem 0.6rem; }
+  .jp-promo-tag { display: none; }
+}
+
+/* the primary entrance action */
+.btn-hopin {
+  font-size: clamp(1.35rem, 4.2vw, 2rem);
+  letter-spacing: 0.18em;
+  padding: 1.05rem 2.6rem;
+}
+
+/* the same free-slice offer, kept available but visually subordinate */
+.jp-secondary {
+  background: none;
+  border: 0;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid rgba(27, 20, 16, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(27, 20, 16, 0.75);
+  cursor: pointer;
+}
+.jp-secondary:hover { color: #1B1410; border-bottom-color: #1B1410; }
+
 
 
 
@@ -1129,22 +1219,34 @@
   transform-origin: 50% 100%;
 }
 @keyframes jpCroak { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.96); } }
-/* 900ms leap; contact with the cake is pinned to 66.7% = 600ms, the exact
-   frame the cake smash, the "smash" sfx and the impact haptic fire on. */
+/* 700ms hop: light anticipatory crouch, graceful arc up, faster fall, and a
+   hard squash on the landing frame — which is the exact frame the cake reacts. */
 @keyframes jpLeap {
   0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
-  15% { transform: translate(-6px, 8px) scale(1.15, 0.82); }
-  44% { transform: translate(90px, -190px) scale(0.9, 1.16) rotate(-14deg); }
-  60% { transform: translate(138px, -84px) scale(1.06, 0.94) rotate(4deg); }
-  66.7% { transform: translate(152px, -30px) scale(1.38, 0.66) rotate(6deg); }
-  78% { transform: translate(156px, -6px) scale(1.2, 0.82) rotate(8deg); }
-  100% { transform: translate(160px, 40px) scale(1.5, 0.4) rotate(10deg); opacity: 0; }
+  8% { transform: translate(-4px, 6px) scale(1.1, 0.86) rotate(0deg); }
+  20% { transform: translate(-8px, 10px) scale(1.18, 0.8) rotate(-2deg); }
+  38% { transform: translate(70px, -170px) scale(0.88, 1.18) rotate(-12deg); }
+  58% { transform: translate(150px, -230px) scale(0.94, 1.1) rotate(-6deg); }
+  82% { transform: translate(196px, -150px) scale(1.02, 1.02) rotate(4deg); }
+  100% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
+}
+/* he lands heavy, flails on the wreckage, then settles proudly on top */
+@keyframes jpFlail {
+  0% { transform: translate(212px, -96px) scale(1.42, 0.62) rotate(8deg); }
+  12% { transform: translate(208px, -122px) scale(0.94, 1.12) rotate(-9deg); }
+  24% { transform: translate(216px, -100px) scale(1.16, 0.9) rotate(11deg); }
+  36% { transform: translate(206px, -116px) scale(0.98, 1.06) rotate(-7deg); }
+  48% { transform: translate(214px, -102px) scale(1.08, 0.95) rotate(6deg); }
+  62% { transform: translate(209px, -110px) scale(1, 1) rotate(-3deg); }
+  78% { transform: translate(211px, -106px) scale(1.02, 0.99) rotate(2deg); }
+  100% { transform: translate(210px, -108px) scale(1, 1) rotate(0deg); }
 }
 @keyframes jpPadRipple {
   0% { transform: scale(1); opacity: 1; }
   40% { transform: scale(1.25, 0.7); }
   100% { transform: scale(1.7, 0.5); opacity: 0; }
 }
+
 @media (max-width: 640px) {
   .jp-frog-wrap { width: 150px; height: 140px; margin-left: -168px; }
   .jp-frog { width: 130px; }
@@ -1200,7 +1302,26 @@
 
 @media (prefers-reduced-motion: reduce) {
   .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
+  /* no hopping or smashing: the frog is simply already sat on a slightly
+     compressed cake, RIBBIT!! shows statically, and HOP IN stays usable */
+  .is-smashing .jp-frog,
+  .is-smashing .jp-cake,
+  .is-smashing .jp-disc,
+  .is-smashing .jp-shard,
+  .is-smashing .jp-pad,
+  .is-smashing .jp-ribbit,
+  .is-smashing .jp-layer-tag,
+  .is-smashing .jp-title,
+  .is-smashing .jp-jp,
+  .is-smashing .jp-lede,
+  .is-smashing .jp-chip,
+  .is-smashing .jp-flash { animation: none !important; }
+  .is-smashing .jp-frog { transform: translate(210px, -108px) !important; }
+  .is-smashing .jp-cake { transform: translateY(16px) scale(1.16, 0.65) !important; }
+  .is-smashing .jp-ribbit { opacity: 1 !important; }
+  .is-smashing .jp-flash { opacity: 0.9 !important; transition: opacity 300ms linear; }
 }
+
 
 /* lotus flowers behind the showcase tiles */
 .jp-showcase-lilies {
