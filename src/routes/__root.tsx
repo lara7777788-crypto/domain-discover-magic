@@ -95,6 +95,8 @@ function RootComponent() {
   return (
     <AuthProvider>
       <Outlet />
+      <LowSliceAlert />
+      <Toaster position="top-center" />
     </AuthProvider>
   );
 }
