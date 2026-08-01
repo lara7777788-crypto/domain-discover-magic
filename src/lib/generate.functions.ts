@@ -127,7 +127,12 @@ export const generate = createServerFn({ method: "POST" })
       p_amount: cost,
       p_source: data.raw ? "homemade" : data.intent,
     });
+    if (spendErr) {
+      if ((spendErr.message || "").includes("no_credits")) {
+        throw new Error(
           "You're out of slices. Subscribe or buy a pack to keep generating.",
+        );
+      }
         );
       }
       console.error("[generate] spend credit failed", spendErr);
