@@ -6,6 +6,8 @@ import { TopNav } from "@/components/TopNav";
 import { generate } from "@/lib/generate.functions";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { makeThumb } from "@/lib/thumb";
+import { useCredits } from "@/hooks/useCredits";
+import { CreditMeter } from "@/components/CreditMeter";
 
 export const Route = createFileRoute("/effects")({
   head: () => ({
@@ -82,6 +84,7 @@ function EffectsPage() {
   const [effect, setEffect] = useState<string>("3d");
   const [palette, setPalette] = useState<string>(PALETTES[0]);
   const [logo, setLogo] = useState<string | null>(null);
+  const credits = useCredits();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ imageDataUrl: string } | null>(null);
@@ -131,6 +134,7 @@ function EffectsPage() {
           logo: logo ? "Match the attached logo's shapes and letterforms exactly." : "",
           extra: "Spell the text exactly as given. No extra words, no watermarks.",
           format: "social",
+          intent: "effects" as const,
           ...(logo ? { referenceImages: [logo] } : {}),
         },
       });
@@ -268,6 +272,14 @@ function EffectsPage() {
             ))}
           </div>
         </div>
+
+        <CreditMeter
+          className="mt-8"
+          total={credits.total}
+          cost={1}
+          isAdmin={credits.isAdmin}
+          loading={credits.loading}
+        />
 
         <button
           onClick={onRender}

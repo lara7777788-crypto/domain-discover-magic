@@ -6,6 +6,8 @@ import { TopNav } from "@/components/TopNav";
 import { generate } from "@/lib/generate.functions";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { makeThumb } from "@/lib/thumb";
+import { useCredits } from "@/hooks/useCredits";
+import { CreditMeter } from "@/components/CreditMeter";
 
 export const Route = createFileRoute("/mix")({
   head: () => ({
@@ -39,6 +41,7 @@ function MixPage() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   const [direction, setDirection] = useState("");
+  const credits = useCredits();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ prompt: string; imageDataUrl: string } | null>(null);
@@ -127,6 +130,7 @@ function MixPage() {
           logo: "",
           extra: "Blend the elements — do not make a collage of separate panels.",
           format: "social",
+          intent: "mix" as const,
           ...(refs.length ? { referenceImages: refs.slice(0, 3) } : {}),
         },
       });
@@ -234,6 +238,14 @@ function MixPage() {
           rows={2}
           placeholder="Optional direction — e.g. 'keep the pink palette, make it a poster for a Tokyo pop-up'."
           className="mt-6 w-full resize-none rounded-2xl border border-white/70 bg-white/75 p-4 text-base text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-white"
+        />
+
+        <CreditMeter
+          className="mt-8"
+          total={credits.total}
+          cost={2}
+          isAdmin={credits.isAdmin}
+          loading={credits.loading}
         />
 
         <button
