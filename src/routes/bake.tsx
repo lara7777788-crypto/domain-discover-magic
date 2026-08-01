@@ -739,7 +739,13 @@ function BakePage() {
               >
                 {loading ? TERMS.ctaBusy : TERMS.ctaIdle}
               </button>
-              <span className="text-xs opacity-60">{TERMS.firstFreeNote}</span>
+              <CreditMeter
+                total={credits.total}
+                cost={isCopy ? 0.5 : 1}
+                isAdmin={credits.isAdmin}
+                loading={credits.loading}
+              />
+
             </div>
 
             {result && (
