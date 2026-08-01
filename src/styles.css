@@ -1266,25 +1266,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .jp-frog, .jp-layer-tag { animation: none !important; opacity: 1 !important; }
-  /* no hopping or smashing: the frog is simply already sat on a slightly
-     compressed cake, RIBBIT!! shows statically, and HOP IN stays usable */
-  .is-smashing .jp-frog,
-  .is-smashing .jp-cake,
-  .is-smashing .jp-disc,
-  .is-smashing .jp-shard,
-  .is-smashing .jp-pad,
-  .is-smashing .jp-ribbit,
-  .is-smashing .jp-layer-tag,
-  .is-smashing .jp-title,
-  .is-smashing .jp-jp,
-  .is-smashing .jp-lede,
-  .is-smashing .jp-chip,
-  .is-smashing .jp-flash { animation: none !important; }
-  .is-smashing .jp-frog { transform: translate(210px, -108px) !important; }
-  .is-smashing .jp-cake { transform: translateY(16px) scale(1.16, 0.65) !important; }
-  .is-smashing .jp-ribbit { opacity: 1 !important; }
-  .is-smashing .jp-flash { opacity: 0.9 !important; transition: opacity 300ms linear; }
+  /* no hop: the frog is simply already sat on a slightly compressed cake,
+     RIBBIT!! shows statically, and HOP IN is usable immediately */
+  .is-hopping .jp-frog,
+  .is-hopping .jp-cake,
+  .is-hopping .jp-disc,
+  .is-hopping .jp-shard,
+  .is-hopping .jp-pad,
+  .is-hopping .jp-ribbit,
+  .is-hopping .jp-layer-tag { animation: none !important; }
+  .is-hopping .jp-frog { transform: translate(210px, -108px) !important; }
+  .is-hopping .jp-cake { transform: translateY(13px) scale(1.1, 0.82) !important; }
+  .is-hopping .jp-ribbit { opacity: 1 !important; }
 }
+
 
 
 /* lotus flowers behind the showcase tiles */
