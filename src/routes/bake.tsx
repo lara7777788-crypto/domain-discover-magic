@@ -482,13 +482,14 @@ function BakePage() {
                 : TERMS.finalLabel}
             </div>
           )}
-          <a
-            href="/slices"
+          <Link
+            to="/slices"
+            search={{ tab: (isCopy ? "copy" : "slices") as "copy" | "slices" }}
             className="shrink-0 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:tracking-[0.14em]"
           >
             <span className="hidden sm:inline">My {TERMS.nounPlural}</span>
             <span className="sm:hidden">My</span>
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -708,9 +709,13 @@ function BakePage() {
             {saveNotice && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 <span>{saveNotice}</span>
-                <a href="/slices" className="font-semibold underline underline-offset-4">
-                  Open My slices
-                </a>
+                <Link
+                  to="/slices"
+                  search={{ tab: (isCopy ? "copy" : "slices") as "copy" | "slices" }}
+                  className="font-semibold underline underline-offset-4"
+                >
+                  Open My {TERMS.nounPlural}
+                </Link>
               </div>
             )}
 
