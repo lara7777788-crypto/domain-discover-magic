@@ -29,6 +29,7 @@ export const Route = createFileRoute("/slices")({
 type Slice = {
   id: string;
   name: string;
+  thumb_url: string | null;
   preview_url: string | null;
   is_unlocked: boolean;
   updated_at: string;
@@ -36,9 +37,32 @@ type Slice = {
   copy: string | null;
 };
 
-type SliceMeta = Omit<Slice, "preview_url">;
-
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Downscale a huge base64 preview into a small tile-sized image. */
+async function makeThumb(dataUrl: string): Promise<string | null> {
+  try {
+    const img = new Image();
+    img.decoding = "async";
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("decode failed"));
+      img.src = dataUrl;
+    });
+    const size = 480;
+    const scale = Math.min(1, size / Math.max(img.width || size, img.height || size));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round((img.width || size) * scale));
+    canvas.height = Math.max(1, Math.round((img.height || size) * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const out = canvas.toDataURL("image/webp", 0.8);
+    return out.startsWith("data:image/webp") ? out : canvas.toDataURL("image/jpeg", 0.8);
+  } catch {
+    return null;
+  }
+}
 
 function SlicesPage() {
   const { user, loading: authLoading } = useAuth();
@@ -59,13 +83,24 @@ function SlicesPage() {
     [slices, isCopyTab],
   );
 
-  const openSave = (s: Slice) => {
-    if (!s.preview_url) {
-      setError("This slice is still loading its preview — give it a moment.");
+  const openSave = async (s: Slice) => {
+    if (!user) return;
+    let url = s.preview_url;
+    if (!url) {
+      const { data } = await supabase
+        .from("designs")
+        .select("preview_url")
+        .eq("id", s.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      url = (data?.preview_url as string | null) ?? null;
+    }
+    if (!url) {
+      setError("This slice is still loading its full-size image — give it a moment.");
       return;
     }
     setSavePayload({
-      url: s.preview_url,
+      url,
       filename: `${(s.name || "layercake-slice").replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.png`,
       sliceId: s.id,
       locked: !s.is_unlocked,
@@ -87,21 +122,29 @@ function SlicesPage() {
     setDiscovering(true);
 
     (async () => {
-      // 1) Metadata first — retried, because the DB can time out under load.
-      let rows: SliceMeta[] | null = null;
+      // 1) Lightweight metadata + small thumbnails. Never select `preview_url`
+      // or `data` here: those hold multi-megabyte base64 blobs and made the
+      // gallery request time out before a single tile could render.
+      let rows: Slice[] | null = null;
       for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
         const { data, error } = await supabase
           .from("designs")
-          // Never touch `data` here: older image rows also contain a second
-          // multi-megabyte image inside that JSON, which made this lightweight
-          // gallery request time out before any card could load.
-          .select("id, name, is_unlocked, updated_at")
+          .select("id, name, is_unlocked, updated_at, mode, copy_text, thumb_url")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
           .limit(36);
         if (cancelled) return;
         if (!error) {
-          rows = (data ?? []).map((row) => ({ ...row, mode: null, copy: null })) as SliceMeta[];
+          rows = (data ?? []).map((row) => ({
+            id: row.id as string,
+            name: row.name as string,
+            is_unlocked: row.is_unlocked as boolean,
+            updated_at: row.updated_at as string,
+            mode: ((row as { mode?: string | null }).mode ?? "image") as string,
+            copy: ((row as { copy_text?: string | null }).copy_text ?? null) as string | null,
+            thumb_url: ((row as { thumb_url?: string | null }).thumb_url ?? null) as string | null,
+            preview_url: null,
+          }));
           break;
         }
         console.error("[slices] metadata attempt failed", attempt, error);
@@ -115,80 +158,56 @@ function SlicesPage() {
         return;
       }
 
-      setSlices(rows.map((row) => ({ ...row, preview_url: null })));
+      setSlices(rows);
+      setDiscovering(false);
 
-      // 2) Previews are heavy base64 blobs. Fetch them ONE row at a time with a
-      // retry — batching several blobs in a single query causes statement
-      // timeouts, which is why tiles used to stay empty forever.
-       const imageRows = rows;
-       // A single worker is intentional. Two simultaneous 2–3 MB base64 rows
-       // can exceed the database statement budget on mobile connections.
-       const CONCURRENCY = 1;
-      let cursor = 0;
-
-      const worker = async () => {
-        while (!cancelled) {
-          const row = imageRows[cursor++];
-          if (!row) return;
-          let url: string | null = null;
-          for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
-            const { data, error } = await supabase
-              .from("designs")
-              .select("preview_url")
-              .eq("id", row.id)
-              .eq("user_id", user.id)
-              .maybeSingle();
-            if (cancelled) return;
-            if (!error) {
-              url = (data?.preview_url as string | null) ?? null;
-              break;
-            }
-            console.error("[slices] preview attempt failed", row.id, attempt, error);
-            await sleep(500 * (attempt + 1));
-          }
+      // 2) Backfill: older rows have no thumbnail yet. Pull their full preview
+      // one at a time, show it, then persist a small thumbnail so the next
+      // visit is instant.
+      const pending = rows.filter((r) => r.mode !== "copy" && !r.thumb_url);
+      for (const row of pending) {
+        if (cancelled) return;
+        let url: string | null = null;
+        for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+          const { data, error } = await supabase
+            .from("designs")
+            .select("preview_url")
+            .eq("id", row.id)
+            .eq("user_id", user.id)
+            .maybeSingle();
           if (cancelled) return;
-           if (url) {
-            setSlices((current) =>
-               current?.map((s) => (s.id === row.id ? { ...s, mode: "image", preview_url: url } : s)) ?? current,
-            );
-          } else {
-             // Saved copy has no preview image. Only inspect its JSON after we
-             // know it is copy, so image records never deserialize the second
-             // embedded base64 payload stored in older rows.
-             const { data: copyRow, error: copyError } = await supabase
-               .from("designs")
-               .select("data")
-               .eq("id", row.id)
-               .eq("user_id", user.id)
-               .maybeSingle();
-             if (cancelled) return;
-             const payload = copyRow?.data as { mode?: string; result?: { copy?: string } } | null;
-             if (!copyError && payload?.mode === "copy") {
-               setSlices((current) =>
-                 current?.map((s) =>
-                   s.id === row.id
-                     ? { ...s, mode: "copy", copy: payload.result?.copy ?? null }
-                     : s,
-                 ) ?? current,
-               );
-             } else {
-               setSlices((current) =>
-                 current?.map((s) => (s.id === row.id ? { ...s, mode: "image" } : s)) ?? current,
-               );
-               setFailedPreviews((f) => ({ ...f, [row.id]: true }));
-             }
+          if (!error) {
+            url = (data?.preview_url as string | null) ?? null;
+            break;
           }
+          console.error("[slices] preview attempt failed", row.id, attempt, error);
+          await sleep(500 * (attempt + 1));
         }
-      };
-
-      await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-       if (!cancelled) setDiscovering(false);
+        if (cancelled) return;
+        if (!url) {
+          setFailedPreviews((f) => ({ ...f, [row.id]: true }));
+          continue;
+        }
+        setSlices((current) =>
+          current?.map((s) => (s.id === row.id ? { ...s, preview_url: url, thumb_url: url } : s)) ?? current,
+        );
+        const thumb = await makeThumb(url);
+        if (cancelled) return;
+        if (thumb) {
+          await supabase
+            .from("designs")
+            .update({ thumb_url: thumb } as never)
+            .eq("id", row.id)
+            .eq("user_id", user.id);
+        }
+      }
     })();
 
     return () => {
       cancelled = true;
     };
   }, [user, reloadKey]);
+
 
   const remove = async (id: string) => {
     if (!user) return;
