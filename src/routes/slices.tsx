@@ -216,6 +216,17 @@ function SlicesPage() {
     navigate({ to: "/bake", search: { remix: id, mode: isCopyTab ? "copy" : "image" } });
   };
 
+  const copyPrompt = async (s: Slice) => {
+    if (!s.prompt) return;
+    try {
+      await navigator.clipboard.writeText(s.prompt);
+      setCopiedPromptId(s.id);
+      setTimeout(() => setCopiedPromptId((c) => (c === s.id ? null : c)), 1600);
+    } catch {
+      setError("Couldn't copy that prompt — select the text and copy manually.");
+    }
+  };
+
   const copyText = async (s: Slice) => {
     if (!s.copy) return;
     try {
