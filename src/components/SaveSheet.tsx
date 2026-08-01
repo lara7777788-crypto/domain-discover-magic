@@ -250,6 +250,10 @@ export function SaveSheet({
           )}
         </div>
 
+        {saveNote && (
+          <p className="mt-3 text-xs font-medium text-foreground/70">{saveNote}</p>
+        )}
+
         <p className="mt-3 text-[11px] text-foreground/45">
           Filename: {payload.filename}
         </p>
