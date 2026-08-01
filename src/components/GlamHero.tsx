@@ -125,6 +125,15 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
         <img src={lotusImg} alt="" className="jp-lily jp-lily-3" loading="lazy" />
       </div>
 
+      {/* small promotional badge, upper-left — subordinate to HOP IN */}
+      <button type="button" onClick={handleSmash} className="jp-promo" lang={lang}>
+        <span className="jp-promo-star" aria-hidden>✦</span>
+        <span className="jp-promo-main">{t.promo}</span>
+        <span className="jp-promo-tag">{t.promoTag}</span>
+      </button>
+
+
+
       {/* the big ink toad-with-cat, standing guard up the right side */}
       <div className="jp-mascot" aria-hidden={false}>
         <div className="jp-bubble" lang={lang}>
