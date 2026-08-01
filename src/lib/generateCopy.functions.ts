@@ -26,10 +26,15 @@ const InputSchema = z.object({
 export type GenerateCopyInput = z.infer<typeof InputSchema>;
 export type CopyAttachment = z.infer<typeof AttachmentSchema>;
 
+export const COPY_COST = 0.5;
+
 export type GenerateCopyResult = {
   prompt: string;
   copy: string;
+  creditsLeft: number;
+  monthlyLeft: number;
 };
+
 
 const FORMAT_HINTS: Record<GenerateCopyInput["format"], string> = {
   caption: "Short social caption (Instagram / TikTok). Under 60 words. One idea, one feeling, one CTA at most.",
