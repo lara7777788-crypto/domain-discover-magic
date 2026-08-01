@@ -23,6 +23,9 @@ const InputSchema = z.object({
   referenceImage: DataUrl.optional(),
   // Up to 3 reference images.
   referenceImages: z.array(DataUrl).max(3).optional(),
+  // "Home made cake": send the wish straight to the image model, skipping the
+  // prompt-rewrite layer.
+  raw: z.boolean().optional().default(false),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
