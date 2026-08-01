@@ -7,6 +7,7 @@ import { LayerStack } from "@/components/LayerStack";
 import { GlamHero } from "@/components/GlamHero";
 
 import { useReveal } from "@/hooks/useReveal";
+import { useAuth } from "@/lib/auth-context";
 
 
 
