@@ -233,8 +233,12 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             <img src={frogImg} alt="" width={150} height={150} className="jp-frog" draggable={false} />
           </div>
 
+          {/* the frog's line, landing on the exact impact frame */}
+          <span className="jp-ribbit" aria-hidden>RIBBIT!!</span>
+
           {/* cake debris — irregular chunks of sponge with frosting on top,
               plus small crumbs; only visible during the smash */}
+
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
               // deterministic pseudo-random so SSR and client agree
