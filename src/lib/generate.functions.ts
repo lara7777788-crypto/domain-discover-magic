@@ -119,7 +119,18 @@ export const generate = createServerFn({ method: "POST" })
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: PROMPT_LAYER_SYSTEM },
-          { role: "user", content: composeBriefPrompt(data) },
+          {
+            role: "user",
+            content: data.referenceImage
+              ? [
+                  {
+                    type: "text",
+                    text: `${composeBriefPrompt(data)}\n\nA reference image is attached. Describe and carry over its key visual traits (subject, palette, style, composition) into the prompt.`,
+                  },
+                  { type: "image_url", image_url: { url: data.referenceImage } },
+                ]
+              : composeBriefPrompt(data),
+          },
         ],
       }),
     });
