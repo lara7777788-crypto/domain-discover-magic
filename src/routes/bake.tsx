@@ -101,6 +101,27 @@ function BakePage() {
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copied, setCopied] = useState(false);
+  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [refError, setRefError] = useState<string | null>(null);
+
+  const onPickReference = (file: File | null | undefined) => {
+    if (!file) return;
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      setRefError("Use a PNG, JPG, or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setRefError("Keep the reference under 5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRefError(null);
+      setReferenceImage(typeof reader.result === "string" ? reader.result : null);
+    };
+    reader.onerror = () => setRefError("Couldn't read that file.");
+    reader.readAsDataURL(file);
+  };
 
   // Per-mode terminology
   const TERMS = isCopy
@@ -305,7 +326,7 @@ function BakePage() {
     try {
       const res = isCopy
         ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat } })
-        : await generate({ data: { ...currentValues, format: format as ImageFormat } });
+        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImage ? { referenceImage } : {}) } });
       setResult(res);
       goTo(LAYERS.length);
       // No auto-save — user saves manually via the Save button on the result.
@@ -463,14 +484,53 @@ function BakePage() {
               </h2>
               <p className="mt-3 text-lg italic opacity-75" style={{ color: l.ink }}>{l.tagline}</p>
 
-              <textarea
-                ref={(el) => { textRefs.current[l.key] = el; }}
-                value={values[l.key]}
-                onChange={(e) => setValues((v) => ({ ...v, [l.key]: e.target.value }))}
-                placeholder={l.hint}
-                rows={3}
-                className="mt-8 w-full resize-none rounded-2xl border border-white/60 bg-white/70 p-5 text-base text-foreground placeholder:text-foreground/35 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white"
-              />
+              <div className={`mt-8 flex flex-col gap-4 ${!isCopy && i === 0 ? "sm:flex-row sm:items-stretch" : ""}`}>
+                <textarea
+                  ref={(el) => { textRefs.current[l.key] = el; }}
+                  value={values[l.key]}
+                  onChange={(e) => setValues((v) => ({ ...v, [l.key]: e.target.value }))}
+                  placeholder={l.hint}
+                  rows={3}
+                  className="w-full flex-1 resize-none rounded-2xl border border-white/60 bg-white/70 p-5 text-base text-foreground placeholder:text-foreground/35 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white"
+                />
+
+                {!isCopy && i === 0 && (
+                  <div className="sm:w-40 sm:shrink-0">
+                    <label
+                      className="group relative flex h-full min-h-[104px] cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border border-dashed border-white/80 bg-white/50 p-3 text-center text-xs backdrop-blur-sm transition hover:bg-white/70"
+                      style={{ color: l.ink }}
+                    >
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="sr-only"
+                        onChange={(e) => { onPickReference(e.target.files?.[0]); e.target.value = ""; }}
+                      />
+                      {referenceImage ? (
+                        <img src={referenceImage} alt="Reference" className="absolute inset-0 h-full w-full object-cover" />
+                      ) : (
+                        <>
+                          <span className="text-lg">🖼️</span>
+                          <span className="font-medium">Reference image</span>
+                          <span className="opacity-60">Optional · PNG/JPG/WebP</span>
+                        </>
+                      )}
+                    </label>
+                    {referenceImage && (
+                      <button
+                        type="button"
+                        onClick={() => setReferenceImage(null)}
+                        className="mt-2 w-full text-[11px] font-medium uppercase tracking-[0.18em] opacity-60 transition hover:opacity-100"
+                        style={{ color: l.ink }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                    {refError && <p className="mt-2 text-[11px] text-red-600">{refError}</p>}
+                  </div>
+                )}
+              </div>
+
 
               {user && (
                 <ChipRow

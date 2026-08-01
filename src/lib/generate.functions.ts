@@ -11,6 +11,12 @@ const InputSchema = z.object({
   layout: z.string().max(200).optional().default(""),
   logo: z.string().max(200).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
+  // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
+  referenceImage: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
+    .max(8_000_000)
+    .optional(),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
@@ -113,7 +119,18 @@ export const generate = createServerFn({ method: "POST" })
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: PROMPT_LAYER_SYSTEM },
-          { role: "user", content: composeBriefPrompt(data) },
+          {
+            role: "user",
+            content: data.referenceImage
+              ? [
+                  {
+                    type: "text",
+                    text: `${composeBriefPrompt(data)}\n\nA reference image is attached. Describe and carry over its key visual traits (subject, palette, style, composition) into the prompt.`,
+                  },
+                  { type: "image_url", image_url: { url: data.referenceImage } },
+                ]
+              : composeBriefPrompt(data),
+          },
         ],
       }),
     });
@@ -140,7 +157,17 @@ export const generate = createServerFn({ method: "POST" })
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          {
+            role: "user",
+            content: data.referenceImage
+              ? [
+                  { type: "text", text: `${prompt}\n\nUse the attached image as a visual reference.` },
+                  { type: "image_url", image_url: { url: data.referenceImage } },
+                ]
+              : prompt,
+          },
+        ],
         modalities: ["image", "text"],
       }),
     });
