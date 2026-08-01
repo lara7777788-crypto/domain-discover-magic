@@ -841,67 +841,61 @@
     0 4px 10px rgba(27, 20, 16, 0.22);
 }
 
-/* ── hero hop-and-smash sequence ────────────────────────────────────────────
-   One cause, one effect: the frog hops, the frog lands, the cake smashes.
-   0ms      calm beat, anticipatory crouch
-   450ms    push-off, graceful arc
-   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
-   1.2–2.8s frog flails on the wreck, cake bulges then settles
-   2.9–4.2s the wipe carries the page turn
-   Keep these numbers in sync with handleSmash() in GlamHero.tsx.          */
-.is-smashing .jp-frog {
+/* ── hero hop-and-squash sequence ───────────────────────────────────────────
+   One cause, one effect: the frog hops, the frog lands, the cake squashes.
+   The class lands 500ms after mount, so the composition reads calm first.
+   0ms     anticipation crouch
+   180ms   push-off, one readable arc (light up, faster down)
+   680ms   LANDING — cake compresses, a few crumbs lift, "RIBBIT!!" pops
+   0.68–1.4s  one small rebound, then everything settles
+   Keep these numbers in sync with the effect in GlamHero.tsx.             */
+.is-hopping .jp-frog {
   animation:
-    jpLeap 700ms cubic-bezier(.34,.06,.42,1) 450ms both,
-    jpFlail 1750ms cubic-bezier(.2,.8,.3,1) 1150ms forwards;
+    jpLeap 680ms cubic-bezier(.45,.02,.55,1) both,
+    jpFrogSettle 460ms cubic-bezier(.22,.9,.3,1) 680ms forwards;
 }
-.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out 470ms forwards; }
-.is-smashing .jp-cake { animation: jpSmash 2500ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 900ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 1500ms cubic-bezier(.15,.75,.4,1) 1160ms forwards; }
-.is-smashing .jp-ribbit { animation: jpRibbit 1500ms cubic-bezier(.2,1.2,.3,1) 1150ms forwards; }
-.is-smashing .jp-layer-tag { animation: jpJolt 1100ms ease-out 1160ms forwards; }
-.is-smashing .jp-title,
-.is-smashing .jp-jp,
-.is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpJolt 900ms ease-out 1160ms forwards; }
-.is-smashing .jp-flash { animation: jpFlash 3050ms linear 1150ms forwards; }
+.is-hopping .jp-pad { animation: jpPadRipple 520ms ease-out 200ms forwards; }
+.is-hopping .jp-cake { animation: jpSmash 760ms cubic-bezier(.24,.9,.32,1) 680ms forwards; }
+.is-hopping .jp-disc { animation: jpDiscPop 520ms cubic-bezier(.2,.9,.3,1) 680ms forwards; }
+.is-hopping .jp-shard { animation: jpShard 760ms cubic-bezier(.15,.75,.4,1) 690ms forwards; }
+.is-hopping .jp-ribbit { animation: jpRibbit 1000ms cubic-bezier(.2,1.2,.3,1) 680ms forwards; }
+.is-hopping .jp-layer-tag { animation: jpJolt 520ms ease-out 690ms forwards; }
 
 
 
-/* the cake compresses under the landing, bulges sideways, rebounds a little
+/* the cake compresses under the landing, bulges sideways, rebounds once
    and settles — squashed but still recognisably a layer cake */
 @keyframes jpSmash {
-  0% { transform: translateY(0) scale(1, 1) rotate(0deg); }
-  6% { transform: translateY(16px) scale(1.28, 0.62) rotate(0deg); filter: brightness(1.12); }
-  12% { transform: translateY(22px) scale(1.4, 0.5) rotate(-1deg); filter: brightness(1.18); }
-  26% { transform: translateY(10px) scale(1.08, 0.78) rotate(1.5deg); filter: brightness(1.06); }
-  40% { transform: translateY(18px) scale(1.2, 0.62) rotate(-1deg); }
-  58% { transform: translateY(15px) scale(1.15, 0.66) rotate(0.6deg); }
-  100% { transform: translateY(16px) scale(1.16, 0.65) rotate(0.4deg); }
+  0% { transform: translateY(0) scale(1, 1); }
+  12% { transform: translateY(20px) scale(1.22, 0.66); }
+  40% { transform: translateY(6px) scale(0.98, 1.05); }
+  70% { transform: translateY(15px) scale(1.12, 0.8); }
+  100% { transform: translateY(13px) scale(1.1, 0.82); }
 }
 
 /* a single soft impact ring under the cake */
 @keyframes jpDiscPop {
   0% { transform: scale(1); opacity: 1; }
-  18% { transform: scale(1.16); opacity: 0.95; }
+  25% { transform: scale(1.14); opacity: 0.95; }
   100% { transform: scale(1.06); opacity: 1; }
 }
 
-/* icing and crumbs jump up off the cake, arc out and fall back down */
+/* a few crumbs lift off the cake and drop straight back down */
 @keyframes jpShard {
-  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5); }
-  6% { opacity: 1; }
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.6); }
+  10% { opacity: 1; }
   45% {
     opacity: 1;
-    transform: translate3d(calc(var(--dx) * 0.55), calc(var(--dy) * 0.6), 0)
-      rotate(calc(var(--rot) * 0.4)) scale(1);
+    transform: translate3d(calc(var(--dx) * 0.6), var(--dy), 0)
+      rotate(calc(var(--rot) * 0.5)) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate3d(calc(var(--dx) * 0.9), calc(var(--dy) * 0.35 + 240px), 0)
-      rotate(calc(var(--rot) * 0.8)) scale(0.9);
+    transform: translate3d(var(--dx), calc(var(--dy) * 0.2 + 60px), 0)
+      rotate(var(--rot)) scale(0.9);
   }
 }
+
 
 /* the frog's line, popping in on the landing frame */
 .jp-ribbit {
