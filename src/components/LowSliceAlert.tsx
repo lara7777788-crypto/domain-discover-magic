@@ -195,6 +195,31 @@ export function LowSliceSettings() {
           Email me too
         </label>
       </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="text-sm text-foreground/70" htmlFor="lowSliceCooldown">
+          Remind me at most once every
+        </label>
+        <select
+          id="lowSliceCooldown"
+          value={String(cooldown)}
+          onChange={(e) => {
+            const h = Number(e.target.value);
+            setCooldown(h);
+            setLowSliceCooldownHours(h);
+          }}
+          className="rounded-full border border-foreground/10 bg-white px-4 py-2 text-sm text-foreground"
+        >
+          <option value="1">hour</option>
+          <option value="6">6 hours</option>
+          <option value="12">12 hours</option>
+          <option value="24">day</option>
+          <option value="72">3 days</option>
+          <option value="168">week</option>
+        </select>
+        <span className="text-sm text-foreground/50">
+          Keeps batch generations from spamming you.
+        </span>
+      </div>
     </div>
   );
 }
