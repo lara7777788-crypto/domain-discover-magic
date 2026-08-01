@@ -102,9 +102,10 @@ export const generateCopy = createServerFn({ method: "POST" })
       );
     }
 
-    // One credit per copy generation — same wallet as image slices.
-    const { error: spendErr } = await supabaseAdmin.rpc("spend_generation_credit", {
+    // Half a slice per copy generation — monthly allowance first, then packs.
+    const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
+      p_amount: COPY_COST,
     });
     if (spendErr) {
       if ((spendErr.message || "").includes("no_credits")) {
@@ -113,6 +114,10 @@ export const generateCopy = createServerFn({ method: "POST" })
       console.error("[generateCopy] spend credit failed", spendErr);
       throw new Error("An unexpected error occurred. Please try again.");
     }
+    const wallet = Array.isArray(spent) ? spent[0] : spent;
+    const creditsLeft = Number(wallet?.balance ?? 0);
+    const monthlyLeft = Number(wallet?.monthly_remaining ?? 0);
+
 
     const brief = composeBrief(data);
     const attachments = (data.attachments ?? []).slice(0, 2);
