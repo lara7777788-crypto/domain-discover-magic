@@ -220,12 +220,9 @@ export function IcingPanel({
           <div className="text-xs text-foreground/50">
             Icing menu (soon): animated MP4 · sound stings · effect packs · sticker bundles · ~$0.50 each
           </div>
-          <button
-            onClick={handleDownloadClick}
-            className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5"
-          >
-            Download ↓
-          </button>
+          <p className="text-xs font-medium text-foreground/60">
+            Save to your gallery to download ↓
+          </p>
         </div>
       </div>
     </div>
