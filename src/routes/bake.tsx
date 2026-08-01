@@ -277,6 +277,7 @@ function BakePage() {
     text: null,
     layout: null,
     logo: null,
+    extra: null,
   });
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
