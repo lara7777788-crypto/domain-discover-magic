@@ -85,6 +85,36 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_rollovers: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string
+          granted_for: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          expires_at: string
+          granted_for: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string
+          granted_for?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       designs: {
         Row: {
           copy_text: string | null
@@ -295,6 +325,7 @@ export type Database = {
           is_admin: boolean
           monthly_allowance: number
           monthly_remaining: number
+          rollover: number
         }[]
       }
       current_user_is_pro: { Args: { check_env?: string }; Returns: boolean }
