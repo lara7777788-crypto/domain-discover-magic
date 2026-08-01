@@ -91,7 +91,6 @@ export function TopNav() {
         )}
       </nav>
     </header>
-  );
       {confirmLogout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
