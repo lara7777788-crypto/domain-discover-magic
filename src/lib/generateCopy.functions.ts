@@ -2,16 +2,29 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const AttachmentSchema = z.object({
+  name: z.string().max(200),
+  mime: z.string().max(120),
+  dataUrl: z
+    .string()
+    .regex(/^data:[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-]+;base64,/, "attachment_invalid")
+    .max(8_000_000),
+});
+
 const InputSchema = z.object({
   wish: z.string().min(1).max(800),
   visual: z.string().max(300).optional().default(""),
   text: z.string().max(300).optional().default(""),
   layout: z.string().max(300).optional().default(""),
   logo: z.string().max(300).optional().default(""),
+  extra: z.string().max(800).optional().default(""),
   format: z.enum(["caption", "post", "headline"]).default("caption"),
+  // Up to 2 reference documents / screenshots.
+  attachments: z.array(AttachmentSchema).max(2).optional(),
 });
 
 export type GenerateCopyInput = z.infer<typeof InputSchema>;
+export type CopyAttachment = z.infer<typeof AttachmentSchema>;
 
 export type GenerateCopyResult = {
   prompt: string;
@@ -33,10 +46,12 @@ const composeBrief = (i: GenerateCopyInput): string => {
     i.text && `Length notes (yeast — how much it should rise): ${i.text}`,
     i.layout && `Audience (milk — who's reading): ${i.layout}`,
     i.logo && `Voice (salt — signature, brand, sign-off): ${i.logo}`,
+    i.extra && `Anything special (must-honor instructions): ${i.extra}`,
     `Format: ${i.format} — ${FORMAT_HINTS[i.format]}`,
   ].filter(Boolean);
   return parts.join("\n");
 };
+
 
 const COPY_SYSTEM = `You are the "Copy Layer" of Layercake — the copywriting twin of an image generator.
 You take a baker's brief (broken into ingredients: flour, sugar, yeast, milk, salt) and you write the finished copy.
@@ -64,7 +79,7 @@ const BANNED_PATTERNS: RegExp[] = [
 ];
 
 const isBlockedInput = (i: GenerateCopyInput): boolean => {
-  const blob = [i.wish, i.visual, i.text, i.layout, i.logo].filter(Boolean).join(" ");
+  const blob = [i.wish, i.visual, i.text, i.layout, i.logo, i.extra].filter(Boolean).join(" ");
   return BANNED_PATTERNS.some((re) => re.test(blob));
 };
 
@@ -95,6 +110,21 @@ export const generateCopy = createServerFn({ method: "POST" })
     }
 
     const brief = composeBrief(data);
+    const attachments = (data.attachments ?? []).slice(0, 2);
+
+    const userContent = attachments.length
+      ? [
+          {
+            type: "text" as const,
+            text: `${brief}\n\n${attachments.length} reference file(s) are attached. Use them as source material — pull real details, tone, and facts from them. Never invent facts they don't contain.`,
+          },
+          ...attachments.map((a) =>
+            a.mime.startsWith("image/")
+              ? { type: "image_url" as const, image_url: { url: a.dataUrl } }
+              : { type: "file" as const, file: { filename: a.name, file_data: a.dataUrl } },
+          ),
+        ]
+      : brief;
 
     const res = await fetch(GATEWAY, {
       method: "POST",
@@ -103,7 +133,7 @@ export const generateCopy = createServerFn({ method: "POST" })
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: COPY_SYSTEM },
-          { role: "user", content: brief },
+          { role: "user", content: userContent },
         ],
       }),
     });

@@ -4,19 +4,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 
 
+const DataUrl = z
+  .string()
+  .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
+  .max(8_000_000);
+
 const InputSchema = z.object({
   wish: z.string().min(1).max(500),
   visual: z.string().max(200).optional().default(""),
   text: z.string().max(200).optional().default(""),
   layout: z.string().max(200).optional().default(""),
   logo: z.string().max(200).optional().default(""),
+  extra: z.string().max(500).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
   // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
-  referenceImage: z
-    .string()
-    .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
-    .max(8_000_000)
-    .optional(),
+  referenceImage: DataUrl.optional(),
+  // Up to 3 reference images.
+  referenceImages: z.array(DataUrl).max(3).optional(),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
@@ -36,6 +40,9 @@ const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 // --- Pure helpers (functional core) ---------------------------------------
 
+const refImagesOf = (i: GenerateInput): string[] =>
+  [...(i.referenceImages ?? []), ...(i.referenceImage ? [i.referenceImage] : [])].slice(0, 3);
+
 const composeBriefPrompt = (i: GenerateInput): string => {
   const parts = [
     `User wish: ${i.wish}`,
@@ -43,10 +50,12 @@ const composeBriefPrompt = (i: GenerateInput): string => {
     i.text && `Text on the piece: ${i.text}`,
     i.layout && `Layout: ${i.layout}`,
     i.logo && `Brand reference (product, logo, packaging, vibe shot, or photo): ${i.logo}`,
+    i.extra && `Anything special (must-honor instructions): ${i.extra}`,
     `Intended use: ${i.format} (${FORMAT_HINTS[i.format]})`,
   ].filter(Boolean);
   return parts.join("\n");
 };
+
 
 const PROMPT_LAYER_SYSTEM = `You are the "Prompt Layer" of Layercake — a tiny step that
 sits between a human's casual wish and an AI image generator.
@@ -77,7 +86,7 @@ const BANNED_PATTERNS: RegExp[] = [
 ];
 
 const isBlockedInput = (i: GenerateInput): boolean => {
-  const blob = [i.wish, i.visual, i.text, i.layout, i.logo].filter(Boolean).join(" ");
+  const blob = [i.wish, i.visual, i.text, i.layout, i.logo, i.extra].filter(Boolean).join(" ");
   return BANNED_PATTERNS.some((re) => re.test(blob));
 };
 
@@ -111,6 +120,8 @@ export const generate = createServerFn({ method: "POST" })
       throw new Error("An unexpected error occurred. Please try again.");
     }
 
+    const refs = refImagesOf(data);
+
     // 1. Prompt layer — rewrite the wish into a real image prompt
     const briefRes = await fetch(GATEWAY, {
       method: "POST",
@@ -121,13 +132,13 @@ export const generate = createServerFn({ method: "POST" })
           { role: "system", content: PROMPT_LAYER_SYSTEM },
           {
             role: "user",
-            content: data.referenceImage
+            content: refs.length
               ? [
                   {
                     type: "text",
-                    text: `${composeBriefPrompt(data)}\n\nA reference image is attached. Describe and carry over its key visual traits (subject, palette, style, composition) into the prompt.`,
+                    text: `${composeBriefPrompt(data)}\n\n${refs.length} reference image(s) are attached. Describe and carry over their key visual traits (subject, palette, style, composition) into the prompt.`,
                   },
-                  { type: "image_url", image_url: { url: data.referenceImage } },
+                  ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
                 ]
               : composeBriefPrompt(data),
           },
@@ -160,10 +171,10 @@ export const generate = createServerFn({ method: "POST" })
         messages: [
           {
             role: "user",
-            content: data.referenceImage
+            content: refs.length
               ? [
-                  { type: "text", text: `${prompt}\n\nUse the attached image as a visual reference.` },
-                  { type: "image_url", image_url: { url: data.referenceImage } },
+                  { type: "text", text: `${prompt}\n\nUse the attached image(s) as visual reference.` },
+                  ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
                 ]
               : prompt,
           },

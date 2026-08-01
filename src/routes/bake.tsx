@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, type GenerateInput } from "@/lib/generate.functions";
-import { generateCopy, type GenerateCopyInput } from "@/lib/generateCopy.functions";
+import { generateCopy, type GenerateCopyInput, type CopyAttachment } from "@/lib/generateCopy.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { ChipRow } from "@/components/ChipRow";
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/bake")({
   component: BakePage,
 });
 
-type LayerKey = "wish" | "visual" | "text" | "layout" | "logo";
+type LayerKey = "wish" | "visual" | "text" | "layout" | "logo" | "extra";
 
 type LayerDef = {
   key: LayerKey;
@@ -49,6 +49,7 @@ const IMAGE_LAYERS: LayerDef[] = [
   { key: "text",   name: "Text",   tagline: "What words live on it?", hint: "A title, a tagline, or nothing at all.",                 bg: "#FFF6BE", ink: "#6E5A0E" },
   { key: "layout", name: "Layout", tagline: "Where the eye lands.",   hint: "Centered · Off-axis · Grid · Generous space",            bg: "#D9F1D2", ink: "#1F5A2A" },
   { key: "logo",   name: "Brand",  tagline: "Anything that's yours.",  hint: "Product · logo · packaging · vibe shot · photo — describe or drop it in.", bg: "#D4E8FF", ink: "#1A3D6E" },
+  { key: "extra",  name: "Anything special", tagline: "The non-negotiables.", hint: "No text in the bottom third · Keep my exact pink (#FF3E9D) · Leave room for a logo top-left · Don't add people · Match the reference photo's lighting.", bg: "#E9DDFB", ink: "#3D2168" },
 ];
 
 // Copy mode: same 5 layer KEYS (so saved chips reuse cleanly), reframed as
@@ -59,7 +60,9 @@ const COPY_LAYERS: LayerDef[] = [
   { key: "text",   name: "Yeast",    tagline: "How much should it rise?",          hint: "One Instagram caption, under 60 words. Or: 'long enough to breathe, short enough to read'.", bg: "#C2D2EE", ink: "#0B1A45" },
   { key: "layout", name: "Milk",     tagline: "Who's drinking it in?",             hint: "Home bakers, 25–45, curious not expert. They love process, not jargon.",            bg: "#B6CAE9", ink: "#08153A" },
   { key: "logo",   name: "Salt",     tagline: "Signature notes & sign-off.",       hint: "First person, occasional baker's pun. Sign off: 'with butter, Lev.' Avoid: 'circle back', 'unlock', 'leverage'.", bg: "#AAC1E4", ink: "#06112F" },
+  { key: "extra",  name: "Anything special", tagline: "The non-negotiables.",      hint: "Don't mention price · Use British spelling · Keep it under 40 words · Include the phrase 'small-batch' · No exclamation marks · Follow the attached brief exactly.", bg: "#9EB6DE", ink: "#050D25" },
 ];
+
 
 type ImageFormat = GenerateInput["format"];
 type CopyFormat = GenerateCopyInput["format"];
@@ -101,27 +104,81 @@ function BakePage() {
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copied, setCopied] = useState(false);
-  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [refError, setRefError] = useState<string | null>(null);
+  const [copyFiles, setCopyFiles] = useState<CopyAttachment[]>([]);
+  const [copyFileError, setCopyFileError] = useState<string | null>(null);
 
-  const onPickReference = (file: File | null | undefined) => {
-    if (!file) return;
-    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
-      setRefError("Use a PNG, JPG, or WebP image.");
+  const readAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => (typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("read")));
+      reader.onerror = () => reject(new Error("read"));
+      reader.readAsDataURL(file);
+    });
+
+  const onPickReference = async (files: FileList | null | undefined) => {
+    if (!files || !files.length) return;
+    const picked = Array.from(files);
+    const room = 3 - referenceImages.length;
+    if (room <= 0) {
+      setRefError("You can attach up to 3 reference images.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setRefError("Keep the reference under 5MB.");
-      return;
+    const next: string[] = [];
+    for (const file of picked.slice(0, room)) {
+      if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+        setRefError("Use PNG, JPG, or WebP images.");
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setRefError("Keep each reference under 5MB.");
+        continue;
+      }
+      try {
+        next.push(await readAsDataUrl(file));
+      } catch {
+        setRefError("Couldn't read that file.");
+      }
     }
-    const reader = new FileReader();
-    reader.onload = () => {
+    if (next.length) {
       setRefError(null);
-      setReferenceImage(typeof reader.result === "string" ? reader.result : null);
-    };
-    reader.onerror = () => setRefError("Couldn't read that file.");
-    reader.readAsDataURL(file);
+      setReferenceImages((prev) => [...prev, ...next].slice(0, 3));
+    }
   };
+
+  const COPY_FILE_TYPES = "image/png,image/jpeg,image/webp,application/pdf,text/plain,text/markdown";
+
+  const onPickCopyFiles = async (files: FileList | null | undefined) => {
+    if (!files || !files.length) return;
+    const room = 2 - copyFiles.length;
+    if (room <= 0) {
+      setCopyFileError("You can attach up to 2 files.");
+      return;
+    }
+    const next: CopyAttachment[] = [];
+    for (const file of Array.from(files).slice(0, room)) {
+      const ok = /^(image\/(png|jpe?g|webp)|application\/pdf|text\/(plain|markdown))$/.test(file.type);
+      if (!ok) {
+        setCopyFileError("Use a screenshot (PNG/JPG/WebP), PDF, or text file.");
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setCopyFileError("Keep each file under 5MB.");
+        continue;
+      }
+      try {
+        next.push({ name: file.name, mime: file.type, dataUrl: await readAsDataUrl(file) });
+      } catch {
+        setCopyFileError("Couldn't read that file.");
+      }
+    }
+    if (next.length) {
+      setCopyFileError(null);
+      setCopyFiles((prev) => [...prev, ...next].slice(0, 2));
+    }
+  };
+
 
   // Per-mode terminology
   const TERMS = isCopy
@@ -220,6 +277,7 @@ function BakePage() {
     text: null,
     layout: null,
     logo: null,
+    extra: null,
   });
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
@@ -325,8 +383,8 @@ function BakePage() {
     setIcing(defaultIcing);
     try {
       const res = isCopy
-        ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat } })
-        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImage ? { referenceImage } : {}) } });
+        ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat, ...(copyFiles.length ? { attachments: copyFiles } : {}) } })
+        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImages.length ? { referenceImages } : {}) } });
       setResult(res);
       goTo(LAYERS.length);
       // No auto-save — user saves manually via the Save button on the result.
@@ -495,40 +553,86 @@ function BakePage() {
                 />
 
                 {!isCopy && i === 0 && (
-                  <div className="sm:w-40 sm:shrink-0">
-                    <label
-                      className="group relative flex h-full min-h-[104px] cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border border-dashed border-white/80 bg-white/50 p-3 text-center text-xs backdrop-blur-sm transition hover:bg-white/70"
-                      style={{ color: l.ink }}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className="sr-only"
-                        onChange={(e) => { onPickReference(e.target.files?.[0]); e.target.value = ""; }}
-                      />
-                      {referenceImage ? (
-                        <img src={referenceImage} alt="Reference" className="absolute inset-0 h-full w-full object-cover" />
-                      ) : (
-                        <>
-                          <span className="text-lg">🖼️</span>
-                          <span className="font-medium">Reference image</span>
-                          <span className="opacity-60">Optional · PNG/JPG/WebP</span>
-                        </>
+                  <div className="sm:w-44 sm:shrink-0">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-1">
+                      {referenceImages.map((src, idx) => (
+                        <div key={idx} className="relative overflow-hidden rounded-xl border border-white/70">
+                          <img src={src} alt={`Reference ${idx + 1}`} className="h-20 w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setReferenceImages((prev) => prev.filter((_, n) => n !== idx))}
+                            aria-label="Remove reference image"
+                            className="absolute right-1 top-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      {referenceImages.length < 3 && (
+                        <label
+                          className="flex min-h-[80px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-white/80 bg-white/50 p-2 text-center text-[11px] backdrop-blur-sm transition hover:bg-white/70"
+                          style={{ color: l.ink }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            multiple
+                            className="sr-only"
+                            onChange={(e) => { void onPickReference(e.target.files); e.target.value = ""; }}
+                          />
+                          <span className="text-base">🖼️</span>
+                          <span className="font-medium">Add reference</span>
+                          <span className="opacity-60">{referenceImages.length}/3 · PNG/JPG/WebP</span>
+                        </label>
                       )}
-                    </label>
-                    {referenceImage && (
-                      <button
-                        type="button"
-                        onClick={() => setReferenceImage(null)}
-                        className="mt-2 w-full text-[11px] font-medium uppercase tracking-[0.18em] opacity-60 transition hover:opacity-100"
-                        style={{ color: l.ink }}
-                      >
-                        Remove
-                      </button>
-                    )}
+                    </div>
                     {refError && <p className="mt-2 text-[11px] text-red-600">{refError}</p>}
                   </div>
                 )}
+
+                {isCopy && i === 0 && (
+                  <div className="mt-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {copyFiles.map((f, idx) => (
+                        <span
+                          key={idx}
+                          className="flex max-w-[220px] items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-[11px]"
+                          style={{ color: l.ink }}
+                        >
+                          <span className="truncate">{f.mime.startsWith("image/") ? "🖼️" : "📄"} {f.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setCopyFiles((prev) => prev.filter((_, n) => n !== idx))}
+                            aria-label="Remove file"
+                            className="opacity-60 transition hover:opacity-100"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                      {copyFiles.length < 2 && (
+                        <label
+                          className="cursor-pointer rounded-full border border-dashed border-white/80 bg-white/50 px-4 py-1.5 text-[11px] font-medium transition hover:bg-white/70"
+                          style={{ color: l.ink }}
+                        >
+                          <input
+                            type="file"
+                            accept={COPY_FILE_TYPES}
+                            multiple
+                            className="sr-only"
+                            onChange={(e) => { void onPickCopyFiles(e.target.files); e.target.value = ""; }}
+                          />
+                          📎 Attach document or screenshot · {copyFiles.length}/2
+                        </label>
+                      )}
+                    </div>
+                    <p className="mt-2 text-[11px] opacity-60" style={{ color: l.ink }}>
+                      Optional · PDF, text, or screenshot (max 5MB each) — the copy layer reads them for reference.
+                    </p>
+                    {copyFileError && <p className="mt-2 text-[11px] text-red-600">{copyFileError}</p>}
+                  </div>
+                )}
+
               </div>
 
 

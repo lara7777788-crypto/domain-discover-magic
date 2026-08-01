@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ChipLayer = "wish" | "visual" | "text" | "layout" | "logo";
+export type ChipLayer = "wish" | "visual" | "text" | "layout" | "logo" | "extra";
 
 type Chip = { id: string; label: string; content: string };
 
