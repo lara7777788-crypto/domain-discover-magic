@@ -168,6 +168,122 @@ export function playSmash(lead = 0) {
   noise.start(t0);
 }
 
+/** Soft kitten meow — the cat the toad is holding. Deliberately quiet. */
+export function playMeow(gainScale = 1) {
+  const ac = getCtx();
+  if (!ac || ac.state !== "running") return;
+  const t0 = ac.currentTime + 0.02;
+  const dur = 0.42;
+
+  const osc = ac.createOscillator();
+  const formant = ac.createBiquadFilter();
+  const amp = ac.createGain();
+  const vib = ac.createOscillator();
+  const vibGain = ac.createGain();
+
+  osc.type = "sawtooth";
+  // "mee-ow": up then a gentle fall
+  osc.frequency.setValueAtTime(520, t0);
+  osc.frequency.linearRampToValueAtTime(720, t0 + 0.12);
+  osc.frequency.linearRampToValueAtTime(430, t0 + dur);
+
+  vib.type = "sine";
+  vib.frequency.value = 16;
+  vibGain.gain.value = 18;
+  vib.connect(vibGain).connect(osc.frequency);
+
+  formant.type = "bandpass";
+  formant.frequency.setValueAtTime(900, t0);
+  formant.frequency.linearRampToValueAtTime(1500, t0 + 0.14);
+  formant.frequency.linearRampToValueAtTime(750, t0 + dur);
+  formant.Q.value = 3.2;
+
+  const g = Math.min(0.14, 0.1 * gainScale);
+  amp.gain.setValueAtTime(0.0001, t0);
+  amp.gain.exponentialRampToValueAtTime(g, t0 + 0.07);
+  amp.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+  osc.connect(formant).connect(amp).connect(ac.destination);
+  osc.start(t0);
+  vib.start(t0);
+  osc.stop(t0 + dur + 0.05);
+  vib.stop(t0 + dur + 0.05);
+}
+
+let purrNodes: { osc: OscillatorNode; lfo: OscillatorNode; amp: GainNode } | null = null;
+let ambienceTimer: number | null = null;
+
+/** Continuous low purr, very quiet, sits under the page until the smash. */
+function startPurr() {
+  const ac = getCtx();
+  if (!ac || purrNodes || ac.state !== "running") return;
+
+  const osc = ac.createOscillator();
+  const lp = ac.createBiquadFilter();
+  const amp = ac.createGain();
+  const lfo = ac.createOscillator();
+  const lfoGain = ac.createGain();
+
+  osc.type = "sawtooth";
+  osc.frequency.value = 52;
+  lp.type = "lowpass";
+  lp.frequency.value = 320;
+
+  // 25Hz tremolo = the classic purr flutter
+  lfo.type = "sine";
+  lfo.frequency.value = 25;
+  lfoGain.gain.value = 0.02;
+  lfo.connect(lfoGain).connect(amp.gain);
+
+  amp.gain.value = 0.022;
+  osc.connect(lp).connect(amp).connect(ac.destination);
+  osc.start();
+  lfo.start();
+  purrNodes = { osc, lfo, amp };
+}
+
+/** Fade out and tear down the purr + meow loop. */
+export function stopKittenAmbience() {
+  if (ambienceTimer) {
+    clearInterval(ambienceTimer);
+    ambienceTimer = null;
+  }
+  const nodes = purrNodes;
+  purrNodes = null;
+  if (!nodes || !ctx) return;
+  const t = ctx.currentTime;
+  try {
+    nodes.amp.gain.cancelScheduledValues(t);
+    nodes.amp.gain.setValueAtTime(nodes.amp.gain.value, t);
+    nodes.amp.gain.linearRampToValueAtTime(0.0001, t + 0.25);
+    nodes.osc.stop(t + 0.3);
+    nodes.lfo.stop(t + 0.3);
+  } catch {
+    /* already stopped */
+  }
+}
+
+/**
+ * Idle kitten ambience: a soft purr with an occasional little meow.
+ * Runs only after the audio context is unlocked, and stops at the smash.
+ */
+export function startKittenAmbience() {
+  if (quiet() || ambienceTimer || typeof window === "undefined") return;
+  const ac = getCtx();
+  if (!ac) return;
+  const begin = () => {
+    if (ambienceTimer) return;
+    startPurr();
+    window.setTimeout(() => playMeow(0.9), 900);
+    ambienceTimer = window.setInterval(() => {
+      if (!purrNodes) return;
+      playMeow(0.8 + Math.random() * 0.4);
+    }, 7000);
+  };
+  if (ac.state === "running") begin();
+  else void ac.resume().then(begin).catch(() => {});
+}
+
 /** Haptic-style pulse; silently ignored where unsupported. */
 export function buzz(pattern: number | number[]) {
   if (quiet()) return;
@@ -177,3 +293,4 @@ export function buzz(pattern: number | number[]) {
     /* no haptics */
   }
 }
+
