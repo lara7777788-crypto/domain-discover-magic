@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
+import { makeThumb } from "@/lib/thumb";
 
 type Tab = "slices" | "copy";
 
