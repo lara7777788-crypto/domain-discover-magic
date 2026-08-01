@@ -218,7 +218,14 @@ function SlicesPage() {
         {slices === null ? (
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-3xl border border-white bg-white/50" />
+              <div
+                key={i}
+                className="flex h-72 animate-pulse items-center justify-center rounded-3xl border border-white bg-white/50"
+              >
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-foreground/45">
+                  Loading…
+                </span>
+              </div>
             ))}
           </div>
         ) : visible.length === 0 ? (
@@ -259,7 +266,11 @@ function SlicesPage() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="h-full w-full animate-pulse bg-foreground/5" />
+                        <div className="flex h-full w-full animate-pulse items-center justify-center bg-foreground/5">
+                          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-foreground/45">
+                            Loading…
+                          </span>
+                        </div>
                       )}
                     </div>
                   )}
