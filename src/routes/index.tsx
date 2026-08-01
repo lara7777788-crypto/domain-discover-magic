@@ -7,6 +7,7 @@ import { LayerStack } from "@/components/LayerStack";
 import { GlamHero } from "@/components/GlamHero";
 
 import { useReveal } from "@/hooks/useReveal";
+import { useAuth } from "@/lib/auth-context";
 
 
 
@@ -33,23 +34,28 @@ const SPLASH_TTL = 60 * 60 * 1000; // 1 hour
 
 function Splash() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
-  // Skip the splash if they came through it in the last hour — after that,
-  // they get the full entrance again.
+  // Skip the splash only for signed-in visitors who came through it recently.
   useEffect(() => {
+    if (loading || !user) return;
     try {
       const seen = Number(localStorage.getItem(SPLASH_KEY) ?? 0);
       if (seen && Date.now() - seen < SPLASH_TTL) navigate({ to: "/bake" });
     } catch {
       /* storage blocked — just show the splash */
     }
-  }, [navigate]);
+  }, [navigate, user, loading]);
 
   const goBake = () => {
     try {
       localStorage.setItem(SPLASH_KEY, String(Date.now()));
     } catch {
       /* ignore */
+    }
+    if (!user) {
+      navigate({ to: "/login", search: { next: "/bake" } });
+      return;
     }
     navigate({ to: "/bake" });
   };

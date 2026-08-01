@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 
 export function TopNav() {
   const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
   const linkClass =
     "shrink-0 whitespace-nowrap rounded-full bg-white/60 px-4 py-2.5 text-foreground/70 transition hover:bg-white hover:text-foreground sm:px-5";
   const activeClass =
@@ -61,7 +62,15 @@ export function TopNav() {
               New slice
             </Link>
             <button
-              onClick={() => signOut()}
+              onClick={async () => {
+                try {
+                  localStorage.removeItem("lc_splash_seen_at_v2");
+                } catch {
+                  /* ignore */
+                }
+                await signOut();
+                navigate({ to: "/", replace: true });
+              }}
               className="shrink-0 whitespace-nowrap rounded-full px-3 py-2.5 text-foreground/50 transition hover:text-foreground"
             >
               Sign out
