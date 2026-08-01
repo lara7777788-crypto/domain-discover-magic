@@ -117,9 +117,11 @@ export const generate = createServerFn({ method: "POST" })
       );
     }
 
-    // Every generation spends one slice credit. No free daily quota.
-    const { error: spendErr } = await supabaseAdmin.rpc("spend_generation_credit", {
+    // Monthly allowance is spent first, then purchased slices. Admins are free.
+    const cost = GENERATE_COST[data.intent] ?? 1;
+    const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
+      p_amount: cost,
     });
     if (spendErr) {
       if ((spendErr.message || "").includes("no_credits")) {
@@ -130,6 +132,10 @@ export const generate = createServerFn({ method: "POST" })
       console.error("[generate] spend credit failed", spendErr);
       throw new Error("An unexpected error occurred. Please try again.");
     }
+    const wallet = Array.isArray(spent) ? spent[0] : spent;
+    const creditsLeft = Number(wallet?.balance ?? 0);
+    const monthlyLeft = Number(wallet?.monthly_remaining ?? 0);
+
 
     const refs = refImagesOf(data);
 
