@@ -92,4 +92,43 @@ export function TopNav() {
       </nav>
     </header>
   );
+      {confirmLogout && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
+            onClick={() => setConfirmLogout(false)}
+          />
+          <div className="relative z-10 w-full max-w-xs rounded-3xl border border-white bg-cream/90 p-6 text-center shadow-[0_30px_60px_-30px_rgba(0,0,0,0.3)] backdrop-blur">
+            <p className="font-display text-lg font-semibold text-foreground">Sign out?</p>
+            <p className="mt-1 text-sm text-foreground/60">You’ll return to the Layercake splash.</p>
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmLogout(false)}
+                className="rounded-full px-5 py-2.5 text-sm font-medium text-foreground/70 transition hover:bg-white hover:text-foreground"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setConfirmLogout(false);
+                  try {
+                    localStorage.removeItem("lc_splash_seen_at_v2");
+                  } catch {
+                    /* ignore */
+                  }
+                  await signOut();
+                  window.location.replace("/");
+                }}
+                className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-foreground/90"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
