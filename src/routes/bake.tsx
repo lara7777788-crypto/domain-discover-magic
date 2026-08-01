@@ -482,13 +482,14 @@ function BakePage() {
                 : TERMS.finalLabel}
             </div>
           )}
-          <a
-            href="/slices"
+          <Link
+            to="/slices"
+            search={{ tab: (isCopy ? "copy" : "slices") as "copy" | "slices" }}
             className="shrink-0 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:tracking-[0.14em]"
           >
             <span className="hidden sm:inline">My {TERMS.nounPlural}</span>
             <span className="sm:hidden">My</span>
-          </a>
+          </Link>
         </div>
       </header>
 
