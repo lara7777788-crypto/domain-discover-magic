@@ -353,20 +353,21 @@ function SlicesPage() {
                     </div>
                   ) : (
                     <div className="aspect-square w-full overflow-hidden bg-foreground/5">
-                      {s.preview_url ? (
+                      {s.thumb_url ? (
                         <img
-                          src={s.preview_url}
+                          src={s.thumb_url}
                           alt={s.name}
                           loading="lazy"
                           decoding="async"
                            onError={() => {
                              setSlices((current) =>
                                current?.map((item) =>
-                                 item.id === s.id ? { ...item, preview_url: null } : item,
+                                 item.id === s.id ? { ...item, thumb_url: null, preview_url: null } : item,
                                ) ?? current,
                              );
                              setFailedPreviews((failed) => ({ ...failed, [s.id]: true }));
                            }}
+
                           className="h-full w-full object-cover"
                         />
                       ) : failedPreviews[s.id] ? (
