@@ -204,8 +204,11 @@ function EffectsPage() {
         )}
 
         <div className="mt-8">
-          <p className="mb-3 text-[11px] uppercase tracking-[0.3em] text-foreground/50">Finish</p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-foreground/50">Finish</p>
+            <p className="text-[11px] text-foreground/45">{EFFECTS.length} styles</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {EFFECTS.map((e) => {
               const on = e.key === effect;
               return (
@@ -213,16 +216,36 @@ function EffectsPage() {
                   key={e.key}
                   type="button"
                   onClick={() => setEffect(e.key)}
-                  className={`rounded-2xl px-3 py-3 text-sm font-semibold transition active:scale-95 ${
-                    on ? "bg-foreground text-white" : "bg-white/75 text-foreground/80 hover:bg-white"
+                  title={e.hint}
+                  className={`overflow-hidden rounded-2xl text-left transition active:scale-95 ${
+                    on
+                      ? "bg-foreground text-white shadow-[0_16px_30px_-18px_rgba(0,0,0,0.6)] ring-2 ring-foreground"
+                      : "bg-white/80 text-foreground/80 hover:bg-white"
                   }`}
                 >
-                  <span className="mr-1">{e.emoji}</span>
-                  {e.label}
+                  <span
+                    className="relative flex h-16 w-full items-center justify-center text-2xl"
+                    style={{ background: e.swatch }}
+                    aria-hidden="true"
+                  >
+                    <span className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">{e.emoji}</span>
+                    {on && (
+                      <span className="absolute right-2 top-2 rounded-full bg-white/90 px-1.5 text-[10px] font-bold text-foreground">
+                        ✓
+                      </span>
+                    )}
+                  </span>
+                  <span className="block px-3 py-2">
+                    <span className="block text-sm font-semibold leading-tight">{e.label}</span>
+                    <span className={`block text-[11px] leading-tight ${on ? "text-white/70" : "text-foreground/50"}`}>
+                      {e.hint}
+                    </span>
+                  </span>
                 </button>
               );
             })}
           </div>
+
         </div>
 
         <div className="mt-8">
