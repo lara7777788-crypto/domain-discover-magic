@@ -256,10 +256,13 @@ function SlicesPage() {
           <Link to="/slices" search={{ tab: "copy" as Tab }} className={tabClass(isCopyTab)}>
             My icing
           </Link>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <Link
             to="/bake"
             search={{ mode: "image" as "copy" | "image" }}
-            className="ml-auto shrink-0 whitespace-nowrap rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
+            className="shrink-0 whitespace-nowrap rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
           >
             + New slice
           </Link>
@@ -271,6 +274,7 @@ function SlicesPage() {
             + New icing
           </Link>
         </div>
+
 
         {error && (
           <div className="mt-8 flex items-center justify-between gap-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
