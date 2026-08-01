@@ -110,6 +110,21 @@ export const generateCopy = createServerFn({ method: "POST" })
     }
 
     const brief = composeBrief(data);
+    const attachments = (data.attachments ?? []).slice(0, 2);
+
+    const userContent = attachments.length
+      ? [
+          {
+            type: "text" as const,
+            text: `${brief}\n\n${attachments.length} reference file(s) are attached. Use them as source material — pull real details, tone, and facts from them. Never invent facts they don't contain.`,
+          },
+          ...attachments.map((a) =>
+            a.mime.startsWith("image/")
+              ? { type: "image_url" as const, image_url: { url: a.dataUrl } }
+              : { type: "file" as const, file: { filename: a.name, file_data: a.dataUrl } },
+          ),
+        ]
+      : brief;
 
     const res = await fetch(GATEWAY, {
       method: "POST",
@@ -118,7 +133,7 @@ export const generateCopy = createServerFn({ method: "POST" })
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: COPY_SYSTEM },
-          { role: "user", content: brief },
+          { role: "user", content: userContent },
         ],
       }),
     });
