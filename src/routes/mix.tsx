@@ -134,6 +134,7 @@ function MixPage() {
           ...(refs.length ? { referenceImages: refs.slice(0, 3) } : {}),
         },
       });
+      credits.applyWallet(res);
       setResult({ prompt: res.prompt, imageDataUrl: res.imageDataUrl });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Mixing went sideways.");

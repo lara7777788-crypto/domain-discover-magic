@@ -138,6 +138,7 @@ function EffectsPage() {
           ...(logo ? { referenceImages: [logo] } : {}),
         },
       });
+      credits.applyWallet(res);
       setResult({ imageDataUrl: res.imageDataUrl });
     } catch (e) {
       setError(e instanceof Error ? e.message : "That didn't render. Try again.");
