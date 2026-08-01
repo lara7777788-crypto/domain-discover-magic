@@ -23,6 +23,9 @@ const InputSchema = z.object({
   referenceImage: DataUrl.optional(),
   // Up to 3 reference images.
   referenceImages: z.array(DataUrl).max(3).optional(),
+  // "Home made cake": send the wish straight to the image model, skipping the
+  // prompt-rewrite layer.
+  raw: z.boolean().optional().default(false),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
@@ -122,6 +125,7 @@ export const generate = createServerFn({ method: "POST" })
     const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
       p_amount: cost,
+      p_source: data.raw ? "homemade" : data.intent,
     });
     if (spendErr) {
       if ((spendErr.message || "").includes("no_credits")) {
@@ -139,39 +143,43 @@ export const generate = createServerFn({ method: "POST" })
 
     const refs = refImagesOf(data);
 
-    // 1. Prompt layer — rewrite the wish into a real image prompt
-    const briefRes = await fetch(GATEWAY, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: PROMPT_LAYER_SYSTEM },
-          {
-            role: "user",
-            content: refs.length
-              ? [
-                  {
-                    type: "text",
-                    text: `${composeBriefPrompt(data)}\n\n${refs.length} reference image(s) are attached. Describe and carry over their key visual traits (subject, palette, style, composition) into the prompt.`,
-                  },
-                  ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
-                ]
-              : composeBriefPrompt(data),
-          },
-        ],
-      }),
-    });
+    // 1. Prompt layer — rewrite the wish into a real image prompt.
+    //    "Home made cake" (raw) skips this and uses the wish verbatim.
+    let prompt = data.wish.trim();
 
-    if (!briefRes.ok) {
-      const t = await briefRes.text();
-      console.error("[generate] Prompt layer failed", briefRes.status, t);
-      throw new Error("Image generation failed. Please try again.");
+    if (!data.raw) {
+      const briefRes = await fetch(GATEWAY, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: PROMPT_LAYER_SYSTEM },
+            {
+              role: "user",
+              content: refs.length
+                ? [
+                    {
+                      type: "text",
+                      text: `${composeBriefPrompt(data)}\n\n${refs.length} reference image(s) are attached. Describe and carry over their key visual traits (subject, palette, style, composition) into the prompt.`,
+                    },
+                    ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
+                  ]
+                : composeBriefPrompt(data),
+            },
+          ],
+        }),
+      });
+
+      if (!briefRes.ok) {
+        const t = await briefRes.text();
+        console.error("[generate] Prompt layer failed", briefRes.status, t);
+        throw new Error("Image generation failed. Please try again.");
+      }
+
+      const briefJson = await briefRes.json();
+      prompt = briefJson.choices?.[0]?.message?.content?.trim() ?? composeBriefPrompt(data);
     }
-
-    const briefJson = await briefRes.json();
-    const prompt: string =
-      briefJson.choices?.[0]?.message?.content?.trim() ?? composeBriefPrompt(data);
 
     if (/^BLOCKED\b/i.test(prompt)) {
       throw new Error(

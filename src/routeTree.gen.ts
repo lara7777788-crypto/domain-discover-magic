@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsageRouteImport } from './routes/usage'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SlicesRouteImport } from './routes/slices'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -20,6 +21,7 @@ import { Route as MixRouteImport } from './routes/mix'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IngredientsRouteImport } from './routes/ingredients'
+import { Route as HomemadeRouteImport } from './routes/homemade'
 import { Route as EffectsRouteImport } from './routes/effects'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
@@ -33,6 +35,11 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const UsageRoute = UsageRouteImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -86,6 +93,11 @@ const LoginRoute = LoginRouteImport.update({
 const IngredientsRoute = IngredientsRouteImport.update({
   id: '/ingredients',
   path: '/ingredients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomemadeRoute = HomemadeRouteImport.update({
+  id: '/homemade',
+  path: '/homemade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EffectsRoute = EffectsRouteImport.update({
@@ -159,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -170,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/terms': typeof TermsRoute
+  '/usage': typeof UsageRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
@@ -184,6 +198,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -195,6 +210,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/terms': typeof TermsRoute
+  '/usage': typeof UsageRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
@@ -210,6 +226,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -221,6 +238,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slices': typeof SlicesRoute
   '/terms': typeof TermsRoute
+  '/usage': typeof UsageRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/blog/visual-systems-vs-logo-generators': typeof BlogVisualSystemsVsLogoGeneratorsRoute
@@ -237,6 +255,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -248,6 +267,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slices'
     | '/terms'
+    | '/usage'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/blog/visual-systems-vs-logo-generators'
@@ -262,6 +282,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -273,6 +294,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slices'
     | '/terms'
+    | '/usage'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/blog/visual-systems-vs-logo-generators'
@@ -287,6 +309,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -298,6 +321,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slices'
     | '/terms'
+    | '/usage'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/blog/visual-systems-vs-logo-generators'
@@ -313,6 +337,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BakeRoute: typeof BakeRoute
   EffectsRoute: typeof EffectsRoute
+  HomemadeRoute: typeof HomemadeRoute
   IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -324,6 +349,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SlicesRoute: typeof SlicesRoute
   TermsRoute: typeof TermsRoute
+  UsageRoute: typeof UsageRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   BlogVisualSystemsVsLogoGeneratorsRoute: typeof BlogVisualSystemsVsLogoGeneratorsRoute
@@ -336,6 +362,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usage': {
+      id: '/usage'
+      path: '/usage'
+      fullPath: '/usage'
+      preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -411,6 +444,13 @@ declare module '@tanstack/react-router' {
       path: '/ingredients'
       fullPath: '/ingredients'
       preLoaderRoute: typeof IngredientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/homemade': {
+      id: '/homemade'
+      path: '/homemade'
+      fullPath: '/homemade'
+      preLoaderRoute: typeof HomemadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/effects': {
@@ -505,6 +545,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BakeRoute: BakeRoute,
   EffectsRoute: EffectsRoute,
+  HomemadeRoute: HomemadeRoute,
   IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
@@ -516,6 +557,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SlicesRoute: SlicesRoute,
   TermsRoute: TermsRoute,
+  UsageRoute: UsageRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,

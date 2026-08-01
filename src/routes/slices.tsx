@@ -36,6 +36,7 @@ type Slice = {
   updated_at: string;
   mode: string | null;
   copy: string | null;
+  prompt: string | null;
 };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -53,6 +54,7 @@ function SlicesPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
   const [discovering, setDiscovering] = useState(false);
 
   const isCopyTab = tab === "copy";
@@ -108,7 +110,7 @@ function SlicesPage() {
       for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
         const { data, error } = await supabase
           .from("designs")
-          .select("id, name, is_unlocked, updated_at, mode, copy_text, thumb_url")
+          .select("id, name, is_unlocked, updated_at, mode, copy_text, thumb_url, prompt_text")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
           .limit(36);
@@ -121,6 +123,7 @@ function SlicesPage() {
             updated_at: row.updated_at as string,
             mode: ((row as { mode?: string | null }).mode ?? "image") as string,
             copy: ((row as { copy_text?: string | null }).copy_text ?? null) as string | null,
+            prompt: ((row as { prompt_text?: string | null }).prompt_text ?? null) as string | null,
             thumb_url: ((row as { thumb_url?: string | null }).thumb_url ?? null) as string | null,
             preview_url: null,
           }));
@@ -212,6 +215,17 @@ function SlicesPage() {
   const remix = (id: string) => {
     if (!user) return;
     navigate({ to: "/bake", search: { remix: id, mode: isCopyTab ? "copy" : "image" } });
+  };
+
+  const copyPrompt = async (s: Slice) => {
+    if (!s.prompt) return;
+    try {
+      await navigator.clipboard.writeText(s.prompt);
+      setCopiedPromptId(s.id);
+      setTimeout(() => setCopiedPromptId((c) => (c === s.id ? null : c)), 1600);
+    } catch {
+      setError("Couldn't copy that prompt — select the text and copy manually.");
+    }
   };
 
   const copyText = async (s: Slice) => {
@@ -382,6 +396,32 @@ function SlicesPage() {
                       {isCopyTab ? "Icing" : "Slice"}
                     </div>
                   </div>
+                  {s.prompt && (
+                    <details className="mt-3 rounded-2xl bg-foreground/[0.04] px-3 py-2">
+                      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">
+                        The prompt
+                      </summary>
+                      <p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap text-[12px] leading-relaxed text-foreground/70">
+                        {s.prompt}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyPrompt(s)}
+                          className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-foreground/75 transition active:scale-95"
+                        >
+                          {copiedPromptId === s.id ? "Copied ✓" : "Copy prompt"}
+                        </button>
+                        <Link
+                          to="/homemade"
+                          search={{ from: s.id }}
+                          className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-foreground/75 transition active:scale-95"
+                        >
+                          Reuse in Home made
+                        </Link>
+                      </div>
+                    </details>
+                  )}
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <button
                       onClick={() => (isCopyTab ? copyText(s) : openSave(s))}
