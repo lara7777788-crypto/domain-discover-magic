@@ -79,6 +79,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const timer = useRef<number | null>(null);
   const sfxTimer = useRef<number | null>(null);
   const hapticTimer = useRef<number | null>(null);
+  const extraTimers = useRef<number[]>([]);
 
 
 
