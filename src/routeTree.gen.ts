@@ -20,6 +20,7 @@ import { Route as MixRouteImport } from './routes/mix'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IngredientsRouteImport } from './routes/ingredients'
+import { Route as HomemadeRouteImport } from './routes/homemade'
 import { Route as EffectsRouteImport } from './routes/effects'
 import { Route as BakeRouteImport } from './routes/bake'
 import { Route as AboutRouteImport } from './routes/about'
@@ -86,6 +87,11 @@ const LoginRoute = LoginRouteImport.update({
 const IngredientsRoute = IngredientsRouteImport.update({
   id: '/ingredients',
   path: '/ingredients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomemadeRoute = HomemadeRouteImport.update({
+  id: '/homemade',
+  path: '/homemade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EffectsRoute = EffectsRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/bake': typeof BakeRoute
   '/effects': typeof EffectsRoute
+  '/homemade': typeof HomemadeRoute
   '/ingredients': typeof IngredientsRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/bake'
     | '/effects'
+    | '/homemade'
     | '/ingredients'
     | '/login'
     | '/mcp'
@@ -313,6 +325,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BakeRoute: typeof BakeRoute
   EffectsRoute: typeof EffectsRoute
+  HomemadeRoute: typeof HomemadeRoute
   IngredientsRoute: typeof IngredientsRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -413,6 +426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IngredientsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/homemade': {
+      id: '/homemade'
+      path: '/homemade'
+      fullPath: '/homemade'
+      preLoaderRoute: typeof HomemadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/effects': {
       id: '/effects'
       path: '/effects'
@@ -505,6 +525,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BakeRoute: BakeRoute,
   EffectsRoute: EffectsRoute,
+  HomemadeRoute: HomemadeRoute,
   IngredientsRoute: IngredientsRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
