@@ -27,8 +27,9 @@ type Item = {
   id: string;
   name: string;
   mode: string | null;
-  copy: string | null;
+  copy_text: string | null;
 };
+
 
 const MAX = 3;
 
