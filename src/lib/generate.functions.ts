@@ -212,5 +212,5 @@ export const generate = createServerFn({ method: "POST" })
 
     if (!imageDataUrl) throw new Error("No image returned from gateway");
 
-    return { prompt, imageDataUrl };
+    return { prompt, imageDataUrl, creditsLeft, monthlyLeft };
   });
