@@ -123,7 +123,7 @@ function PricingPage() {
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
           <PlanCard
             name="Monthly"
-            price="$20"
+            price="$12"
             period="/month"
             features={[
               "90 slices per month",
@@ -141,9 +141,9 @@ function PricingPage() {
             price="$110"
             period="/year"
             features={[
-              "45 slices per month (540/year)",
+              "90 slices per month (1,080/year)",
               "HD downloads",
-              "Save $130 vs monthly",
+              "Save $34 vs monthly",
               "Cancel anytime",
             ]}
             cta="Go Pro yearly"
