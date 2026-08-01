@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
+import { LowSliceSettings } from "@/components/LowSliceAlert";
 
 export const Route = createFileRoute("/usage")({
   head: () => ({
@@ -163,6 +164,10 @@ function UsagePage() {
         {error && (
           <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
+
+        <LowSliceSettings />
+
+
 
         {events === null ? (
           <div className="mt-10 rounded-3xl border border-white bg-white/70 p-12 text-center backdrop-blur">
