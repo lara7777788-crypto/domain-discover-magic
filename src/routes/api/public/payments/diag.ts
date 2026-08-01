@@ -7,26 +7,30 @@ export const Route = createFileRoute("/api/public/payments/diag")({
       GET: async ({ request }) => {
         const url = new URL(request.url);
         const env = (url.searchParams.get("env") === "sandbox" ? "sandbox" : "live") as StripeEnv;
+        const fix = url.searchParams.get("fix") === "1";
         const out: Record<string, unknown> = { env };
         try {
           const stripe = createStripeClient(env);
           for (const key of ["pro_monthly", "pro_yearly", "slice_pack_10"]) {
             const prices = await stripe.prices.list({ lookup_keys: [key], expand: ["data.product"] });
             const p = prices.data[0];
-            out[key] = p
-              ? {
-                  id: p.id,
-                  active: p.active,
-                  type: p.type,
-                  amount: p.unit_amount,
-                  tax_code: (p.product as any)?.tax_code ?? null,
-                  product_active: (p.product as any)?.active ?? null,
-                }
-              : "MISSING";
+            if (!p) {
+              out[key] = "MISSING";
+              continue;
+            }
+            const product = p.product as any;
+            if (fix && !product?.tax_code) {
+              await stripe.products.update(product.id, { tax_code: "txcd_10000000" });
+            }
+            out[key] = {
+              id: p.id,
+              amount: p.unit_amount,
+              type: p.type,
+              product: product?.id,
+              tax_code: fix ? "txcd_10000000" : (product?.tax_code ?? null),
+            };
           }
-          // Try creating a real checkout session (no charge until paid)
-          const key = "pro_monthly";
-          const prices = await stripe.prices.list({ lookup_keys: [key] });
+          const prices = await stripe.prices.list({ lookup_keys: ["pro_monthly"] });
           if (prices.data.length) {
             try {
               const s = await stripe.checkout.sessions.create({
@@ -41,18 +45,6 @@ export const Route = createFileRoute("/api/public/payments/diag")({
               out["session_managed_payments"] = { ok: true, id: s.id };
             } catch (e: any) {
               out["session_managed_payments"] = { ok: false, error: e?.raw?.message ?? e?.message };
-            }
-            try {
-              const s2 = await stripe.checkout.sessions.create({
-                line_items: [{ price: prices.data[0].id, quantity: 1 }],
-                mode: "subscription",
-                ui_mode: "embedded_page",
-                return_url: "https://layercake.site/checkout/return",
-                metadata: { userId: "diagnostic" },
-              } as any);
-              out["session_plain"] = { ok: true, id: s2.id };
-            } catch (e: any) {
-              out["session_plain"] = { ok: false, error: e?.raw?.message ?? e?.message };
             }
           }
         } catch (e: any) {
