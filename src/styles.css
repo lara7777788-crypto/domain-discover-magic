@@ -1195,14 +1195,14 @@
   0% { transform: translate(0, 0) scale(1, 1) rotate(0deg); }
   16% { transform: translate(-5px, 9px) scale(1.16, 0.82) rotate(0deg); animation-timing-function: ease-in; }
   26% { transform: translate(6px, -20px) scale(0.9, 1.14) rotate(-6deg); animation-timing-function: cubic-bezier(.15,.7,.4,1); }
-  55% { transform: translate(130px, -216px) scale(0.96, 1.06) rotate(-4deg); animation-timing-function: cubic-bezier(.5,0,.9,.6); }
-  100% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
+  55% { transform: translate(90px, -216px) scale(0.96, 1.06) rotate(-4deg); animation-timing-function: cubic-bezier(.5,0,.9,.6); }
+  100% { transform: translate(150px, -100px) scale(1.32, 0.7) rotate(4deg); }
 }
 /* he lands heavy, then settles upright and unbothered on top */
 @keyframes jpFrogSettle {
-  0% { transform: translate(210px, -100px) scale(1.32, 0.7) rotate(4deg); }
-  40% { transform: translate(210px, -114px) scale(0.96, 1.07) rotate(-2deg); }
-  100% { transform: translate(210px, -108px) scale(1, 1) rotate(0deg); }
+  0% { transform: translate(150px, -100px) scale(1.32, 0.7) rotate(4deg); }
+  40% { transform: translate(150px, -114px) scale(0.96, 1.07) rotate(-2deg); }
+  100% { transform: translate(150px, -108px) scale(1, 1) rotate(0deg); }
 }
 
 @keyframes jpPadRipple {
