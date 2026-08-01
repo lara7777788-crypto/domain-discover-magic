@@ -709,9 +709,13 @@ function BakePage() {
             {saveNotice && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 <span>{saveNotice}</span>
-                <a href="/slices" className="font-semibold underline underline-offset-4">
-                  Open My slices
-                </a>
+                <Link
+                  to="/slices"
+                  search={{ tab: (isCopy ? "copy" : "slices") as "copy" | "slices" }}
+                  className="font-semibold underline underline-offset-4"
+                >
+                  Open My {TERMS.nounPlural}
+                </Link>
               </div>
             )}
 
