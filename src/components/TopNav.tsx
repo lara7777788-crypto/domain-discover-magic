@@ -12,7 +12,8 @@ export function TopNav() {
     "shrink-0 whitespace-nowrap rounded-full bg-foreground px-4 py-2.5 font-semibold text-white transition hover:bg-foreground hover:text-white sm:px-5";
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center gap-2 px-4 py-4 md:px-10 md:py-5">
+    <>
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center gap-2 px-4 py-4 md:px-10 md:py-5">
 
       <nav className="pointer-events-auto ml-auto flex min-w-0 items-center gap-2 overflow-x-auto py-1 text-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {!loading && user ? (
