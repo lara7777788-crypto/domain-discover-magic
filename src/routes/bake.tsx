@@ -441,7 +441,7 @@ function BakePage() {
         <Link to="/" className="pointer-events-auto shrink-0 font-display text-base font-semibold text-foreground/70 transition hover:text-foreground max-[480px]:w-7 max-[480px]:overflow-hidden max-[480px]:whitespace-nowrap">
           ← layercake
         </Link>
-        <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-end gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3">
+        <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-end gap-2 overflow-x-auto pr-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3">
           {/* Mode toggle */}
           <div className="flex shrink-0 items-center gap-1 rounded-full bg-white/70 p-1 text-[11px] font-medium uppercase tracking-[0.2em] backdrop-blur">
             <Link
@@ -479,17 +479,18 @@ function BakePage() {
           <Link
             to="/slices"
             search={{ tab: "slices" as "copy" | "slices" }}
-            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:text-[10px] max-[480px]:tracking-[0.06em]"
           >
             My slices
           </Link>
           <Link
             to="/slices"
             search={{ tab: "copy" as "copy" | "slices" }}
-            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:text-[10px] max-[480px]:tracking-[0.06em]"
           >
             My icing
           </Link>
+
         </div>
       </header>
 
