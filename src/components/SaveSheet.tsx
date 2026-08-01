@@ -190,24 +190,6 @@ export function SaveSheet({
           Filename: {payload.filename}
         </p>
       </div>
-
-      {checkoutOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-[60] overflow-y-auto bg-[#FFFDF8] px-4 py-5"
-        >
-          <div className="mx-auto flex w-full max-w-3xl flex-col">
-            <button
-              onClick={closeCheckout}
-              className="ml-auto rounded-full bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/60 hover:bg-foreground/10"
-            >
-              Close ✕
-            </button>
-            <div className="mt-4">{checkoutElement}</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
