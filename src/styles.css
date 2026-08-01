@@ -841,25 +841,31 @@
     0 4px 10px rgba(27, 20, 16, 0.22);
 }
 
-/* ── hero smash sequence ────────────────────────────────────────────────────
-   0ms     click — croak #1, frog crouches
-   350ms   push-off
-   1100ms  IMPACT — croak #2 + smash, cake is pancaked, debris erupts
-   1.1–3.9s debris arcs out, falls under gravity, frog rides the wreck
-   3.9–5.2s the pink-to-white wipe carries you into the app
+/* ── hero hop-and-smash sequence ────────────────────────────────────────────
+   One cause, one effect: the frog hops, the frog lands, the cake smashes.
+   0ms      calm beat, anticipatory crouch
+   450ms    push-off, graceful arc
+   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
+   1.2–2.8s frog flails on the wreck, cake bulges then settles
+   2.9–4.2s the wipe carries the page turn
    Keep these numbers in sync with handleSmash() in GlamHero.tsx.          */
-.is-smashing .jp-frog { animation: jpLeap 1150ms cubic-bezier(.25,.8,.3,1) 350ms forwards; }
-.is-smashing .jp-pad { animation: jpPadRipple 900ms ease-out 380ms forwards; }
-.is-smashing .jp-cake { animation: jpSmash 2600ms cubic-bezier(.16,.85,.3,1) 1100ms forwards; }
-.is-smashing .jp-disc { animation: jpDiscPop 1700ms ease-out 1100ms forwards; }
-.is-smashing .jp-shard { animation: jpShard 2900ms cubic-bezier(.16,.7,.35,1) 1120ms forwards; }
-.is-smashing .jp-layer-tag { animation: jpBlast 1400ms ease-out 1120ms forwards; }
+.is-smashing .jp-frog {
+  animation:
+    jpLeap 700ms cubic-bezier(.34,.06,.42,1) 450ms both,
+    jpFlail 1750ms cubic-bezier(.2,.8,.3,1) 1150ms forwards;
+}
+.is-smashing .jp-pad { animation: jpPadRipple 700ms ease-out 470ms forwards; }
+.is-smashing .jp-cake { animation: jpSmash 2500ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
+.is-smashing .jp-disc { animation: jpDiscPop 900ms cubic-bezier(.2,.9,.3,1) 1150ms forwards; }
+.is-smashing .jp-shard { animation: jpShard 1500ms cubic-bezier(.15,.75,.4,1) 1160ms forwards; }
+.is-smashing .jp-ribbit { animation: jpRibbit 1500ms cubic-bezier(.2,1.2,.3,1) 1150ms forwards; }
+.is-smashing .jp-layer-tag { animation: jpJolt 1100ms ease-out 1160ms forwards; }
 .is-smashing .jp-title,
 .is-smashing .jp-jp,
 .is-smashing .jp-lede,
-.is-smashing .jp-chip { animation: jpBlast 1600ms cubic-bezier(.3,.9,.3,1) 1160ms forwards; }
-.is-smashing .jp-sun { animation: jpSunRush 3400ms ease-in 1120ms forwards; }
-.is-smashing .jp-flash { animation: jpFlash 4100ms linear 1100ms forwards; }
+.is-smashing .jp-chip { animation: jpJolt 900ms ease-out 1160ms forwards; }
+.is-smashing .jp-flash { animation: jpFlash 3050ms linear 1150ms forwards; }
+
 
 
 /* the cake gets pancaked on impact, then the wreck tumbles toward the camera */
