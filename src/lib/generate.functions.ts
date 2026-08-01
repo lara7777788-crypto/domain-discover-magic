@@ -4,19 +4,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 
 
+const DataUrl = z
+  .string()
+  .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
+  .max(8_000_000);
+
 const InputSchema = z.object({
   wish: z.string().min(1).max(500),
   visual: z.string().max(200).optional().default(""),
   text: z.string().max(200).optional().default(""),
   layout: z.string().max(200).optional().default(""),
   logo: z.string().max(200).optional().default(""),
+  extra: z.string().max(500).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
   // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
-  referenceImage: z
-    .string()
-    .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
-    .max(8_000_000)
-    .optional(),
+  referenceImage: DataUrl.optional(),
+  // Up to 3 reference images.
+  referenceImages: z.array(DataUrl).max(3).optional(),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
@@ -36,6 +40,9 @@ const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 // --- Pure helpers (functional core) ---------------------------------------
 
+const refImagesOf = (i: GenerateInput): string[] =>
+  [...(i.referenceImages ?? []), ...(i.referenceImage ? [i.referenceImage] : [])].slice(0, 3);
+
 const composeBriefPrompt = (i: GenerateInput): string => {
   const parts = [
     `User wish: ${i.wish}`,
@@ -43,10 +50,12 @@ const composeBriefPrompt = (i: GenerateInput): string => {
     i.text && `Text on the piece: ${i.text}`,
     i.layout && `Layout: ${i.layout}`,
     i.logo && `Brand reference (product, logo, packaging, vibe shot, or photo): ${i.logo}`,
+    i.extra && `Anything special (must-honor instructions): ${i.extra}`,
     `Intended use: ${i.format} (${FORMAT_HINTS[i.format]})`,
   ].filter(Boolean);
   return parts.join("\n");
 };
+
 
 const PROMPT_LAYER_SYSTEM = `You are the "Prompt Layer" of Layercake — a tiny step that
 sits between a human's casual wish and an AI image generator.
