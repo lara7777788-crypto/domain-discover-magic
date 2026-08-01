@@ -262,9 +262,6 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                 />
               );
             })}
-
-              );
-            })}
           </div>
         </div>
 
