@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { SavePayload } from "@/components/SaveSheet";
-import { buildIcingFilter, renderIcedStageToPayload } from "@/lib/icing-render";
+import { buildIcingFilter } from "@/lib/icing-render";
 
 type Sticker = { id: string; emoji: string; x: number; y: number; size: number };
 
