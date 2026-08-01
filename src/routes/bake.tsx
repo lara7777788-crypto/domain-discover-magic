@@ -8,6 +8,7 @@ import { ChipRow } from "@/components/ChipRow";
 import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPanel";
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { renderIcedImageToDataUrl } from "@/lib/icing-render";
+import { makeThumb } from "@/lib/thumb";
 
 type Mode = "image" | "copy";
 
