@@ -71,82 +71,36 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
   const [lang, setLang] = useState<"en" | "ja">("en");
   const t = COPY[lang];
   const timer = useRef<number | null>(null);
-  const sfxTimer = useRef<number | null>(null);
-  const hapticTimer = useRef<number | null>(null);
-  const extraTimers = useRef<number[]>([]);
-
-
 
   useEffect(() => {
-    primeAudio();
     const id = window.setTimeout(() => setLit(true), 100);
-
-    // the kitten purrs (with the odd tiny meow) once audio is unlocked by a
-    // gesture, and goes quiet the moment the toad leaps
-    const wake = () => startKittenAmbience();
-    window.addEventListener("pointerdown", wake, { passive: true });
-    window.addEventListener("keydown", wake);
-    window.addEventListener("pointermove", wake, { passive: true, once: true });
-
     return () => {
       clearTimeout(id);
       if (timer.current) clearTimeout(timer.current);
-
-      if (sfxTimer.current) clearTimeout(sfxTimer.current);
-      if (hapticTimer.current) clearTimeout(hapticTimer.current);
-      extraTimers.current.forEach(clearTimeout);
-      window.removeEventListener("pointerdown", wake);
-      window.removeEventListener("keydown", wake);
-      window.removeEventListener("pointermove", wake);
-      stopKittenAmbience();
     };
   }, []);
 
+  // One cause, one effect: the frog hops, the frog lands, the cake smashes.
+  // Timing contract (keep in sync with .is-smashing rules in styles.css):
+  //   0ms      calm beat + anticipatory crouch
+  //   450ms    push-off, graceful arc up
+  //   1150ms   LANDING — cake compresses, crumbs jump, "RIBBIT!!" appears
+  //   1.2-2.8s frog flails on the wreck, cake rebounds and settles
+  //   2.9-4.2s the wipe blooms and carries the page turn
   const handleSmash = () => {
     if (smashing) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setSmashing(true);
+      timer.current = window.setTimeout(onEnter, 700);
+      return;
+    }
     setSmashing(true);
-    stopKittenAmbience();
-
-    // Timing contract (must stay in sync with .is-smashing rules in styles.css):
-    //   0ms      click — croak #1, frog crouches
-    //   350ms    push-off
-    //   1100ms   IMPACT — croak #2 (loudest) + smash, cake pancakes, debris erupts
-    //   1.1-3.9s debris arcs and falls, more croaks over the wreckage
-    //   3.9-5.2s the wipe blooms and carries the page turn
-    const IMPACT = 1100;
-    const AUDIO_LEAD = 25; // buffer scheduling + attack ramp
-    const HAPTIC_LEAD = 45; // vibration motor spin-up
-    const END = 5200;
-
-    // croak #1 on the crouch — the ribbit is the headline of the whole moment
-    playRibbet(1.3);
-    buzz(14);
-
-    const at = (ms: number, fn: () => void) => {
-      const id = window.setTimeout(fn, ms);
-      extraTimers.current.push(id);
-    };
-
-    hapticTimer.current = window.setTimeout(() => buzz([30, 40, 80]), IMPACT - HAPTIC_LEAD);
-    sfxTimer.current = window.setTimeout(() => {
-      // impact: the big "RIBBIT!!!" with the smash tucked underneath it
-      playRibbet(1.4);
-      playSmash(AUDIO_LEAD / 1000);
-    }, IMPACT - AUDIO_LEAD);
-
-    // croaks keep rolling over the flying debris so nothing ever goes quiet
-    at(1950, () => {
-      playRibbet(1.15);
-      buzz(18);
-    });
-    at(2950, () => playRibbet(0.95));
-    at(3900, () => {
-      playRibbet(1.25);
-      buzz([20, 30, 60]);
-    });
-
-    timer.current = window.setTimeout(onEnter, END);
+    timer.current = window.setTimeout(onEnter, 4200);
   };
+
 
 
 
