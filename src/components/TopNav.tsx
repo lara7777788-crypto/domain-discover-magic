@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
+import splashMascot from "../assets/jp-frogcat-color.png";
 
 export function TopNav() {
   const { user, signOut, loading } = useAuth();
