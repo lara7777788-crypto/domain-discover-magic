@@ -84,6 +84,7 @@ export function TopNav() {
             </Link>
             <Link
               to="/login"
+              search={{ next: undefined }}
               activeProps={{ className: activeClass }}
               inactiveProps={{ className: linkClass }}
             >
