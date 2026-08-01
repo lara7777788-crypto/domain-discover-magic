@@ -11,6 +11,12 @@ const InputSchema = z.object({
   layout: z.string().max(200).optional().default(""),
   logo: z.string().max(200).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
+  // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
+  referenceImage: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "reference_image_invalid")
+    .max(8_000_000)
+    .optional(),
 });
 
 export type GenerateInput = z.infer<typeof InputSchema>;
