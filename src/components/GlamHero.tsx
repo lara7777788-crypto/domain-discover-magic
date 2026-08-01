@@ -277,9 +277,13 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
         {/* frog-and-cat watermark */}
         <div className="jp-mark">
-          <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={384} height={384} loading="lazy" />
+          <span className="jp-mark-art">
+            <img src={markImg} alt="Layercake mark: an ink frog carrying a cat" width={384} height={384} loading="lazy" />
+            <span className="jp-seal" aria-label="architecture" title="建築 — architecture">建築</span>
+          </span>
           <span lang={lang}>{t.mark}</span>
         </div>
+
 
       </div>
 
