@@ -125,10 +125,8 @@ export const generate = createServerFn({ method: "POST" })
     const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
       p_amount: cost,
+      p_source: data.raw ? "homemade" : data.intent,
     });
-    if (spendErr) {
-      if ((spendErr.message || "").includes("no_credits")) {
-        throw new Error(
           "You're out of slices. Subscribe or buy a pack to keep generating.",
         );
       }
