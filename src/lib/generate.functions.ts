@@ -157,7 +157,17 @@ export const generate = createServerFn({ method: "POST" })
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          {
+            role: "user",
+            content: data.referenceImage
+              ? [
+                  { type: "text", text: `${prompt}\n\nUse the attached image as a visual reference.` },
+                  { type: "image_url", image_url: { url: data.referenceImage } },
+                ]
+              : prompt,
+          },
+        ],
         modalities: ["image", "text"],
       }),
     });
