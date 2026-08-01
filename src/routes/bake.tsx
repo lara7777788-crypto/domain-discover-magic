@@ -479,17 +479,18 @@ function BakePage() {
           <Link
             to="/slices"
             search={{ tab: "slices" as "copy" | "slices" }}
-            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:text-[10px] max-[480px]:tracking-[0.06em]"
           >
             My slices
           </Link>
           <Link
             to="/slices"
             search={{ tab: "copy" as "copy" | "slices" }}
-            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/70 backdrop-blur transition hover:text-foreground"
+            className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/70 backdrop-blur transition hover:text-foreground max-[480px]:px-2.5 max-[480px]:text-[10px] max-[480px]:tracking-[0.06em]"
           >
             My icing
           </Link>
+
         </div>
       </header>
 
