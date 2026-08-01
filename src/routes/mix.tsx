@@ -104,8 +104,9 @@ function MixPage() {
       }
 
       const copyBits = chosen
-        .filter((c) => c.mode === "copy" && c.copy)
-        .map((c) => `"${(c.copy as string).slice(0, 400)}"`);
+        .filter((c) => c.mode === "copy" && c.copy_text)
+        .map((c) => `"${(c.copy_text as string).slice(0, 400)}"`);
+
 
       const wish = [
         `Mix ${chosen.length} saved Layercake elements into ONE new coherent visual.`,
