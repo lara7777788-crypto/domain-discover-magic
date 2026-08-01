@@ -68,9 +68,7 @@ export function SaveSheet({
     }
   };
 
-  const isMobile =
-    typeof navigator !== "undefined" &&
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
 
   const dataUrlToBlob = (dataUrl: string): Blob | null => {
     try {
@@ -87,63 +85,65 @@ export function SaveSheet({
     }
   };
 
-  const resolveBlobUrl = (): string => {
-    if (payload.url.startsWith("data:")) {
-      const blob = payload.blob ?? dataUrlToBlob(payload.url);
-      if (blob) return URL.createObjectURL(blob);
+  const getBlob = async (): Promise<Blob | null> => {
+    if (payload.blob) return payload.blob;
+    if (payload.url.startsWith("data:")) return dataUrlToBlob(payload.url);
+    try {
+      const res = await fetch(payload.url, { mode: "cors" });
+      if (!res.ok) return null;
+      return await res.blob();
+    } catch {
+      return null;
     }
-    return payload.url;
   };
 
-  const openImageInNewTab = (imgUrl: string) => {
-    const w = window.open("", "_blank", "noopener,noreferrer");
-    if (!w) {
-      window.location.href = imgUrl;
-      return;
-    }
-    w.document.write(`
-      <html><head><title>Save Image</title></head>
-      <body style="margin:0;background:#FFFDF8;font-family:system-ui,-apple-system,sans-serif;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;color:#3E1F70;">
-          <p style="font-size:14px;margin:0;text-align:center;line-height:1.5;">
-            Press and hold the image, then Save to Photos.<br/>
-            <span style="opacity:.7">(Desktop: right-click and Save Image.)</span>
-          </p>
-          <img src="${imgUrl}" alt="patisserie-image" style="max-width:100%;height:auto;display:block;" />
-        </div>
-      </body></html>
-    `);
-    w.document.close();
-  };
-
-  const onSaveImage = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const onSaveImage = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    const blobUrl = resolveBlobUrl();
+    setSaveNote(null);
 
-    if (isMobile) {
-      openImageInNewTab(blobUrl);
-      if (blobUrl !== payload.url) {
-        window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    const blob = await getBlob();
+    const objectUrl = blob ? URL.createObjectURL(blob) : payload.url;
+
+    // Native share sheet is the reliable "Save to Photos" path on mobile.
+    if (blob && isMobile) {
+      const file = new File([blob], payload.filename, { type: blob.type || "image/png" });
+      const nav = navigator as Navigator & {
+        canShare?: (d: { files: File[] }) => boolean;
+        share?: (d: { files: File[]; title?: string }) => Promise<void>;
+      };
+      if (nav.canShare?.({ files: [file] }) && nav.share) {
+        try {
+          await nav.share({ files: [file], title: payload.filename });
+          URL.revokeObjectURL(objectUrl);
+          return;
+        } catch {
+          /* fall through to download */
+        }
       }
-      return;
     }
 
     try {
       const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = "patisserie-image.png";
+      a.href = objectUrl;
+      a.download = payload.filename || "layercake-slice.png";
       a.rel = "noopener";
       document.body.appendChild(a);
       a.click();
       a.remove();
+      setSaveNote(
+        isMobile
+          ? "Saved to your downloads. If nothing happened, press and hold the image above and choose Save to Photos."
+          : "Saved to your downloads.",
+      );
     } catch {
-      openImageInNewTab(blobUrl);
+      setSaveNote("Press and hold the image above, then choose Save to Photos.");
     }
 
-    if (blobUrl !== payload.url) {
-      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+    if (objectUrl !== payload.url) {
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
     }
   };
+
 
   return (
     <div
