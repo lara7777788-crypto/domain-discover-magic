@@ -64,15 +64,7 @@ export function TopNav() {
               New slice
             </Link>
             <button
-              onClick={async () => {
-                try {
-                  localStorage.removeItem("lc_splash_seen_at_v2");
-                } catch {
-                  /* ignore */
-                }
-                await signOut();
-                navigate({ to: "/", replace: true });
-              }}
+              onClick={() => setConfirmLogout(true)}
               className="shrink-0 whitespace-nowrap rounded-full px-3 py-2.5 text-foreground/50 transition hover:text-foreground"
             >
               Sign out
