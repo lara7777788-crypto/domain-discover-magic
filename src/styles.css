@@ -932,33 +932,8 @@
   26% { transform: translateY(-2px) scale(1.004); }
   100% { transform: translateY(0) scale(1); }
 }
-@keyframes jpBlast {
-  0% { transform: scale(1); opacity: 1; }
-  20% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
 
-@keyframes jpSunRush {
-  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) scale(2.4) rotate(150deg); opacity: 0; }
-}
-.jp-flash {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(closest-side, #FFFFFF 0%, #F6D8EA 40%, #E8368F 70%, #7C6BD9 100%);
-}
-/* a soft puff of light on the landing frame, then it stays out of the way
-   while the cake settles, and only at the end blooms into the page-turn wipe */
-@keyframes jpFlash {
-  0% { opacity: 0; transform: scale(0.2); border-radius: 50%; }
-  4% { opacity: 0.45; transform: scale(1.6); border-radius: 0; }
-  14% { opacity: 0.06; transform: scale(1.8); }
-  55% { opacity: 0.05; transform: scale(1.9); }
-  100% { opacity: 1; transform: scale(2.8); }
-}
+
 
 /* upper-left promotional badge — deliberately small next to HOP IN */
 .jp-promo {
