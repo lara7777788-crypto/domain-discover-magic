@@ -395,8 +395,10 @@ function BakePage() {
     try {
       const res = isCopy
         ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat, ...(copyFiles.length ? { attachments: copyFiles } : {}) } })
-        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImages.length ? { referenceImages } : {}) } });
+        : await generate({ data: { ...currentValues, format: format as ImageFormat, intent: "image" as const, ...(referenceImages.length ? { referenceImages } : {}) } });
+      credits.applyWallet(res);
       setResult(res);
+
       goTo(LAYERS.length);
       // No auto-save — user saves manually via the Save button on the result.
     } catch (e) {
