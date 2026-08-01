@@ -104,27 +104,81 @@ function BakePage() {
   const [icing, setIcing] = useState<IcingState>(defaultIcing);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copied, setCopied] = useState(false);
-  const [referenceImage, setReferenceImage] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [refError, setRefError] = useState<string | null>(null);
+  const [copyFiles, setCopyFiles] = useState<CopyAttachment[]>([]);
+  const [copyFileError, setCopyFileError] = useState<string | null>(null);
 
-  const onPickReference = (file: File | null | undefined) => {
-    if (!file) return;
-    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
-      setRefError("Use a PNG, JPG, or WebP image.");
+  const readAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => (typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("read")));
+      reader.onerror = () => reject(new Error("read"));
+      reader.readAsDataURL(file);
+    });
+
+  const onPickReference = async (files: FileList | null | undefined) => {
+    if (!files || !files.length) return;
+    const picked = Array.from(files);
+    const room = 3 - referenceImages.length;
+    if (room <= 0) {
+      setRefError("You can attach up to 3 reference images.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setRefError("Keep the reference under 5MB.");
-      return;
+    const next: string[] = [];
+    for (const file of picked.slice(0, room)) {
+      if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+        setRefError("Use PNG, JPG, or WebP images.");
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setRefError("Keep each reference under 5MB.");
+        continue;
+      }
+      try {
+        next.push(await readAsDataUrl(file));
+      } catch {
+        setRefError("Couldn't read that file.");
+      }
     }
-    const reader = new FileReader();
-    reader.onload = () => {
+    if (next.length) {
       setRefError(null);
-      setReferenceImage(typeof reader.result === "string" ? reader.result : null);
-    };
-    reader.onerror = () => setRefError("Couldn't read that file.");
-    reader.readAsDataURL(file);
+      setReferenceImages((prev) => [...prev, ...next].slice(0, 3));
+    }
   };
+
+  const COPY_FILE_TYPES = "image/png,image/jpeg,image/webp,application/pdf,text/plain,text/markdown";
+
+  const onPickCopyFiles = async (files: FileList | null | undefined) => {
+    if (!files || !files.length) return;
+    const room = 2 - copyFiles.length;
+    if (room <= 0) {
+      setCopyFileError("You can attach up to 2 files.");
+      return;
+    }
+    const next: CopyAttachment[] = [];
+    for (const file of Array.from(files).slice(0, room)) {
+      const ok = /^(image\/(png|jpe?g|webp)|application\/pdf|text\/(plain|markdown))$/.test(file.type);
+      if (!ok) {
+        setCopyFileError("Use a screenshot (PNG/JPG/WebP), PDF, or text file.");
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setCopyFileError("Keep each file under 5MB.");
+        continue;
+      }
+      try {
+        next.push({ name: file.name, mime: file.type, dataUrl: await readAsDataUrl(file) });
+      } catch {
+        setCopyFileError("Couldn't read that file.");
+      }
+    }
+    if (next.length) {
+      setCopyFileError(null);
+      setCopyFiles((prev) => [...prev, ...next].slice(0, 2));
+    }
+  };
+
 
   // Per-mode terminology
   const TERMS = isCopy
