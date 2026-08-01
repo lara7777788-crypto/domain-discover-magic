@@ -91,17 +91,9 @@ export function IcingPanel({
   const removeSticker = (id: string) =>
     setIcing({ ...icing, stickers: icing.stickers.filter((s) => s.id !== id) });
 
-  const handleDownloadClick = () => {
-    try {
-      const payload = renderIcedStageToPayload(stageRef.current, icing);
-      // Always open the Save screen — works in preview iframe, desktop, and mobile.
-      // The Save screen has a real <img> (drag/right-click/long-press save)
-      // and a Download button that works on the published site.
-      onDownload(payload);
-    } catch (e) {
-      onDownloadError?.(e instanceof Error ? e.message : "Download failed");
-    }
-  };
+  void onDownload;
+  void onDownloadError;
+
 
   return (
     <div className="rounded-3xl border border-white bg-white/80 p-4 shadow-[0_30px_60px_-30px_rgba(62,31,112,0.4)] backdrop-blur">
