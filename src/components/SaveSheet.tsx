@@ -70,6 +70,10 @@ export function SaveSheet({
 
   const [saveNote, setSaveNote] = useState<string | null>(null);
 
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   const dataUrlToBlob = (dataUrl: string): Blob | null => {
     try {
       const [header, base64] = dataUrl.split(",");
