@@ -11,7 +11,7 @@ export function TopNav() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center gap-2 px-4 py-4 md:px-10 md:py-5">
       <Link
-        to="/"
+        to={user ? "/bake" : "/"}
         className="pointer-events-auto shrink-0 font-display text-base font-semibold tracking-tight text-foreground/80 transition hover:text-foreground max-[420px]:max-w-[104px] max-[420px]:overflow-hidden"
       >
         layercake
@@ -42,7 +42,21 @@ export function TopNav() {
               activeProps={{ className: activeClass }}
               inactiveProps={{ className: linkClass }}
             >
-              My copy
+              My icing
+            </Link>
+            <Link
+              to="/mix"
+              activeProps={{ className: activeClass }}
+              inactiveProps={{ className: linkClass }}
+            >
+              Mix
+            </Link>
+            <Link
+              to="/effects"
+              activeProps={{ className: activeClass }}
+              inactiveProps={{ className: linkClass }}
+            >
+              Effects
             </Link>
             <Link
               to="/bake"
