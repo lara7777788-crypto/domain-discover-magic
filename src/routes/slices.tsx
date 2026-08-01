@@ -384,6 +384,32 @@ function SlicesPage() {
                       {isCopyTab ? "Icing" : "Slice"}
                     </div>
                   </div>
+                  {s.prompt && (
+                    <details className="mt-3 rounded-2xl bg-foreground/[0.04] px-3 py-2">
+                      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">
+                        The prompt
+                      </summary>
+                      <p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap text-[12px] leading-relaxed text-foreground/70">
+                        {s.prompt}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyPrompt(s)}
+                          className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-foreground/75 transition active:scale-95"
+                        >
+                          {copiedPromptId === s.id ? "Copied ✓" : "Copy prompt"}
+                        </button>
+                        <Link
+                          to="/homemade"
+                          search={{ from: s.id }}
+                          className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-foreground/75 transition active:scale-95"
+                        >
+                          Reuse in Home made
+                        </Link>
+                      </div>
+                    </details>
+                  )}
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <button
                       onClick={() => (isCopyTab ? copyText(s) : openSave(s))}
