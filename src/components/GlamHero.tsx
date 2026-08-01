@@ -274,11 +274,11 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                       opacity: 0,
                       ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
                       ["--dy" as string]: `${Math.round(
-                        Math.sin((a * Math.PI) / 180) * dist - 90 - r(41.3) * 120,
+                        Math.sin((a * Math.PI) / 180) * dist * 0.4 - 60 - r(41.3) * 50,
                       )}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (240 + r(55.5) * 620)}deg`,
-                      animationDelay: `${(r(63.7) * 0.22).toFixed(3)}s`,
-                      animationDuration: `${(2.5 + r(71.9) * 1.1).toFixed(2)}s`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (90 + r(55.5) * 180)}deg`,
+                      animationDelay: `${(r(63.7) * 0.06).toFixed(3)}s`,
+                      animationDuration: `${(0.7 + r(71.9) * 0.2).toFixed(2)}s`,
                     } as React.CSSProperties
                   }
                 />
