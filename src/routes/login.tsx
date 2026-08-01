@@ -31,6 +31,32 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [codeMsg, setCodeMsg] = useState<string | null>(null);
+
+  const handleRedeem = async () => {
+    const value = code.trim().toUpperCase();
+    if (!value) return;
+    setRedeeming(true);
+    setCodeMsg(null);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        window.localStorage.setItem(PENDING_CODE_KEY, value);
+        setCodeMsg("Saved — sign in and your slices will be added automatically.");
+        return;
+      }
+      const res = await redeemCoupon({ data: { code: value } });
+      setCodeMsg(`+${res.granted} slices added. You now have ${res.balance}.`);
+      setCode("");
+    } catch (err) {
+      setCodeMsg(err instanceof Error ? err.message : "That code didn't work.");
+    } finally {
+      setRedeeming(false);
+    }
+  };
+
 
   const goNext = () => {
     if (next) {
