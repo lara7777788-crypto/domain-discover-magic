@@ -26,9 +26,32 @@ export const Route = createFileRoute("/")({
 });
 
 
+const SPLASH_KEY = "lc_splash_seen_at";
+const SPLASH_TTL = 60 * 60 * 1000; // 1 hour
+
 function Splash() {
   const navigate = useNavigate();
-  const goBake = () => navigate({ to: "/bake" });
+
+  // Skip the splash if they came through it in the last hour — after that,
+  // they get the full entrance again.
+  useEffect(() => {
+    try {
+      const seen = Number(localStorage.getItem(SPLASH_KEY) ?? 0);
+      if (seen && Date.now() - seen < SPLASH_TTL) navigate({ to: "/bake" });
+    } catch {
+      /* storage blocked — just show the splash */
+    }
+  }, [navigate]);
+
+  const goBake = () => {
+    try {
+      localStorage.setItem(SPLASH_KEY, String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+    navigate({ to: "/bake" });
+  };
+
 
   return (
     <main className="relative min-h-screen overflow-hidden">
