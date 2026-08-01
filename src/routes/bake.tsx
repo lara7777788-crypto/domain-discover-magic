@@ -543,8 +543,8 @@ function BakePage() {
             style={{ background: `linear-gradient(180deg, ${l.bg} 0%, #FFFDF8 100%)`, color: l.ink }}
           >
             <div className="mx-auto w-full max-w-xl">
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.4em] opacity-60" style={{ color: l.ink }}>
-                {isCopy ? "Ingredient" : "Layer"} {String(i + 1).padStart(2, "0")}
+              <p className="mb-4 font-display text-sm font-semibold uppercase tracking-[0.22em] opacity-75" style={{ color: l.ink }}>
+                {isCopy ? "Ingredients" : "Layers"} {i + 1}/{LAYERS.length}
               </p>
               <h2 className="font-display text-5xl font-semibold leading-[1.02] md:text-6xl" style={{ color: l.ink }}>
                 {l.name}.
