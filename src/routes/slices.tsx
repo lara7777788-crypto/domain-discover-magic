@@ -82,7 +82,7 @@ function SlicesPage() {
       url,
       filename: `${(s.name || "layercake-slice").replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.png`,
       sliceId: s.id,
-      locked: !s.is_unlocked,
+      locked: false,
     });
   };
 
@@ -379,7 +379,7 @@ function SlicesPage() {
                   <div className="min-w-0">
                     <div className="truncate font-display text-sm font-semibold text-foreground">{s.name}</div>
                     <div className="text-[11px] uppercase tracking-[0.2em] text-foreground/40">
-                      {isCopyTab ? "Icing" : s.is_unlocked ? "Unlocked" : "Preview"}
+                      {isCopyTab ? "Icing" : "Slice"}
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2">
