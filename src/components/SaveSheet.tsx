@@ -69,7 +69,6 @@ export function SaveSheet({
     }
   };
 
-  const [saveNote, setSaveNote] = useState<string | null>(null);
 
   const isMobile =
     typeof navigator !== "undefined" &&
