@@ -157,6 +157,10 @@ export function LowSliceAlert() {
 export function LowSliceSettings() {
   const { threshold, emailOptIn, save } = useLowSliceThreshold();
   const [value, setValue] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(DEFAULT_COOLDOWN_HOURS);
+  useEffect(() => {
+    setCooldown(getLowSliceCooldownHours());
+  }, []);
   const shown = value ?? String(threshold);
 
   return (
