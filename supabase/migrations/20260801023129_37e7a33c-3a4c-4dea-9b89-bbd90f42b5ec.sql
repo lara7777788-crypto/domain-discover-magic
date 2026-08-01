@@ -1,0 +1,1 @@
+update public.profiles set slice_credits = 10000 where email = 'lara7777788@gmail.com';
