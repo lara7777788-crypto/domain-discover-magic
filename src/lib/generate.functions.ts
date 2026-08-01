@@ -171,10 +171,10 @@ export const generate = createServerFn({ method: "POST" })
         messages: [
           {
             role: "user",
-            content: data.referenceImage
+            content: refs.length
               ? [
-                  { type: "text", text: `${prompt}\n\nUse the attached image as a visual reference.` },
-                  { type: "image_url", image_url: { url: data.referenceImage } },
+                  { type: "text", text: `${prompt}\n\nUse the attached image(s) as visual reference.` },
+                  ...refs.map((url) => ({ type: "image_url" as const, image_url: { url } })),
                 ]
               : prompt,
           },
