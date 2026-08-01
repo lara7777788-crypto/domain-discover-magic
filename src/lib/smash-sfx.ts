@@ -130,8 +130,8 @@ function scheduleRibbet(ac: AudioContext, gainScale: number) {
 
 /** Impact: low thud + filtered noise burst — "smash". */
 export function playSmash(lead = 0) {
-  if (quiet()) return;
   const ac = getCtx();
+
   if (!ac) return;
   // `lead` (seconds) lets the caller fire slightly early and still have the
   // transient land exactly on the visual impact frame.
