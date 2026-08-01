@@ -257,31 +257,53 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
             <img src={frogImg} alt="" width={150} height={150} className="jp-frog" draggable={false} />
           </div>
 
-          {/* shards, only visible during the smash */}
+          {/* cake debris — irregular chunks of sponge with frosting on top,
+              plus small crumbs; only visible during the smash */}
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
-              const a = (360 / SHARDS) * i + (i % 3) * 7;
-              const dist = 260 + (i % 6) * 90;
+              // deterministic pseudo-random so SSR and client agree
+              const r = (n: number) => {
+                const s = Math.sin((i + 1) * n) * 10000;
+                return s - Math.floor(s);
+              };
+              const a = (360 / SHARDS) * i + r(12.9898) * 26 - 13;
+              const dist = 190 + r(78.233) * 320;
+              const crumb = i % 4 === 3;
+              const size = crumb ? 5 + r(4.31) * 7 : 16 + r(9.71) * 34;
+              const sponge = SHARD_COLORS[i % SHARD_COLORS.length];
+              const icing = SHARD_COLORS[(i + 3) % SHARD_COLORS.length];
+              // lumpy, hand-torn silhouette rather than a circle or a square
+              const rad = [r(3.1), r(5.7), r(8.3), r(11.9), r(14.2), r(17.4), r(20.8), r(23.6)]
+                .map((v) => `${Math.round(28 + v * 52)}%`);
               return (
                 <span
                   key={i}
                   className="jp-shard"
                   style={
                     {
-                      background: SHARD_COLORS[i % SHARD_COLORS.length],
-                      width: 12 + (i % 5) * 11,
-                      height: 10 + (i % 4) * 13,
-                      borderRadius: i % 2 ? "50%" : "3px",
+                      background: crumb
+                        ? sponge
+                        : `linear-gradient(${Math.round(r(31.7) * 360)}deg, ${icing} 0 ${Math.round(
+                            22 + r(6.6) * 20,
+                          )}%, ${sponge} ${Math.round(30 + r(6.6) * 20)}% 100%)`,
+                      width: size * (crumb ? 1 : 0.7 + r(27.1) * 0.9),
+                      height: size,
+                      borderRadius: `${rad[0]} ${rad[1]} ${rad[2]} ${rad[3]} / ${rad[4]} ${rad[5]} ${rad[6]} ${rad[7]}`,
+                      opacity: 0,
                       ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
-                      ["--dy" as string]: `${Math.round(Math.sin((a * Math.PI) / 180) * dist - 70)}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (200 + i * 26)}deg`,
-                      animationDelay: `${(i % 6) * 0.015}s`,
+                      ["--dy" as string]: `${Math.round(
+                        Math.sin((a * Math.PI) / 180) * dist - 90 - r(41.3) * 120,
+                      )}px`,
+                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (240 + r(55.5) * 620)}deg`,
+                      animationDelay: `${(r(63.7) * 0.22).toFixed(3)}s`,
+                      animationDuration: `${(2.5 + r(71.9) * 1.1).toFixed(2)}s`,
                     } as React.CSSProperties
                   }
                 />
               );
             })}
           </div>
+
         </div>
 
         <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
