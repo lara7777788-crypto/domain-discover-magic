@@ -272,15 +272,21 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
         </div>
 
-        <div className="relative z-10 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-          <button type="button" onClick={handleSmash} className="btn-jp" lang={lang}>
-            {t.cta}
-            <i lang={lang}>{t.ctaTag}</i>
+        <div className="relative z-10 mt-8 flex flex-col items-center gap-4">
+          <button type="button" onClick={handleSmash} className="btn-jp btn-hopin" lang={lang}>
+            {t.hopIn}
+            <i lang={lang}>{t.hopInTag}</i>
           </button>
-          <a href="#showcase" className="jp-link" lang={lang}>
-            {t.link}
-          </a>
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-6">
+            <button type="button" onClick={handleSmash} className="jp-secondary" lang={lang}>
+              {t.cta}
+            </button>
+            <a href="#showcase" className="jp-link" lang={lang}>
+              {t.link}
+            </a>
+          </div>
         </div>
+
 
         <p className="jp-fine" lang={lang}>
           {t.fine}
