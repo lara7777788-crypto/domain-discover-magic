@@ -39,30 +39,8 @@ type Slice = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Downscale a huge base64 preview into a small tile-sized image. */
-async function makeThumb(dataUrl: string): Promise<string | null> {
-  try {
-    const img = new Image();
-    img.decoding = "async";
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("decode failed"));
-      img.src = dataUrl;
-    });
-    const size = 480;
-    const scale = Math.min(1, size / Math.max(img.width || size, img.height || size));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round((img.width || size) * scale));
-    canvas.height = Math.max(1, Math.round((img.height || size) * scale));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const out = canvas.toDataURL("image/webp", 0.8);
-    return out.startsWith("data:image/webp") ? out : canvas.toDataURL("image/jpeg", 0.8);
-  } catch {
-    return null;
-  }
-}
+
+
 
 function SlicesPage() {
   const { user, loading: authLoading } = useAuth();
