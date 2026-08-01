@@ -101,7 +101,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
       if (sfxTimer.current) clearTimeout(sfxTimer.current);
       if (hapticTimer.current) clearTimeout(hapticTimer.current);
       extraTimers.current.forEach(clearTimeout);
-
+      window.removeEventListener("pointerdown", wake);
       window.removeEventListener("keydown", wake);
       window.removeEventListener("pointermove", wake);
       stopKittenAmbience();
