@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { redeemCoupon } from "@/lib/coupons.functions";
+import { PENDING_CODE_KEY } from "@/hooks/useCredits";
+
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -31,6 +34,32 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [codeMsg, setCodeMsg] = useState<string | null>(null);
+
+  const handleRedeem = async () => {
+    const value = code.trim().toUpperCase();
+    if (!value) return;
+    setRedeeming(true);
+    setCodeMsg(null);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        window.localStorage.setItem(PENDING_CODE_KEY, value);
+        setCodeMsg("Saved — sign in and your slices will be added automatically.");
+        return;
+      }
+      const res = await redeemCoupon({ data: { code: value } });
+      setCodeMsg(`+${res.granted} slices added. You now have ${res.balance}.`);
+      setCode("");
+    } catch (err) {
+      setCodeMsg(err instanceof Error ? err.message : "That code didn't work.");
+    } finally {
+      setRedeeming(false);
+    }
+  };
+
 
   const goNext = () => {
     if (next) {
@@ -165,6 +194,31 @@ function LoginPage() {
             {mode === "signin" ? "No account? Sign up" : "Have an account? Sign in"}
           </button>
         </div>
+
+        <div className="mt-5 w-full rounded-3xl border border-pink-200 bg-pink-50/90 p-5 shadow-[0_20px_40px_-30px_rgba(236,72,153,0.6)] backdrop-blur">
+          <h2 className="font-display text-lg font-semibold text-pink-700">Redeem a code 🍰</h2>
+          <p className="mt-1 text-xs text-pink-700/70">
+            Got a code like SWEET30? Drop it here — the slices land on your account as soon as you sign in.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="SWEET30"
+              className="min-w-0 flex-1 rounded-xl border border-pink-200 bg-white px-4 py-2.5 text-sm uppercase tracking-widest text-pink-800 placeholder:text-pink-300 focus:border-pink-400 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleRedeem}
+              disabled={!code.trim() || redeeming}
+              className="rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-60"
+            >
+              {redeeming ? "…" : "Redeem"}
+            </button>
+          </div>
+          {codeMsg && <div className="mt-2 text-xs font-medium text-pink-700">{codeMsg}</div>}
+        </div>
+
       </div>
     </main>
   );

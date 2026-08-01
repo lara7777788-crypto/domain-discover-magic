@@ -9,6 +9,9 @@ import { IcingPanel, defaultIcing, type IcingState } from "@/components/IcingPan
 import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { renderIcedImageToDataUrl } from "@/lib/icing-render";
 import { makeThumb } from "@/lib/thumb";
+import { useCredits } from "@/hooks/useCredits";
+import { CreditMeter } from "@/components/CreditMeter";
+
 
 type Mode = "image" | "copy";
 
@@ -93,7 +96,9 @@ function BakePage() {
   const LAYERS = useMemo(() => (isCopy ? COPY_LAYERS : IMAGE_LAYERS), [isCopy]);
   const FORMATS = useMemo(() => (isCopy ? COPY_FORMATS : IMAGE_FORMATS), [isCopy]);
 
+  const credits = useCredits();
   const [active, setActive] = useState(0);
+
   const [values, setValues] = useState<Record<LayerKey, string>>(() => emptyValues(LAYERS));
   const [format, setFormat] = useState<AnyFormat>(isCopy ? "caption" : "social");
   const [loading, setLoading] = useState(false);
@@ -390,8 +395,10 @@ function BakePage() {
     try {
       const res = isCopy
         ? await generateCopy({ data: { ...currentValues, format: format as CopyFormat, ...(copyFiles.length ? { attachments: copyFiles } : {}) } })
-        : await generate({ data: { ...currentValues, format: format as ImageFormat, ...(referenceImages.length ? { referenceImages } : {}) } });
+        : await generate({ data: { ...currentValues, format: format as ImageFormat, intent: "image" as const, ...(referenceImages.length ? { referenceImages } : {}) } });
+      credits.applyWallet(res);
       setResult(res);
+
       goTo(LAYERS.length);
       // No auto-save — user saves manually via the Save button on the result.
     } catch (e) {
@@ -732,7 +739,13 @@ function BakePage() {
               >
                 {loading ? TERMS.ctaBusy : TERMS.ctaIdle}
               </button>
-              <span className="text-xs opacity-60">{TERMS.firstFreeNote}</span>
+              <CreditMeter
+                total={credits.total}
+                cost={isCopy ? 0.5 : 1}
+                isAdmin={credits.isAdmin}
+                loading={credits.loading}
+              />
+
             </div>
 
             {result && (

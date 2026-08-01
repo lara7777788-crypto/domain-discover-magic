@@ -17,6 +17,8 @@ const InputSchema = z.object({
   logo: z.string().max(200).optional().default(""),
   extra: z.string().max(500).optional().default(""),
   format: z.enum(["social", "print", "marketing"]).default("social"),
+  // What this generation is for — drives how many slices it costs.
+  intent: z.enum(["image", "mix", "effects"]).optional().default("image"),
   // Optional reference image as a data URL (jpeg/png/webp), max ~6MB encoded.
   referenceImage: DataUrl.optional(),
   // Up to 3 reference images.
@@ -25,10 +27,19 @@ const InputSchema = z.object({
 
 export type GenerateInput = z.infer<typeof InputSchema>;
 
+export const GENERATE_COST: Record<GenerateInput["intent"], number> = {
+  image: 1,
+  mix: 2,
+  effects: 1,
+};
+
 export type GenerateResult = {
   prompt: string;
   imageDataUrl: string;
+  creditsLeft: number;
+  monthlyLeft: number;
 };
+
 
 const FORMAT_HINTS: Record<GenerateInput["format"], string> = {
   social: "1:1 square Instagram post, optimized for mobile feeds, eye-catching focal point",
@@ -106,9 +117,11 @@ export const generate = createServerFn({ method: "POST" })
       );
     }
 
-    // Every generation spends one slice credit. No free daily quota.
-    const { error: spendErr } = await supabaseAdmin.rpc("spend_generation_credit", {
+    // Monthly allowance is spent first, then purchased slices. Admins are free.
+    const cost = GENERATE_COST[data.intent] ?? 1;
+    const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
+      p_amount: cost,
     });
     if (spendErr) {
       if ((spendErr.message || "").includes("no_credits")) {
@@ -119,6 +132,10 @@ export const generate = createServerFn({ method: "POST" })
       console.error("[generate] spend credit failed", spendErr);
       throw new Error("An unexpected error occurred. Please try again.");
     }
+    const wallet = Array.isArray(spent) ? spent[0] : spent;
+    const creditsLeft = Number(wallet?.balance ?? 0);
+    const monthlyLeft = Number(wallet?.monthly_remaining ?? 0);
+
 
     const refs = refImagesOf(data);
 
@@ -195,5 +212,5 @@ export const generate = createServerFn({ method: "POST" })
 
     if (!imageDataUrl) throw new Error("No image returned from gateway");
 
-    return { prompt, imageDataUrl };
+    return { prompt, imageDataUrl, creditsLeft, monthlyLeft };
   });
