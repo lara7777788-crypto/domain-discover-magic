@@ -6,10 +6,11 @@ export type Wallet = {
   balance: number;
   monthlyLeft: number;
   monthlyAllowance: number;
+  rollover: number;
   isAdmin: boolean;
 };
 
-const EMPTY: Wallet = { balance: 0, monthlyLeft: 0, monthlyAllowance: 0, isAdmin: false };
+const EMPTY: Wallet = { balance: 0, monthlyLeft: 0, monthlyAllowance: 0, rollover: 0, isAdmin: false };
 
 /** Code typed on the sign-in page before a session existed — redeemed on first authed load. */
 export const PENDING_CODE_KEY = "lc_pending_code";
@@ -36,12 +37,13 @@ export function useCredits() {
       return;
     }
     const row = (Array.isArray(data) ? data[0] : data) as
-      | { balance: number | string; monthly_remaining: number | string; monthly_allowance: number | string; is_admin: boolean }
+      | { balance: number | string; monthly_remaining: number | string; monthly_allowance: number | string; rollover?: number | string; is_admin: boolean }
       | undefined;
     setWallet({
       balance: Number(row?.balance ?? 0),
       monthlyLeft: Number(row?.monthly_remaining ?? 0),
       monthlyAllowance: Number(row?.monthly_allowance ?? 0),
+      rollover: Number(row?.rollover ?? 0),
       isAdmin: Boolean(row?.is_admin),
     });
     setLoading(false);
