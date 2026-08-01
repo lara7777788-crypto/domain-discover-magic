@@ -245,6 +245,9 @@ export type Database = {
           email: string | null
           id: string
           is_pro: boolean
+          low_slice_alert_email: boolean
+          low_slice_notified_at: string | null
+          low_slice_threshold: number
           monthly_allowance: number
           period_start: string
           period_used: number
@@ -258,6 +261,9 @@ export type Database = {
           email?: string | null
           id: string
           is_pro?: boolean
+          low_slice_alert_email?: boolean
+          low_slice_notified_at?: string | null
+          low_slice_threshold?: number
           monthly_allowance?: number
           period_start?: string
           period_used?: number
@@ -271,6 +277,9 @@ export type Database = {
           email?: string | null
           id?: string
           is_pro?: boolean
+          low_slice_alert_email?: boolean
+          low_slice_notified_at?: string | null
+          low_slice_threshold?: number
           monthly_allowance?: number
           period_start?: string
           period_used?: number
