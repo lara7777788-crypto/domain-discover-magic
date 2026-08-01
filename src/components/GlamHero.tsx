@@ -111,31 +111,47 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
     setSmashing(true);
     stopKittenAmbience();
 
-
     // Timing contract (must stay in sync with .is-smashing rules in styles.css):
-    //   0ms    click — frog crouches
-    //   ~135ms push-off, which is where the second "bet" note of the croak lands
-    //   600ms  IMPACT — frog hits the cake, cake explodes, smash sfx + haptic peak
-    const IMPACT = 600;
-    const AUDIO_LEAD = 25; // buffer scheduling + 10ms attack ramp
+    //   0ms      click — croak #1, frog crouches
+    //   350ms    push-off
+    //   1100ms   IMPACT — croak #2 (loudest) + smash, cake pancakes, debris erupts
+    //   1.1-3.9s debris arcs and falls, more croaks over the wreckage
+    //   3.9-5.2s the wipe blooms and carries the page turn
+    const IMPACT = 1100;
+    const AUDIO_LEAD = 25; // buffer scheduling + attack ramp
     const HAPTIC_LEAD = 45; // vibration motor spin-up
+    const END = 5200;
 
-    // croak fires on the crouch so its accent note peaks on the push-off
-    playRibbet(1.15);
-    buzz(12);
+    // croak #1 on the crouch — the ribbit is the headline of the whole moment
+    playRibbet(1.3);
+    buzz(14);
 
-    hapticTimer.current = window.setTimeout(
-      () => buzz([28, 40, 70]),
-      IMPACT - HAPTIC_LEAD,
-    );
+    const at = (ms: number, fn: () => void) => {
+      const id = window.setTimeout(fn, ms);
+      extraTimers.current.push(id);
+    };
+
+    hapticTimer.current = window.setTimeout(() => buzz([30, 40, 80]), IMPACT - HAPTIC_LEAD);
     sfxTimer.current = window.setTimeout(() => {
+      // impact: the big "RIBBIT!!!" with the smash tucked underneath it
+      playRibbet(1.4);
       playSmash(AUDIO_LEAD / 1000);
-      // second "RIBBIT!" right on the impact frame
-      playRibbet(1.1);
     }, IMPACT - AUDIO_LEAD);
 
-    timer.current = window.setTimeout(onEnter, 1500);
+    // croaks keep rolling over the flying debris so nothing ever goes quiet
+    at(1950, () => {
+      playRibbet(1.15);
+      buzz(18);
+    });
+    at(2950, () => playRibbet(0.95));
+    at(3900, () => {
+      playRibbet(1.25);
+      buzz([20, 30, 60]);
+    });
+
+    timer.current = window.setTimeout(onEnter, END);
   };
+
 
 
   return (
