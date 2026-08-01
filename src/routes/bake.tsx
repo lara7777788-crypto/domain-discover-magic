@@ -214,7 +214,7 @@ function BakePage() {
 
   // Redirect to login if not authed
   useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
+    if (!authLoading && !user) navigate({ to: "/", replace: true });
   }, [authLoading, user, navigate]);
 
   // Load existing slice (?slice=ID) or seed an unsaved remix draft (?remix=ID)

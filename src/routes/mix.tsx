@@ -47,7 +47,7 @@ function MixPage() {
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
+    if (!authLoading && !user) navigate({ to: "/", replace: true });
   }, [authLoading, user, navigate]);
 
   useEffect(() => {

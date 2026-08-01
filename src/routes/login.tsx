@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -24,7 +23,6 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -42,10 +40,8 @@ function LoginPage() {
     }
   };
 
-  useEffect(() => {
-    if (!loading && user) goNext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  // Intentionally no auto-redirect: the sign-in page is always shown on entry.
+
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
