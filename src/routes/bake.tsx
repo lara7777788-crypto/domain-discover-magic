@@ -32,7 +32,7 @@ export const Route = createFileRoute("/bake")({
   component: BakePage,
 });
 
-type LayerKey = "wish" | "visual" | "text" | "layout" | "logo";
+type LayerKey = "wish" | "visual" | "text" | "layout" | "logo" | "extra";
 
 type LayerDef = {
   key: LayerKey;
@@ -49,6 +49,7 @@ const IMAGE_LAYERS: LayerDef[] = [
   { key: "text",   name: "Text",   tagline: "What words live on it?", hint: "A title, a tagline, or nothing at all.",                 bg: "#FFF6BE", ink: "#6E5A0E" },
   { key: "layout", name: "Layout", tagline: "Where the eye lands.",   hint: "Centered · Off-axis · Grid · Generous space",            bg: "#D9F1D2", ink: "#1F5A2A" },
   { key: "logo",   name: "Brand",  tagline: "Anything that's yours.",  hint: "Product · logo · packaging · vibe shot · photo — describe or drop it in.", bg: "#D4E8FF", ink: "#1A3D6E" },
+  { key: "extra",  name: "Anything special", tagline: "The non-negotiables.", hint: "No text in the bottom third · Keep my exact pink (#FF3E9D) · Leave room for a logo top-left · Don't add people · Match the reference photo's lighting.", bg: "#E9DDFB", ink: "#3D2168" },
 ];
 
 // Copy mode: same 5 layer KEYS (so saved chips reuse cleanly), reframed as
@@ -59,7 +60,9 @@ const COPY_LAYERS: LayerDef[] = [
   { key: "text",   name: "Yeast",    tagline: "How much should it rise?",          hint: "One Instagram caption, under 60 words. Or: 'long enough to breathe, short enough to read'.", bg: "#C2D2EE", ink: "#0B1A45" },
   { key: "layout", name: "Milk",     tagline: "Who's drinking it in?",             hint: "Home bakers, 25–45, curious not expert. They love process, not jargon.",            bg: "#B6CAE9", ink: "#08153A" },
   { key: "logo",   name: "Salt",     tagline: "Signature notes & sign-off.",       hint: "First person, occasional baker's pun. Sign off: 'with butter, Lev.' Avoid: 'circle back', 'unlock', 'leverage'.", bg: "#AAC1E4", ink: "#06112F" },
+  { key: "extra",  name: "Anything special", tagline: "The non-negotiables.",      hint: "Don't mention price · Use British spelling · Keep it under 40 words · Include the phrase 'small-batch' · No exclamation marks · Follow the attached brief exactly.", bg: "#9EB6DE", ink: "#050D25" },
 ];
+
 
 type ImageFormat = GenerateInput["format"];
 type CopyFormat = GenerateCopyInput["format"];
