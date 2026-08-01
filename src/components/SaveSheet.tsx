@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
-import { useSubscription } from "@/hooks/useSubscription";
-import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { supabase } from "@/integrations/supabase/client";
-import { spendSliceCredit } from "@/lib/credits.functions";
 
 export type SavePayload = {
   url: string;       // object URL or data URL of the final image
   blob?: Blob;       // optional, enables Web Share
   filename: string;
-  sliceId?: string;  // when present, supports per-slice unlock
-  locked?: boolean;  // when true, save is gated until Pro or slice unlock
+  sliceId?: string;
+  locked?: boolean;  // deprecated: credits are charged at generation, not download
 };
 
 export function SaveSheet({
@@ -20,12 +15,6 @@ export function SaveSheet({
   payload: SavePayload | null;
   onClose: () => void;
 }) {
-  const { user } = useAuth();
-  const { isActive: isPro } = useSubscription();
-  const { openCheckout, checkoutElement, isOpen: checkoutOpen, closeCheckout } = useStripeCheckout();
-
-  const [credits, setCredits] = useState<number>(0);
-  const [spending, setSpending] = useState(false);
   const [saveNote, setSaveNote] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,19 +24,9 @@ export function SaveSheet({
     return () => document.removeEventListener("keydown", onKey);
   }, [payload, onClose]);
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("slice_credits")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setCredits((data?.slice_credits as number) ?? 0));
-  }, [user, payload?.sliceId]);
-
   if (!payload) return null;
 
-  const gated = !!payload.locked && !isPro;
+
 
   const canShare =
     typeof navigator !== "undefined" &&
