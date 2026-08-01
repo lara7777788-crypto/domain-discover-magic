@@ -54,6 +54,7 @@ function SlicesPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [savePayload, setSavePayload] = useState<SavePayload | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
   const [discovering, setDiscovering] = useState(false);
 
   const isCopyTab = tab === "copy";
