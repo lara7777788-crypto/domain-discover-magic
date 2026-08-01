@@ -106,6 +106,7 @@ export const generateCopy = createServerFn({ method: "POST" })
     const { data: spent, error: spendErr } = await supabaseAdmin.rpc("spend_credits", {
       p_user_id: context.userId,
       p_amount: COPY_COST,
+      p_source: "icing",
     });
     if (spendErr) {
       if ((spendErr.message || "").includes("no_credits")) {
