@@ -1,0 +1,2 @@
+ALTER TABLE public.layer_chips DROP CONSTRAINT layer_chips_layer_check;
+ALTER TABLE public.layer_chips ADD CONSTRAINT layer_chips_layer_check CHECK (layer = ANY (ARRAY['wish'::text,'visual'::text,'text'::text,'layout'::text,'logo'::text,'extra'::text]));
