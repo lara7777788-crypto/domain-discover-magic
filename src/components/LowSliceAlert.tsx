@@ -6,7 +6,21 @@ import { useAuth } from "@/lib/auth-context";
 import { formatSlices, useCredits } from "@/hooks/useCredits";
 
 const DISMISS_KEY = "lc_low_slice_dismissed_at";
-const TOAST_KEY = "lc_low_slice_toasted";
+const NOTIFIED_KEY = "lc_low_slice_notified_at";
+const COOLDOWN_KEY = "lc_low_slice_cooldown_hours";
+const DEFAULT_COOLDOWN_HOURS = 24;
+
+/** How long to stay quiet after a low-slice alert (hours, persisted locally). */
+export function getLowSliceCooldownHours() {
+  if (typeof window === "undefined") return DEFAULT_COOLDOWN_HOURS;
+  const raw = Number(window.localStorage.getItem(COOLDOWN_KEY));
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_COOLDOWN_HOURS;
+}
+
+export function setLowSliceCooldownHours(hours: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(COOLDOWN_KEY, String(hours));
+}
 
 /** Reads the signed-in user's low-slice threshold (default 10). */
 export function useLowSliceThreshold() {
