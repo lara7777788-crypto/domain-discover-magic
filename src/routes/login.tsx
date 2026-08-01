@@ -42,10 +42,8 @@ function LoginPage() {
     }
   };
 
-  useEffect(() => {
-    if (!loading && user) goNext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  // Intentionally no auto-redirect: the sign-in page is always shown on entry.
+
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
