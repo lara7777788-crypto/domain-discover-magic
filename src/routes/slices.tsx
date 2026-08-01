@@ -89,7 +89,7 @@ function SlicesPage() {
   const closeSave = () => setSavePayload(null);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
+    if (!authLoading && !user) navigate({ to: "/", replace: true });
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
