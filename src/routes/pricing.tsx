@@ -106,10 +106,19 @@ function PricingPage() {
   const openPortal = async () => {
     setPortalLoading(true);
     try {
-      const url = await createPortalSession({
+      const res = await createPortalSession({
         data: { environment: getStripeEnvironment(), returnUrl: window.location.origin + "/pricing" },
       });
-      if (url) window.open(url, "_blank");
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      window.open(res.url, "_blank");
+    } catch (e) {
+      toast.error(
+        (e as Error).message ||
+          "Couldn't open your billing page. Nothing was charged — please try again.",
+      );
     } finally {
       setPortalLoading(false);
     }
