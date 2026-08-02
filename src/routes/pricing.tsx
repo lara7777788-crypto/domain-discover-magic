@@ -54,18 +54,51 @@ function PricingPage() {
     }
   };
 
-  const buy = (priceId: "pro_monthly" | "pro_yearly" | "community_monthly") => {
+  const buy = (priceId: PlanId) => {
     if (!user) {
       window.location.href = "/login";
       return;
     }
     openCheckout({
       priceId,
-      
+
       customerEmail: user.email ?? undefined,
       returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });
   };
+
+  /** Existing subscribers switch plans in place, with Stripe prorating the difference. */
+  const switchPlan = async (priceId: PlanId) => {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    if (!isActive || !sub) {
+      buy(priceId);
+      return;
+    }
+    setSwitching(priceId);
+    try {
+      const res = await upgradeSubscription({
+        data: { priceId, environment: getStripeEnvironment() },
+      });
+      if (!res.ok) {
+        if (res.error === "no_subscription") {
+          buy(priceId);
+          return;
+        }
+        toast.error(res.error === "already_on_plan" ? "You're already on this plan." : res.error);
+        return;
+      }
+      toast.success("Plan updated 🍰 You've only been charged the prorated difference.");
+      await refetch();
+    } catch (e) {
+      toast.error((e as Error).message || "Couldn't change plan");
+    } finally {
+      setSwitching(null);
+    }
+  };
+
 
   const openPortal = async () => {
     setPortalLoading(true);
