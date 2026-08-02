@@ -54,7 +54,7 @@ function PricingPage() {
     }
   };
 
-  const buy = (priceId: "pro_monthly" | "pro_yearly") => {
+  const buy = (priceId: "pro_monthly" | "pro_yearly" | "community_monthly") => {
     if (!user) {
       window.location.href = "/login";
       return;
@@ -120,7 +120,22 @@ function PricingPage() {
           </div>
         )}
 
-        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <PlanCard
+            name="Community · $4"
+            price="$4"
+            period="/month"
+            features={[
+              "50 slices per month",
+              "HD downloads",
+              "All slices unlocked",
+              "Trust-based — no proof needed",
+            ]}
+            cta="Join Community"
+            highlight={false}
+            onClick={() => buy("community_monthly")}
+            disabled={isActive && sub?.price_id === "community_monthly"}
+          />
           <PlanCard
             name="Monthly"
             price="$12"
@@ -153,9 +168,22 @@ function PricingPage() {
           />
         </div>
 
-        <div className="mt-10 text-center text-sm text-foreground/50">
-          Need just a few? Grab a 10‑pack of slices for $3 — stacks on top of any Pro plan.
+        <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-white bg-white/70 p-5 text-center text-sm text-foreground/70 backdrop-blur">
+          <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
+            🤝 The trust system
+          </p>
+          <p className="mt-2">
+            The <strong>Community plan</strong> is for students, teachers, startups, artists,
+            new graphic designers, blossoming influencers, nonprofits and anyone else who
+            can't swing the full price right now. No paperwork, no proof — just pick it
+            honestly. When your work takes off, come back and upgrade. 🍰
+          </p>
         </div>
+
+        <div className="mt-8 text-center text-sm text-foreground/50">
+          Need just a few? Grab a 10‑pack of slices for $3 — stacks on top of any plan.
+        </div>
+
 
         <div className="mx-auto mt-10 max-w-md rounded-2xl border border-white bg-white/70 p-5 text-center backdrop-blur">
           <h2 className="text-xs uppercase tracking-[0.3em] text-foreground/50">
