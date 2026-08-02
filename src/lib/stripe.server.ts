@@ -34,7 +34,36 @@ export function createStripeClient(env: StripeEnv): Stripe {
       });
     }) as typeof fetch),
   });
+
+/** Turns a Stripe SDK failure into a message a buyer can act on. */
+export function getStripeErrorMessage(error: unknown): string {
+  if (error && typeof error === "object") {
+    const e = error as {
+      message?: string;
+      type?: string;
+      code?: string;
+      decline_code?: string;
+      raw?: { message?: string; type?: string; code?: string; decline_code?: string };
+    };
+    const code = e.raw?.decline_code ?? e.decline_code ?? e.raw?.code ?? e.code;
+    if (code === "card_declined" || e.raw?.type === "card_error" || e.type === "card_error") {
+      return "Your card was declined — no charge was made. Try another card or contact your bank.";
+    }
+    if (code === "insufficient_funds") {
+      return "That card has insufficient funds — no charge was made. Try another card.";
+    }
+    if (code === "expired_card") {
+      return "That card has expired — no charge was made. Try another card.";
+    }
+    if (code === "rate_limit") {
+      return "Too many attempts in a row. Wait about a minute, then try once more.";
+    }
+    const message = e.raw?.message ?? e.message;
+    if (message) return `${message} No charge was made — you can safely try again.`;
+  }
+  return "We couldn't reach the payment service. No charge was made — please try again in a moment.";
 }
+
 
 export async function verifyWebhook(
   req: Request,
