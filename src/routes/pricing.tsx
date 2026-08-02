@@ -54,7 +54,7 @@ function PricingPage() {
     }
   };
 
-  const buy = (priceId: "pro_monthly" | "pro_yearly") => {
+  const buy = (priceId: "pro_monthly" | "pro_yearly" | "community_monthly") => {
     if (!user) {
       window.location.href = "/login";
       return;
