@@ -283,6 +283,7 @@ function PlanCard({
   period,
   features,
   cta,
+  note,
   highlight,
   onClick,
   disabled,
@@ -292,6 +293,7 @@ function PlanCard({
   period: string;
   features: string[];
   cta: string;
+  note?: string;
   highlight: boolean;
   onClick: () => void;
   disabled: boolean;
@@ -328,8 +330,11 @@ function PlanCard({
             : "border border-foreground/20 text-foreground hover:bg-foreground/5"
         } disabled:cursor-not-allowed disabled:opacity-40`}
       >
-        {disabled ? "Current plan" : cta}
+        {cta}
       </button>
+      {note && (
+        <p className="mt-2 text-center text-[11px] text-foreground/45">{note}</p>
+      )}
     </div>
   );
 }
