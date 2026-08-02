@@ -49,6 +49,31 @@ export function useCredits() {
     setLoading(false);
   }, [user]);
 
+  // Live balance: any credit spend/grant writes to profiles + credit_events.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`credits-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+        () => {
+          void refresh();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "credit_events", filter: `user_id=eq.${user.id}` },
+        () => {
+          void refresh();
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user, refresh]);
+
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
