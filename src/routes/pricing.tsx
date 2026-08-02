@@ -141,10 +141,14 @@ function PricingPage() {
         {isActive && (
           <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white bg-white/80 p-4 text-center backdrop-blur">
             <p className="text-sm text-foreground/70">
-              You're on Pro
+              You're on {getPlan(sub?.price_id)?.name ?? "a plan"}
               {sub?.current_period_end &&
                 ` until ${new Date(sub.current_period_end).toLocaleDateString()}`}
               .
+            </p>
+            <p className="mt-1 text-xs text-foreground/50">
+              Switching plans is prorated — you only pay the difference for the rest of this
+              cycle.
             </p>
             <button
               onClick={openPortal}
@@ -157,52 +161,42 @@ function PricingPage() {
         )}
 
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-          <PlanCard
-            name="Community · $4"
-            price="$4"
-            period="/month"
-            features={[
-              "50 slices per month",
-              "HD downloads",
-              "All slices unlocked",
-              "Trust-based — no proof needed",
-            ]}
-            cta="Join Community"
-            highlight={false}
-            onClick={() => buy("community_monthly")}
-            disabled={isActive && sub?.price_id === "community_monthly"}
-          />
-          <PlanCard
-            name="Monthly"
-            price="$12"
-            period="/month"
-            features={[
-              "90 slices per month",
-              "HD downloads",
-              "All slices unlocked",
-              "Cancel anytime",
-            ]}
-            cta="Go Pro monthly"
-            highlight={false}
-            onClick={() => buy("pro_monthly")}
-            disabled={isActive && sub?.price_id === "pro_monthly"}
-          />
-          <PlanCard
-            name="Yearly"
-            price="$110"
-            period="/year"
-            features={[
-              "90 slices per month (1,080/year)",
-              "HD downloads",
-              "Save $34 vs monthly",
-              "Cancel anytime",
-            ]}
-            cta="Go Pro yearly"
-            highlight
-            onClick={() => buy("pro_yearly")}
-            disabled={isActive && sub?.price_id === "pro_yearly"}
-          />
+          {PLANS.map((plan) => {
+            const currentTier = getPlan(sub?.price_id)?.tier ?? 0;
+            const onPlan = isActive && sub?.price_id === plan.id;
+            const isUpgrade = isActive && !onPlan && plan.tier > currentTier;
+            const isDowngrade = isActive && !onPlan && plan.tier < currentTier;
+            return (
+              <PlanCard
+                key={plan.id}
+                name={plan.name}
+                price={plan.price}
+                period={plan.period}
+                features={plan.features}
+                cta={
+                  onPlan
+                    ? "Your plan"
+                    : switching === plan.id
+                      ? "Updating…"
+                      : isUpgrade
+                        ? `Upgrade to ${plan.name} →`
+                        : isDowngrade
+                          ? "Switch to this plan"
+                          : plan.cta
+                }
+                note={
+                  isUpgrade || isDowngrade
+                    ? "Prorated — you're only billed the difference"
+                    : undefined
+                }
+                highlight={Boolean(plan.highlight) || isUpgrade}
+                onClick={() => (isActive ? void switchPlan(plan.id) : buy(plan.id))}
+                disabled={onPlan || switching !== null}
+              />
+            );
+          })}
         </div>
+
 
         <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-white bg-white/70 p-5 text-center text-sm text-foreground/70 backdrop-blur">
           <p className="text-xs uppercase tracking-[0.3em] text-foreground/50">
