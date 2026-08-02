@@ -34,6 +34,9 @@ export function createStripeClient(env: StripeEnv): Stripe {
       });
     }) as typeof fetch),
   });
+}
+
+
 
 /** Turns a Stripe SDK failure into a message a buyer can act on. */
 export function getStripeErrorMessage(error: unknown): string {
