@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth-context";
 import { LowSliceAlert } from "@/components/LowSliceAlert";
+import { UpgradeNudge } from "@/components/UpgradeNudge";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -98,6 +99,7 @@ function RootComponent() {
     <AuthProvider>
       <Outlet />
       <LowSliceAlert />
+      <UpgradeNudge />
       <Toaster position="top-center" />
     </AuthProvider>
   );
