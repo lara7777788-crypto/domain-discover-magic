@@ -48,36 +48,104 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       return { ...data, returnUrl: safe };
     },
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     const { userId } = context;
-    const stripe = createStripeClient(data.environment);
+    try {
+      const stripe = createStripeClient(data.environment);
 
-    const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
-    if (!prices.data.length) throw new Error("Price not found");
-    const stripePrice = prices.data[0];
-    const isRecurring = stripePrice.type === "recurring";
+      const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+      if (!prices.data.length) {
+        return { error: "That plan isn't available right now. Nothing was charged — please pick another plan or try again shortly." };
+      }
+      const stripePrice = prices.data[0];
+      const isRecurring = stripePrice.type === "recurring";
 
-    const metadata: Record<string, string> = {
-      userId,
-      priceId: data.priceId,
-    };
-    if (data.sliceId) metadata.sliceId = data.sliceId;
+      const metadata: Record<string, string> = {
+        userId,
+        priceId: data.priceId,
+      };
+      if (data.sliceId) metadata.sliceId = data.sliceId;
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
-      mode: isRecurring ? "subscription" : "payment",
-      ui_mode: "embedded_page",
-      return_url: data.returnUrl,
-      ...(data.customerEmail && { customer_email: data.customerEmail }),
-      metadata,
-      ...(isRecurring && {
-        subscription_data: { metadata: { userId } },
-      }),
-      managed_payments: { enabled: true },
-    } as any);
+      const session = await stripe.checkout.sessions.create({
+        line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
+        mode: isRecurring ? "subscription" : "payment",
+        ui_mode: "embedded_page",
+        return_url: data.returnUrl,
+        ...(data.customerEmail && { customer_email: data.customerEmail }),
+        metadata,
+        ...(isRecurring && {
+          subscription_data: { metadata: { userId } },
+        }),
+        managed_payments: { enabled: true },
+      } as any);
 
-    return session.client_secret;
+      if (!session.client_secret) {
+        return { error: "Stripe didn't return a payment form. No charge was made — please try again." };
+      }
+      return { clientSecret: session.client_secret };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
   });
+
+/**
+ * Reads the outcome of a finished checkout so the return page can tell the
+ * difference between paid, still-processing, and failed — instead of leaving
+ * the buyer guessing whether to retry.
+ */
+export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { sessionId: string; environment: Env }) => {
+    if (!/^cs_[a-zA-Z0-9_]+$/.test(data.sessionId)) throw new Error("Invalid sessionId");
+    if (data.environment !== "sandbox" && data.environment !== "live") {
+      throw new Error("Invalid environment");
+    }
+    return data;
+  })
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<
+      | {
+          state: "paid" | "processing" | "failed" | "expired";
+          amount: number | null;
+          currency: string | null;
+          priceId: string | null;
+          email: string | null;
+        }
+      | { error: string }
+    > => {
+      try {
+        const stripe = createStripeClient(data.environment);
+        const session = await stripe.checkout.sessions.retrieve(data.sessionId);
+
+        // Only the buyer may inspect their own session.
+        if (session.metadata?.["userId"] && session.metadata["userId"] !== context.userId) {
+          return { error: "This receipt belongs to a different account." };
+        }
+
+        const state =
+          session.payment_status === "paid" || session.payment_status === "no_payment_required"
+            ? ("paid" as const)
+            : session.status === "expired"
+              ? ("expired" as const)
+              : session.status === "open"
+                ? ("failed" as const)
+                : ("processing" as const);
+
+        return {
+          state,
+          amount: session.amount_total ?? null,
+          currency: session.currency ?? null,
+          priceId: session.metadata?.["priceId"] ?? null,
+          email: session.customer_details?.email ?? null,
+        };
+      } catch (error) {
+        return { error: getStripeErrorMessage(error) };
+      }
+    },
+  );
 
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -87,7 +155,7 @@ export const createPortalSession = createServerFn({ method: "POST" })
     }
     return { ...data, returnUrl: validateReturnUrl(data.returnUrl) };
   })
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<{ url: string } | { error: string }> => {
     const { supabase, userId } = context;
     const { data: sub } = await supabase
       .from("subscriptions")
@@ -97,14 +165,20 @@ export const createPortalSession = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (!sub?.stripe_customer_id) throw new Error("No subscription found");
+    if (!sub?.stripe_customer_id) {
+      return { error: "No active subscription found on this account yet." };
+    }
 
-    const stripe = createStripeClient(data.environment);
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: sub.stripe_customer_id as string,
-      ...(data.returnUrl && { return_url: data.returnUrl }),
-    });
-    return portal.url;
+    try {
+      const stripe = createStripeClient(data.environment);
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: sub.stripe_customer_id as string,
+        ...(data.returnUrl && { return_url: data.returnUrl }),
+      });
+      return { url: portal.url };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
   });
 
 const UPGRADEABLE = ["community_monthly", "pro_monthly", "pro_yearly", "business_monthly", "business_yearly"];
