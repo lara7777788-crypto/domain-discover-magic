@@ -57,10 +57,9 @@ export const PLANS: Plan[] = [
       "Save $34 vs monthly",
       "Cancel anytime",
     ],
-    tier2: undefined as never,
     cta: "Go Pro yearly",
     highlight: true,
-  } as Plan,
+  },
   {
     id: "business_monthly",
     name: "Business",
