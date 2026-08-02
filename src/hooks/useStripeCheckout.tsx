@@ -31,7 +31,7 @@ export function useStripeCheckout() {
   const checkoutElement =
     isOpen && options ? (
       <Suspense fallback={<div className="py-10 text-center text-sm text-foreground/60">Loading checkout…</div>}>
-        <StripeEmbeddedCheckout {...options} />
+        <StripeEmbeddedCheckout {...options} onClose={closeCheckout} />
       </Suspense>
     ) : null;
 
