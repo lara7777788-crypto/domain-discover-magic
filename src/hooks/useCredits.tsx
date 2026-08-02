@@ -83,7 +83,13 @@ export function useCredits() {
 
   const total = wallet.balance + wallet.monthlyLeft;
 
-  return { ...wallet, total, loading, refresh, applyWallet };
+  /** Client-side quota guard — server still enforces via spend_credits. */
+  const canSpend = useCallback(
+    (cost: number) => wallet.isAdmin || loading || total >= cost,
+    [wallet.isAdmin, loading, total],
+  );
+
+  return { ...wallet, total, loading, refresh, applyWallet, canSpend };
 }
 
 export const formatSlices = (n: number) =>
