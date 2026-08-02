@@ -3,7 +3,9 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { createPortalSession } from "@/utils/payments.functions";
+import { toast } from "sonner";
+import { createPortalSession, upgradeSubscription } from "@/utils/payments.functions";
+import { PLANS, getPlan, type PlanId } from "@/lib/plans";
 import { redeemCoupon } from "@/lib/coupons.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { TopNav } from "@/components/TopNav";
@@ -31,9 +33,10 @@ export const Route = createFileRoute("/pricing")({
 
 function PricingPage() {
   const { user } = useAuth();
-  const { sub, isActive } = useSubscription();
+  const { sub, isActive, refetch } = useSubscription();
   const { openCheckout, checkoutElement, closeCheckout, isOpen } = useStripeCheckout();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [switching, setSwitching] = useState<PlanId | null>(null);
   const [code, setCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
   const [redeemMsg, setRedeemMsg] = useState<{ ok: boolean; text: string } | null>(null);
