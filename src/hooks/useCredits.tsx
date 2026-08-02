@@ -49,6 +49,31 @@ export function useCredits() {
     setLoading(false);
   }, [user]);
 
+  // Live balance: any credit spend/grant writes to profiles + credit_events.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`credits-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+        () => {
+          void refresh();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "credit_events", filter: `user_id=eq.${user.id}` },
+        () => {
+          void refresh();
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user, refresh]);
+
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -89,8 +114,25 @@ export function useCredits() {
     [wallet.isAdmin, loading, total],
   );
 
-  return { ...wallet, total, loading, refresh, applyWallet, canSpend };
+  return { ...wallet, total, loading, refresh, applyWallet, canSpend, resetsAt: nextQuotaReset() };
 }
+
+/**
+ * Monthly allowances reset at the first instant of the next calendar month,
+ * server-side (UTC) — same boundary `sync_credit_period` uses.
+ */
+export function nextQuotaReset(from: Date = new Date()): Date {
+  return new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1, 0, 0, 0));
+}
+
+/** "Sep 1, 2:00 AM" in the viewer's own timezone. */
+export const formatResetAt = (d: Date) =>
+  d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
 export const formatSlices = (n: number) =>
   Number.isInteger(n) ? n.toLocaleString() : n.toLocaleString(undefined, { maximumFractionDigits: 1 });
