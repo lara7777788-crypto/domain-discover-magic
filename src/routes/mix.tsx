@@ -251,7 +251,7 @@ function MixPage() {
 
         <button
           onClick={onMix}
-          disabled={busy || picked.length < 2}
+          disabled={busy || picked.length < 2 || !credits.canSpend(2)}
           className="mt-5 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-white shadow-[0_15px_30px_-15px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-50"
         >
           {busy ? "Mixing…" : "Mix it 🍥"}

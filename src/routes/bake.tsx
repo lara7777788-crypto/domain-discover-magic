@@ -735,7 +735,7 @@ function BakePage() {
             <div className="mt-8 flex items-center gap-4">
               <button
                 onClick={onBake}
-                disabled={loading}
+                disabled={loading || !credits.canSpend(isCopy ? 0.5 : 1)}
                 className="rounded-full bg-foreground px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-60"
               >
                 {loading ? TERMS.ctaBusy : TERMS.ctaIdle}

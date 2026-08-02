@@ -192,7 +192,7 @@ function HomemadePage() {
 
         <button
           onClick={onBake}
-          disabled={busy}
+          disabled={busy || !credits.canSpend(1)}
           className="mt-6 block rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-white shadow-[0_15px_30px_-15px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 disabled:opacity-50"
         >
           {busy ? "Baking…" : "Bake it 🍰"}
