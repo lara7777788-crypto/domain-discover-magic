@@ -29,11 +29,12 @@ export const Route = createFileRoute("/mix")({
 /** Keeps a client crash inside the mix workspace from blanking the page. */
 function MixRoute() {
   return (
-    <WidgetBoundary label="Mix workspace">
+    <WidgetBoundary label="Mix workspace" surface="mix_realtime">
       <MixPage />
     </WidgetBoundary>
   );
 }
+
 
 
 
