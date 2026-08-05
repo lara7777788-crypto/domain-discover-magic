@@ -63,13 +63,17 @@ export const Route = createFileRoute("/api/public/monitor/report")({
 
         // Evaluate alert thresholds (best-effort — never fail the report).
         let alerted = false;
+        let realtimeAlerted = false;
         try {
+          if (isMixRealtimeCrash(parsed)) {
+            realtimeAlerted = await alertMixRealtime(supabaseAdmin, parsed);
+          }
           alerted = await maybeAlert(supabaseAdmin);
         } catch (err) {
           console.error("monitor: alert evaluation failed", err);
         }
 
-        return new Response(JSON.stringify({ ok: true, alerted }), {
+        return new Response(JSON.stringify({ ok: true, alerted, realtimeAlerted }), {
           status: 200,
           headers: corsHeaders,
         });
@@ -81,6 +85,117 @@ export const Route = createFileRoute("/api/public/monitor/report")({
 type AdminClient = Awaited<
   typeof import("@/integrations/supabase/client.server")
 >["supabaseAdmin"];
+
+type Payload = z.infer<typeof payloadSchema>;
+
+/**
+ * A crash on the live-updating Mix path: either the report is tagged as a
+ * realtime/credit-listener failure, or it happened on /mix and mentions the
+ * realtime channel machinery.
+ */
+function isMixRealtimeCrash(p: Payload) {
+  const route = (p.route ?? "").toLowerCase();
+  const message = `${p.message} ${p.stack ?? ""}`.toLowerCase();
+  const surface = String(p.meta?.["surface"] ?? "").toLowerCase();
+
+  if (surface === "mix_realtime" || surface === "credits_realtime") return true;
+
+  const looksRealtime =
+    message.includes("postgres_changes") ||
+    message.includes("realtime") ||
+    message.includes("subscribe") ||
+    message.includes("removechannel") ||
+    message.includes("tried to subscribe multiple times");
+
+  return looksRealtime && (route.startsWith("/mix") || surface.includes("mix"));
+}
+
+/** Immediate, separately throttled page for Mix realtime crashes. */
+async function alertMixRealtime(supabase: AdminClient, p: Payload) {
+  const { data: state } = await supabase
+    .from("monitor_alert_state")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (!state || state.enabled === false) return false;
+  if ((state as { realtime_alerts_enabled?: boolean }).realtime_alerts_enabled === false) {
+    return false;
+  }
+
+  const notifyEmail = String(state.notify_email ?? "");
+  if (!notifyEmail) return false;
+
+  const cooldownMinutes = Number(
+    (state as { realtime_cooldown_minutes?: number }).realtime_cooldown_minutes ?? 15,
+  );
+  const lastAt = (state as { last_realtime_alert_at?: string | null }).last_realtime_alert_at;
+  if (lastAt && Date.now() - new Date(lastAt).getTime() < cooldownMinutes * 60 * 1000) {
+    return false;
+  }
+
+  const subject = "🚨 Layercake: Mix realtime listener crashed";
+  const detail = `<table style="border-collapse:collapse;font-size:13px">
+    <tr><td style="padding:4px 8px"><strong>Route</strong></td><td style="padding:4px 8px">${escapeHtml(
+      p.route ?? "—",
+    )}</td></tr>
+    <tr><td style="padding:4px 8px"><strong>Type</strong></td><td style="padding:4px 8px">${escapeHtml(
+      p.kind,
+    )}</td></tr>
+    <tr><td style="padding:4px 8px"><strong>Message</strong></td><td style="padding:4px 8px">${escapeHtml(
+      p.message.slice(0, 400),
+    )}</td></tr>
+    <tr><td style="padding:4px 8px"><strong>Device</strong></td><td style="padding:4px 8px">${escapeHtml(
+      (p.userAgent ?? "—").slice(0, 200),
+    )}</td></tr>
+  </table>`;
+
+  const html = `<div style="font-family:system-ui,sans-serif;color:#1a1a1a">
+  <h2 style="margin:0 0 8px">Mix / credits live-update crash</h2>
+  <p style="margin:0 0 16px">A client crashed on the live credit &amp; mix realtime path. The error boundary caught it, so the page did not go blank — but the listener failed.</p>
+  ${detail}
+  <p style="margin:16px 0 0"><a href="https://layercake.site/monitoring">Open the monitoring page</a></p>
+</div>`;
+
+  const text = `Mix / credits realtime crash\nRoute: ${p.route ?? "—"}\nType: ${p.kind}\nMessage: ${p.message.slice(
+    0,
+    400,
+  )}\n\nhttps://layercake.site/monitoring`;
+
+  const messageId = crypto.randomUUID();
+  const { error: queueError } = await supabase.rpc("enqueue_email", {
+    queue_name: "transactional_emails",
+    payload: {
+      message_id: messageId,
+      idempotency_key: messageId,
+      to: notifyEmail,
+      from: "Layercake Monitoring <alerts@notify.layercake.site>",
+      sender_domain: "notify.layercake.site",
+      subject,
+      html,
+      text,
+      purpose: "transactional",
+      label: "mix_realtime_alert",
+      queued_at: new Date().toISOString(),
+    } as never,
+  });
+
+  if (queueError) {
+    console.error("monitor: failed to enqueue mix realtime alert", queueError);
+    return false;
+  }
+
+  await supabase
+    .from("monitor_alert_state")
+    .update({
+      last_realtime_alert_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("id", 1);
+
+  return true;
+}
+
 
 async function maybeAlert(supabase: AdminClient) {
   const { data: state } = await supabase

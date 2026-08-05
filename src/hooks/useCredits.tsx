@@ -78,8 +78,17 @@ export function useCredits() {
         void supabase.removeChannel(channel);
       };
     } catch (e) {
-      // Live updates are a nicety — never let a realtime hiccup crash the page.
+      // Live updates are a nicety — never let a realtime hiccup crash the page,
+      // but do page monitoring: this is the /mix + credit listener path.
       console.error("[useCredits] realtime subscribe failed", e);
+      void import("@/components/ErrorMonitor").then(({ reportError }) =>
+        reportError({
+          kind: "render_error",
+          message: e instanceof Error ? e.message : "Credit realtime subscribe failed",
+          stack: e instanceof Error ? e.stack : undefined,
+          meta: { surface: "credits_realtime", channel: "credits" },
+        }),
+      );
       return;
     }
   }, [user, refresh, instanceId]);

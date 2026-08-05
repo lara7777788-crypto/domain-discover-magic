@@ -17,7 +17,7 @@ const costLabel = (cost: number) => (cost === 0.5 ? "1/2" : String(cost));
 /** "12,340 slices left · uses 1 · resets Sep 1, 2:00 AM" meter shown above every generate button. */
 export function CreditMeter(props: Props) {
   return (
-    <WidgetBoundary label="Slice counter">
+    <WidgetBoundary label="Slice counter" surface="credits_realtime">
       <CreditMeterInner {...props} />
     </WidgetBoundary>
   );

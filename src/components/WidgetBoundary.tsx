@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { reportError } from "@/components/ErrorMonitor";
 
 type Props = {
   children: ReactNode;
@@ -6,6 +7,8 @@ type Props = {
   label?: string;
   /** Render nothing at all when this widget fails (background widgets). */
   silent?: boolean;
+  /** Tags the monitoring report so dedicated alerts (e.g. mix realtime) fire. */
+  surface?: "mix_realtime" | "credits_realtime";
 };
 
 type State = { error: Error | null };
@@ -24,7 +27,14 @@ export class WidgetBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error(`[WidgetBoundary${this.props.label ? `:${this.props.label}` : ""}]`, error, info);
+    reportError({
+      kind: "render_error",
+      message: error?.message || "Widget crashed",
+      stack: error?.stack ?? info.componentStack ?? undefined,
+      meta: { widget: this.props.label ?? "unknown", surface: this.props.surface },
+    });
   }
+
 
   private reset = () => this.setState({ error: null });
 
