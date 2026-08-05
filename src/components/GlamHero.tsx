@@ -284,7 +284,7 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                         ? sponge
                         : `linear-gradient(${Math.round(r(16) * 360)}deg, ${icing} 0 ${Math.round(
                             22 + r(17) * 20,
-                          )}%, ${sponge} ${Math.round(30 + r(6.6) * 20)}% 100%)`,
+                          )}%, ${sponge} ${Math.round(30 + r(20) * 20)}% 100%)`,
                       width: `${width.toFixed(3)}px`,
                       height: `${size.toFixed(3)}px`,
                       borderRadius: `${rad[0]} ${rad[1]} ${rad[2]} ${rad[3]} / ${rad[4]} ${rad[5]} ${rad[6]} ${rad[7]}`,
