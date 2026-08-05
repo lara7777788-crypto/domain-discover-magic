@@ -64,7 +64,7 @@ const csvCell = (v: string | number | null) => `"${String(v ?? "").replace(/"/g,
 
 function UsagePage() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const credits = useCredits();
   const [events, setEvents] = useState<Event[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
