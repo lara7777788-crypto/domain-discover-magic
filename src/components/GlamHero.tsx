@@ -18,6 +18,16 @@ const SHARDS = 72;
 
 const SHARD_COLORS = ["#E8368F", "#F7B32B", "#7C6BD9", "#F2A0BC", "#6E7B3F", "#C9BCF2"];
 
+// Integer-only hash keeps the server-rendered debris identical to the first
+// browser render. Trigonometric pseudo-random values varied by tiny fractions
+// between runtimes and could make the splash fail during hydration.
+function shardRandom(index: number, salt: number) {
+  let value = Math.imul(index + 1, 0x45d9f3b) ^ Math.imul(salt + 1, 0x27d4eb2d);
+  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
+  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
+  return ((value ^ (value >>> 16)) >>> 0) / 4294967296;
+}
+
 // design layers, top tier -> bottom tier
 const LAYERS = [
   { label: "logo", jp: "ロゴ", top: "16%", side: "right" as const },
@@ -250,20 +260,20 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
 
           <div className="jp-shards" aria-hidden>
             {Array.from({ length: SHARDS }).map((_, i) => {
-              // deterministic pseudo-random so SSR and client agree
-              const r = (n: number) => {
-                const s = Math.sin((i + 1) * n) * 10000;
-                return s - Math.floor(s);
-              };
-              const a = (360 / SHARDS) * i + r(12.9898) * 26 - 13;
-              const dist = 190 + r(78.233) * 320;
+              const r = (salt: number) => shardRandom(i, salt);
+              const a = (360 / SHARDS) * i + r(1) * 26 - 13;
+              const dist = 190 + r(2) * 320;
               const crumb = i % 4 === 3;
-              const size = crumb ? 5 + r(4.31) * 7 : 16 + r(9.71) * 34;
+              const size = crumb ? 5 + r(3) * 7 : 16 + r(4) * 34;
               const sponge = SHARD_COLORS[i % SHARD_COLORS.length];
               const icing = SHARD_COLORS[(i + 3) % SHARD_COLORS.length];
               // lumpy, hand-torn silhouette rather than a circle or a square
-              const rad = [r(3.1), r(5.7), r(8.3), r(11.9), r(14.2), r(17.4), r(20.8), r(23.6)]
+              const rad = [r(5), r(6), r(7), r(8), r(9), r(10), r(11), r(12)]
                 .map((v) => `${Math.round(28 + v * 52)}%`);
+              const width = size * (crumb ? 1 : 0.7 + r(13) * 0.9);
+              const dx = Math.round(Math.cos((a * Math.PI) / 180) * dist);
+              const dy = Math.round(Math.sin((a * Math.PI) / 180) * dist - 90 - r(14) * 120);
+              const rotation = Math.round((i % 2 ? 1 : -1) * (240 + r(15) * 620));
               return (
                 <span
                   key={i}
@@ -272,20 +282,18 @@ export function GlamHero({ onEnter }: { onEnter: () => void }) {
                     {
                       background: crumb
                         ? sponge
-                        : `linear-gradient(${Math.round(r(31.7) * 360)}deg, ${icing} 0 ${Math.round(
-                            22 + r(6.6) * 20,
-                          )}%, ${sponge} ${Math.round(30 + r(6.6) * 20)}% 100%)`,
-                      width: size * (crumb ? 1 : 0.7 + r(27.1) * 0.9),
-                      height: size,
+                        : `linear-gradient(${Math.round(r(16) * 360)}deg, ${icing} 0 ${Math.round(
+                            22 + r(17) * 20,
+                          )}%, ${sponge} ${Math.round(30 + r(20) * 20)}% 100%)`,
+                      width: `${width.toFixed(3)}px`,
+                      height: `${size.toFixed(3)}px`,
                       borderRadius: `${rad[0]} ${rad[1]} ${rad[2]} ${rad[3]} / ${rad[4]} ${rad[5]} ${rad[6]} ${rad[7]}`,
-                      opacity: 0,
-                      ["--dx" as string]: `${Math.round(Math.cos((a * Math.PI) / 180) * dist)}px`,
-                      ["--dy" as string]: `${Math.round(
-                        Math.sin((a * Math.PI) / 180) * dist - 90 - r(41.3) * 120,
-                      )}px`,
-                      ["--rot" as string]: `${(i % 2 ? 1 : -1) * (240 + r(55.5) * 620)}deg`,
-                      animationDelay: `${(r(63.7) * 0.22).toFixed(3)}s`,
-                      animationDuration: `${(2.5 + r(71.9) * 1.1).toFixed(2)}s`,
+                      opacity: "0",
+                      ["--dx" as string]: `${dx}px`,
+                      ["--dy" as string]: `${dy}px`,
+                      ["--rot" as string]: `${rotation}deg`,
+                      animationDelay: `${(r(18) * 0.22).toFixed(3)}s`,
+                      animationDuration: `${(2.5 + r(19) * 1.1).toFixed(2)}s`,
                     } as React.CSSProperties
                   }
                 />
