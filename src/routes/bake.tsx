@@ -16,7 +16,7 @@ import { CreditMeter } from "@/components/CreditMeter";
 type Mode = "image" | "copy";
 
 export const Route = createFileRoute("/bake")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { slice?: string; remix?: string; mode?: Mode } => ({
     slice: typeof s.slice === "string" ? s.slice : undefined,
     remix: typeof s.remix === "string" ? s.remix : undefined,
     mode: (s.mode === "copy" ? "copy" : "image") as Mode,

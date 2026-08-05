@@ -9,7 +9,7 @@ import { makeThumb } from "@/lib/thumb";
 type Tab = "slices" | "copy";
 
 export const Route = createFileRoute("/slices")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab } => ({
     tab: (s.tab === "copy" ? "copy" : "slices") as Tab,
   }),
   head: () => ({
