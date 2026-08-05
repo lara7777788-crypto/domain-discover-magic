@@ -42,7 +42,7 @@ function Splash() {
 
   // Entering always goes through the sign-in page.
   const goBake = () => {
-    navigate({ to: "/login", search: { next: "/bake" } });
+    navigate({ to: "/login", search: { next: "/slices?tab=slices" } });
   };
 
 
