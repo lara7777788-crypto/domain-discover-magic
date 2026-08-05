@@ -106,12 +106,20 @@ function UsagePage() {
   }, [user]);
 
   const periods = useMemo(() => {
-    const map = new Map<string, { spent: number; earned: number; rows: Event[] }>();
+    const map = new Map<
+      string,
+      { spent: number; earned: number; rows: Event[]; byType: Map<string, { slices: number; count: number }> }
+    >();
     for (const e of events ?? []) {
       const k = monthKey(e.created_at);
-      const bucket = map.get(k) ?? { spent: 0, earned: 0, rows: [] };
-      if (e.kind === "spend") bucket.spent += e.amount;
-      else bucket.earned += e.amount;
+      const bucket = map.get(k) ?? { spent: 0, earned: 0, rows: [], byType: new Map() };
+      if (e.kind === "spend") {
+        bucket.spent += e.amount;
+        const t = bucket.byType.get(e.source) ?? { slices: 0, count: 0 };
+        t.slices += e.amount;
+        t.count += 1;
+        bucket.byType.set(e.source, t);
+      } else bucket.earned += e.amount;
       bucket.rows.push(e);
       map.set(k, bucket);
     }
