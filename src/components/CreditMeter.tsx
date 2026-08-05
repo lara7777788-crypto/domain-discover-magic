@@ -24,7 +24,7 @@ export function CreditMeter(props: Props) {
 }
 
 function CreditMeterInner({
-
+  total,
   cost,
   isAdmin,
   loading,
