@@ -29,16 +29,12 @@ export const Route = createFileRoute("/mix")({
 /** Keeps a client crash inside the mix workspace from blanking the page. */
 function MixRoute() {
   return (
-    <main
-      className="relative min-h-screen"
-      style={{ background: "linear-gradient(180deg, #FFF6BE 0%, #FFE9F1 55%, #E2F1DC 100%)" }}
-    >
-      <WidgetBoundary label="Mix workspace">
-        <MixPage />
-      </WidgetBoundary>
-    </main>
+    <WidgetBoundary label="Mix workspace">
+      <MixPage />
+    </WidgetBoundary>
   );
 }
+
 
 
 type Item = {
