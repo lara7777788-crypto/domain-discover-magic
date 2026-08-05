@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { WidgetBoundary } from "@/components/WidgetBoundary";
 import { formatResetAt, formatSlices, nextQuotaReset, type Wallet } from "@/hooks/useCredits";
 
 type Props = Pick<Wallet, "isAdmin"> & {
