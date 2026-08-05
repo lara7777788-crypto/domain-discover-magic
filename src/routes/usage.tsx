@@ -177,7 +177,45 @@ function UsagePage() {
           <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
 
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Slices left
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {credits.isAdmin ? "∞" : credits.loading ? "…" : formatSlices(credits.total)} 🍰
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">
+              {credits.isAdmin ? "Admin — unlimited" : `Resets ${formatResetAt(credits.resetsAt)}`}
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Monthly allowance
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {formatSlices(credits.monthlyLeft)}
+              <span className="text-base font-normal text-foreground/50">
+                {" "}
+                / {formatSlices(credits.monthlyAllowance)}
+              </span>
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">Left this billing month</div>
+          </div>
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Rollover & packs
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {formatSlices(credits.balance)}
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">Carries over up to 12 months</div>
+          </div>
+        </div>
+
         <LowSliceSettings />
+
+
 
 
 
