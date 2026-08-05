@@ -356,7 +356,10 @@ export type Database = {
           error_threshold: number
           id: number
           last_alert_at: string | null
+          last_realtime_alert_at: string | null
           notify_email: string
+          realtime_alerts_enabled: boolean
+          realtime_cooldown_minutes: number
           updated_at: string
           window_minutes: number
         }
@@ -366,7 +369,10 @@ export type Database = {
           error_threshold?: number
           id?: number
           last_alert_at?: string | null
+          last_realtime_alert_at?: string | null
           notify_email?: string
+          realtime_alerts_enabled?: boolean
+          realtime_cooldown_minutes?: number
           updated_at?: string
           window_minutes?: number
         }
@@ -376,7 +382,10 @@ export type Database = {
           error_threshold?: number
           id?: number
           last_alert_at?: string | null
+          last_realtime_alert_at?: string | null
           notify_email?: string
+          realtime_alerts_enabled?: boolean
+          realtime_cooldown_minutes?: number
           updated_at?: string
           window_minutes?: number
         }
