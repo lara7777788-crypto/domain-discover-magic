@@ -8,6 +8,7 @@ import { SaveSheet, type SavePayload } from "@/components/SaveSheet";
 import { makeThumb } from "@/lib/thumb";
 import { useCredits } from "@/hooks/useCredits";
 import { CreditMeter } from "@/components/CreditMeter";
+import { WidgetBoundary } from "@/components/WidgetBoundary";
 
 export const Route = createFileRoute("/mix")({
   head: () => ({
@@ -22,8 +23,19 @@ export const Route = createFileRoute("/mix")({
     ],
     links: [{ rel: "canonical", href: "https://layercake.site/mix" }],
   }),
-  component: MixPage,
+  component: MixRoute,
 });
+
+/** Keeps a client crash inside the mix workspace from blanking the page. */
+function MixRoute() {
+  return (
+    <WidgetBoundary label="Mix workspace">
+      <MixPage />
+    </WidgetBoundary>
+  );
+}
+
+
 
 type Item = {
   id: string;

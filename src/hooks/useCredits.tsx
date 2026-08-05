@@ -53,29 +53,35 @@ export function useCredits() {
   // Live balance: any credit spend/grant writes to profiles + credit_events.
   useEffect(() => {
     if (!user) return;
-    const channel = supabase
-      // Several app-wide and page-level components read the wallet at once.
-      // Reusing one channel name makes the realtime client return an already
-      // subscribed channel, which then throws when another callback is added.
-      .channel(`credits-${user.id}-${instanceId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
-        () => {
-          void refresh();
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "credit_events", filter: `user_id=eq.${user.id}` },
-        () => {
-          void refresh();
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+    try {
+      const channel = supabase
+        // Several app-wide and page-level components read the wallet at once.
+        // Reusing one channel name makes the realtime client return an already
+        // subscribed channel, which then throws when another callback is added.
+        .channel(`credits-${user.id}-${instanceId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+          () => {
+            void refresh();
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "credit_events", filter: `user_id=eq.${user.id}` },
+          () => {
+            void refresh();
+          },
+        )
+        .subscribe();
+      return () => {
+        void supabase.removeChannel(channel);
+      };
+    } catch (e) {
+      // Live updates are a nicety — never let a realtime hiccup crash the page.
+      console.error("[useCredits] realtime subscribe failed", e);
+      return;
+    }
   }, [user, refresh, instanceId]);
 
   useEffect(() => {

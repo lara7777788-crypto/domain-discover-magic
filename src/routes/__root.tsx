@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth-context";
 import { LowSliceAlert } from "@/components/LowSliceAlert";
+import { WidgetBoundary } from "@/components/WidgetBoundary";
 import { UpgradeNudge } from "@/components/UpgradeNudge";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorMonitor, reportError } from "@/components/ErrorMonitor";
@@ -133,8 +134,13 @@ function RootComponent() {
     <AuthProvider>
       <Outlet />
       <ErrorMonitor />
-      <LowSliceAlert />
-      <UpgradeNudge />
+      {/* Background credit widgets: if they crash, drop them silently instead of killing the page. */}
+      <WidgetBoundary silent>
+        <LowSliceAlert />
+      </WidgetBoundary>
+      <WidgetBoundary silent>
+        <UpgradeNudge />
+      </WidgetBoundary>
       <Toaster position="top-center" />
     </AuthProvider>
   );
