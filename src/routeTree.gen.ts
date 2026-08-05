@@ -17,6 +17,7 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MonitoringRouteImport } from './routes/monitoring'
 import { Route as MixRouteImport } from './routes/mix'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
@@ -75,6 +76,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoringRoute = MonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MixRoute = MixRouteImport.update({
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -367,6 +379,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   MixRoute: typeof MixRoute
+  MonitoringRoute: typeof MonitoringRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitoring': {
+      id: '/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof MonitoringRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mix': {
@@ -591,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   MixRoute: MixRoute,
+  MonitoringRoute: MonitoringRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
