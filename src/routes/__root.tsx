@@ -1,12 +1,17 @@
+import React from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth-context";
 import { LowSliceAlert } from "@/components/LowSliceAlert";
 import { UpgradeNudge } from "@/components/UpgradeNudge";
 import { Toaster } from "@/components/ui/sonner";
+import { ErrorMonitor, reportError } from "@/components/ErrorMonitor";
 
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
+  React.useEffect(() => {
+    reportError({ kind: "not_found", message: "Route not found" });
+  }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -78,7 +83,36 @@ export const Route = createRootRoute({
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
+  errorComponent: RootErrorComponent,
 });
+
+function RootErrorComponent({ error }: { error: Error }) {
+  React.useEffect(() => {
+    reportError({
+      kind: "render_error",
+      message: error?.message || "Unknown render error",
+      stack: error?.stack,
+    });
+  }, [error]);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-2xl font-semibold text-foreground">Something went wrong</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          We've been notified automatically. Try reloading the page.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Reload
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
@@ -98,6 +132,7 @@ function RootComponent() {
   return (
     <AuthProvider>
       <Outlet />
+      <ErrorMonitor />
       <LowSliceAlert />
       <UpgradeNudge />
       <Toaster position="top-center" />
