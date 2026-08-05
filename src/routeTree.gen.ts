@@ -17,6 +17,7 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MonitoringRouteImport } from './routes/monitoring'
 import { Route as MixRouteImport } from './routes/mix'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
@@ -35,6 +36,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicMonitorReportRouteImport } from './routes/api/public/monitor/report'
 
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
@@ -74,6 +76,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoringRoute = MonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MixRoute = MixRouteImport.update({
@@ -172,6 +179,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMonitorReportRoute = ApiPublicMonitorReportRouteImport.update({
+  id: '/api/public/monitor/report',
+  path: '/api/public/monitor/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -183,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -198,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/monitor/report': typeof ApiPublicMonitorReportRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -211,6 +225,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -226,6 +241,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/monitor/report': typeof ApiPublicMonitorReportRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -240,6 +256,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/mix': typeof MixRoute
+  '/monitoring': typeof MonitoringRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
@@ -255,6 +272,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/monitor/report': typeof ApiPublicMonitorReportRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -270,6 +288,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -285,6 +304,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/monitor/report'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
@@ -298,6 +318,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -313,6 +334,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/monitor/report'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   id:
@@ -326,6 +348,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/mcp'
     | '/mix'
+    | '/monitoring'
     | '/pricing'
     | '/privacy'
     | '/sign-in'
@@ -341,6 +364,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/monitor/report'
     | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
@@ -355,6 +379,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   MixRoute: typeof MixRoute
+  MonitoringRoute: typeof MonitoringRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
@@ -370,6 +395,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicMonitorReportRoute: typeof ApiPublicMonitorReportRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -430,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monitoring': {
+      id: '/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof MonitoringRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mix': {
@@ -558,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/monitor/report': {
+      id: '/api/public/monitor/report'
+      path: '/api/public/monitor/report'
+      fullPath: '/api/public/monitor/report'
+      preLoaderRoute: typeof ApiPublicMonitorReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -571,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   MixRoute: MixRoute,
+  MonitoringRoute: MonitoringRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
@@ -588,6 +629,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicMonitorReportRoute: ApiPublicMonitorReportRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }

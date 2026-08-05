@@ -280,6 +280,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_events: {
+        Row: {
+          id: string
+          kind: string
+          message: string
+          meta: Json | null
+          occurred_at: string
+          release: string | null
+          route: string | null
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          kind: string
+          message: string
+          meta?: Json | null
+          occurred_at?: string
+          release?: string | null
+          route?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          kind?: string
+          message?: string
+          meta?: Json | null
+          occurred_at?: string
+          release?: string | null
+          route?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       layer_chips: {
         Row: {
           content: string
@@ -307,6 +346,39 @@ export type Database = {
           layer?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      monitor_alert_state: {
+        Row: {
+          cooldown_minutes: number
+          enabled: boolean
+          error_threshold: number
+          id: number
+          last_alert_at: string | null
+          notify_email: string
+          updated_at: string
+          window_minutes: number
+        }
+        Insert: {
+          cooldown_minutes?: number
+          enabled?: boolean
+          error_threshold?: number
+          id?: number
+          last_alert_at?: string | null
+          notify_email?: string
+          updated_at?: string
+          window_minutes?: number
+        }
+        Update: {
+          cooldown_minutes?: number
+          enabled?: boolean
+          error_threshold?: number
+          id?: number
+          last_alert_at?: string | null
+          notify_email?: string
+          updated_at?: string
+          window_minutes?: number
         }
         Relationships: []
       }
