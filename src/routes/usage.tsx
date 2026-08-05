@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
 import { LowSliceSettings } from "@/components/LowSliceAlert";
+import { formatResetAt, formatSlices, useCredits } from "@/hooks/useCredits";
 
 export const Route = createFileRoute("/usage")({
   head: () => ({
@@ -64,6 +65,7 @@ const csvCell = (v: string | number | null) => `"${String(v ?? "").replace(/"/g,
 function UsagePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const credits = useCredits();
   const [events, setEvents] = useState<Event[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,12 +108,24 @@ function UsagePage() {
   }, [user]);
 
   const periods = useMemo(() => {
-    const map = new Map<string, { spent: number; earned: number; rows: Event[] }>();
+    type Bucket = {
+      spent: number;
+      earned: number;
+      rows: Event[];
+      byType: Map<string, { slices: number; count: number }>;
+    };
+    const map = new Map<string, Bucket>();
     for (const e of events ?? []) {
       const k = monthKey(e.created_at);
-      const bucket = map.get(k) ?? { spent: 0, earned: 0, rows: [] };
-      if (e.kind === "spend") bucket.spent += e.amount;
-      else bucket.earned += e.amount;
+      const bucket: Bucket =
+        map.get(k) ?? { spent: 0, earned: 0, rows: [] as Event[], byType: new Map() };
+      if (e.kind === "spend") {
+        bucket.spent += e.amount;
+        const t = bucket.byType.get(e.source) ?? { slices: 0, count: 0 };
+        t.slices += e.amount;
+        t.count += 1;
+        bucket.byType.set(e.source, t);
+      } else bucket.earned += e.amount;
       bucket.rows.push(e);
       map.set(k, bucket);
     }
@@ -165,7 +179,45 @@ function UsagePage() {
           <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
 
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Slices left
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {credits.isAdmin ? "∞" : credits.loading ? "…" : formatSlices(credits.total)} 🍰
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">
+              {credits.isAdmin ? "Admin — unlimited" : `Resets ${formatResetAt(credits.resetsAt)}`}
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Monthly allowance
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {formatSlices(credits.monthlyLeft)}
+              <span className="text-base font-normal text-foreground/50">
+                {" "}
+                / {formatSlices(credits.monthlyAllowance)}
+              </span>
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">Left this billing month</div>
+          </div>
+          <div className="rounded-3xl border border-white bg-white/80 p-5 backdrop-blur">
+            <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+              Rollover & packs
+            </div>
+            <div className="mt-1 font-display text-3xl font-semibold text-foreground">
+              {formatSlices(credits.balance)}
+            </div>
+            <div className="mt-1 text-[11px] text-foreground/55">Carries over up to 12 months</div>
+          </div>
+        </div>
+
         <LowSliceSettings />
+
+
 
 
 
@@ -212,6 +264,38 @@ function UsagePage() {
                       Download CSV
                     </button>
                   </div>
+
+                  {p.byType.size > 0 && (
+                    <div className="border-b border-foreground/5 bg-white/40 p-5">
+                      <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+                        By generation type
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        {[...p.byType.entries()]
+                          .sort((a, b) => b[1].slices - a[1].slices)
+                          .map(([source, t]) => (
+                            <div key={source}>
+                              <div className="flex items-center justify-between gap-3 text-xs">
+                                <span className="font-medium text-foreground/80">
+                                  {SOURCE_LABEL[source] ?? source}
+                                </span>
+                                <span className="text-foreground/60">
+                                  {fmt(t.slices)} 🍰 · {t.count} run{t.count === 1 ? "" : "s"}
+                                </span>
+                              </div>
+                              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                                <div
+                                  className="h-full rounded-full bg-[#d4508a]"
+                                  style={{
+                                    width: `${p.spent > 0 ? Math.max(3, (t.slices / p.spent) * 100) : 0}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                   <ul className="divide-y divide-foreground/5">
                     {p.rows.slice(0, 40).map((e) => (
                       <li key={e.id} className="flex items-center justify-between gap-3 px-5 py-3">
