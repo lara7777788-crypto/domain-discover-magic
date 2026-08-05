@@ -106,13 +106,17 @@ function UsagePage() {
   }, [user]);
 
   const periods = useMemo(() => {
-    const map = new Map<
-      string,
-      { spent: number; earned: number; rows: Event[]; byType: Map<string, { slices: number; count: number }> }
-    >();
+    type Bucket = {
+      spent: number;
+      earned: number;
+      rows: Event[];
+      byType: Map<string, { slices: number; count: number }>;
+    };
+    const map = new Map<string, Bucket>();
     for (const e of events ?? []) {
       const k = monthKey(e.created_at);
-      const bucket = map.get(k) ?? { spent: 0, earned: 0, rows: [], byType: new Map() };
+      const bucket: Bucket =
+        map.get(k) ?? { spent: 0, earned: 0, rows: [] as Event[], byType: new Map() };
       if (e.kind === "spend") {
         bucket.spent += e.amount;
         const t = bucket.byType.get(e.source) ?? { slices: 0, count: 0 };
