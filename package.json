@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test:smoke": "bun tests/smoke.test.ts",
+    "build:verify": "vite build && bun tests/smoke.test.ts",
     "format": "prettier --write ."
   },
   "dependencies": {

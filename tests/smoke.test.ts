@@ -43,7 +43,7 @@ function internalLinks(html: string): string[] {
   for (const m of html.matchAll(/href="(\/[^"#?]*)(?:[?#][^"]*)?"/g)) {
     const href = m[1]!;
     if (/\.(png|jpe?g|webp|svg|ico|xml|txt|json|css|js|woff2?)$/i.test(href)) continue;
-    if (href.startsWith("/api/") || href.startsWith("/_")) continue;
+    if (href.startsWith("/api/") || href.startsWith("/_") || href.startsWith("/@")) continue;
     out.add(href === "" ? "/" : href);
   }
   return [...out];
