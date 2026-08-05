@@ -63,11 +63,16 @@ export const Route = createFileRoute("/api/public/monitor/report")({
 
         // Evaluate alert thresholds (best-effort — never fail the report).
         let alerted = false;
+        let realtimeAlerted = false;
         try {
+          if (isMixRealtimeCrash(parsed)) {
+            realtimeAlerted = await alertMixRealtime(supabaseAdmin, parsed);
+          }
           alerted = await maybeAlert(supabaseAdmin);
         } catch (err) {
           console.error("monitor: alert evaluation failed", err);
         }
+
 
         return new Response(JSON.stringify({ ok: true, alerted }), {
           status: 200,
