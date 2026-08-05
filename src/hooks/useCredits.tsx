@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
@@ -19,6 +19,7 @@ export const PENDING_CODE_KEY = "lc_pending_code";
 /** Reads the signed-in user's remaining slices (monthly allowance + purchased packs). */
 export function useCredits() {
   const { user } = useAuth();
+  const instanceId = useId().replace(/:/g, "");
   const [wallet, setWallet] = useState<Wallet>(EMPTY);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +54,10 @@ export function useCredits() {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel(`credits-${user.id}`)
+      // Several app-wide and page-level components read the wallet at once.
+      // Reusing one channel name makes the realtime client return an already
+      // subscribed channel, which then throws when another callback is added.
+      .channel(`credits-${user.id}-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
@@ -72,7 +76,7 @@ export function useCredits() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user, refresh]);
+  }, [user, refresh, instanceId]);
 
   useEffect(() => {
     let cancelled = false;
