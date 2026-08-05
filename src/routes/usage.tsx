@@ -264,6 +264,38 @@ function UsagePage() {
                       Download CSV
                     </button>
                   </div>
+
+                  {p.byType.size > 0 && (
+                    <div className="border-b border-foreground/5 bg-white/40 p-5">
+                      <div className="text-[11px] uppercase tracking-[0.25em] text-foreground/45">
+                        By generation type
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        {[...p.byType.entries()]
+                          .sort((a, b) => b[1].slices - a[1].slices)
+                          .map(([source, t]) => (
+                            <div key={source}>
+                              <div className="flex items-center justify-between gap-3 text-xs">
+                                <span className="font-medium text-foreground/80">
+                                  {SOURCE_LABEL[source] ?? source}
+                                </span>
+                                <span className="text-foreground/60">
+                                  {fmt(t.slices)} 🍰 · {t.count} run{t.count === 1 ? "" : "s"}
+                                </span>
+                              </div>
+                              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                                <div
+                                  className="h-full rounded-full bg-[#d4508a]"
+                                  style={{
+                                    width: `${p.spent > 0 ? Math.max(3, (t.slices / p.spent) * 100) : 0}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                   <ul className="divide-y divide-foreground/5">
                     {p.rows.slice(0, 40).map((e) => (
                       <li key={e.id} className="flex items-center justify-between gap-3 px-5 py-3">
