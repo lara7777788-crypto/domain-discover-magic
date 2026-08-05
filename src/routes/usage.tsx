@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { TopNav } from "@/components/TopNav";
 import { LowSliceSettings } from "@/components/LowSliceAlert";
+import { formatResetAt, formatSlices, useCredits } from "@/hooks/useCredits";
 
 export const Route = createFileRoute("/usage")({
   head: () => ({
