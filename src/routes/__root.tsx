@@ -133,8 +133,13 @@ function RootComponent() {
     <AuthProvider>
       <Outlet />
       <ErrorMonitor />
-      <LowSliceAlert />
-      <UpgradeNudge />
+      {/* Background credit widgets: if they crash, drop them silently instead of killing the page. */}
+      <WidgetBoundary silent>
+        <LowSliceAlert />
+      </WidgetBoundary>
+      <WidgetBoundary silent>
+        <UpgradeNudge />
+      </WidgetBoundary>
       <Toaster position="top-center" />
     </AuthProvider>
   );
